@@ -1,0 +1,36 @@
+{
+  "name": "typedapi-client-helpers",
+  "version": "0.1.0",
+  "description": "Reusable typed OpenAPI client helpers.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "scripts",
+    "README.md"
+  ],
+  "bin": {
+    "typedapi-generate": "./scripts/generate-api-minimal.mjs"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "generate:api-minimal": "node ./scripts/generate-api-minimal.mjs",
+    "pack:test": "npm pack"
+  },
+  "dependencies": {
+    "prettier": "^3.8.3",
+    "react-toastify": "^11.0.5",
+    "swagger-typescript-api": "^13.2.16"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "5.8.3"
+  }
+}
