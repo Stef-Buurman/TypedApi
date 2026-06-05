@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+
+    <PackageId>TypedApi.Swagger</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Your Name</Authors>
+    <Description>Reusable Swagger configuration for typed API clients.</Description>
+
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <None Include="docs\README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+
+</Project>
