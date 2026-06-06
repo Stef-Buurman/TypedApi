@@ -7,22 +7,50 @@ import { generateApi } from "swagger-typescript-api";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const packageJsonPath = path.resolve(__dirname, "../package.json");
-const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+const runtimePackageJsonPath = path.resolve(__dirname, "../package.json");
+const runtimePackageJson = JSON.parse(
+  fs.readFileSync(runtimePackageJsonPath, "utf8"),
+);
+
+const consumerPackageJsonPath = path.resolve(process.cwd(), "package.json");
+const consumerPackageJson = fs.existsSync(consumerPackageJsonPath)
+  ? JSON.parse(fs.readFileSync(consumerPackageJsonPath, "utf8"))
+  : {};
 
 const isRunningInsidePackage =
   path.resolve(process.cwd()) === path.resolve(__dirname, "..");
 
-const runtimePackageName = isRunningInsidePackage ? "../.." : packageJson.name;
+const runtimePackageName = isRunningInsidePackage
+  ? "../.."
+  : runtimePackageJson.name;
 
 const cwd = process.cwd();
+
+const config = {
+  ...(runtimePackageJson.config ?? {}),
+  ...(consumerPackageJson.config ?? {}),
+};
+
+const swaggerFile =
+  process.env.SWAGGER_FILE ??
+  process.env.npm_config_swagger_file ??
+  config.swaggerFile;
 
 const swaggerUrl =
   process.env.SWAGGER_URL ??
   process.env.npm_config_swagger_url ??
+  config.swaggerUrl ??
   "https://localhost:7000/swagger/v1/swagger.json";
 
-const apiRoot = path.resolve(cwd, process.env.API_OUTPUT ?? "src/api");
+const swaggerInput = swaggerFile ? path.resolve(cwd, swaggerFile) : swaggerUrl;
+
+const apiRoot = path.resolve(
+  cwd,
+  process.env.API_OUTPUT ??
+    process.env.npm_config_api_output ??
+    config.apiOutput ??
+    "src/api",
+);
 const generatedDir = path.join(apiRoot, "generated");
 const methodsDir = path.join(apiRoot, "methods");
 
@@ -56,11 +84,11 @@ async function writeFormattedFile(filePath, content) {
 
 async function generateOpenApiClient() {
   cleanDirectory(generatedDir);
+  cleanDirectory(methodsDir);
   fs.mkdirSync(methodsDir, { recursive: true });
 
-  await generateApi({
+  const generateOptions = {
     name: "Api.ts",
-    url: swaggerUrl,
     output: generatedDir,
     httpClientType: "fetch",
     modular: true,
@@ -70,7 +98,15 @@ async function generateOpenApiClient() {
     extractRequestParams: true,
     extractRequestBody: true,
     moduleNameFirstTag: true,
-  });
+  };
+
+  if (swaggerFile) {
+    generateOptions.input = swaggerInput;
+  } else {
+    generateOptions.url = swaggerInput;
+  }
+
+  await generateApi(generateOptions);
 }
 
 async function createTypesFile() {
@@ -368,7 +404,7 @@ ${methodExports.join("\n")}
 }
 
 async function main() {
-  console.log(`Generating API from: ${swaggerUrl}`);
+  console.log(`Generating API from: ${swaggerInput}`);
   console.log(`Output folder: ${apiRoot}`);
 
   await generateOpenApiClient();

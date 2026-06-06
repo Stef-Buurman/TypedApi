@@ -1,5 +1,19 @@
 {
   "devDependencies": {
     "typescript": "^5.8.3"
+  },
+  "scripts": {
+    "test-project-run": "dotnet run --project ./TypedApiTestProject/TypedApiTestProject.Server/TypedApiTestProject.Server.csproj",
+    "test-project-pack-local-swagger": "dotnet pack ./dotnet/TypedApi.Swagger/TypedApi.Swagger.csproj -c Release",
+    "test-project-use-local-swagger": "dotnet nuget locals all --clear && dotnet remove package TypedApi.Swagger --project ./TypedApiTestProject/TypedApiTestProject.Server/TypedApiTestProject.Server.csproj || echo TypedApi.Swagger was not installed && dotnet add package TypedApi.Swagger --project ./TypedApiTestProject/TypedApiTestProject.Server/TypedApiTestProject.Server.csproj --version 0.1.0 --no-restore && dotnet restore ./TypedApiTestProject/TypedApiTestProject.Server/TypedApiTestProject.Server.csproj --configfile ./NuGet.Local.config",
+    "test-project-reset-local-swagger": "npm run test-project-pack-local-swagger && npm run test-project-use-local-swagger",
+    "test-client-run": "cd ./TypedApiTestProject/typedapitestproject.client && npm run dev",
+    "test-client-build-package": "cd ./npm/typed-api-client && npm run build",
+    "test-client-pack-package": "cd ./npm/typed-api-client && npm pack",
+    "test-client-install-local-package": "cd ./TypedApiTestProject/typedapitestproject.client && npm install ../../npm/typed-api-client/typedapi-client-helpers-0.1.0.tgz",
+    "test-client-reset-local-package": "npm run test-client-build-package && npm run test-client-pack-package && npm run test-client-install-local-package",
+    "test-client-generate-api": "cd ./TypedApiTestProject/typedapitestproject.client && npm run generate:api",
+    "test-client-build": "cd ./TypedApiTestProject/typedapitestproject.client && npm run build",
+    "test-client-full-reset": "npm run test-client-reset-local-package && npm run test-client-generate-api && npm run test-client-build"
   }
 }

@@ -8,15 +8,19 @@
   "files": [
     "dist",
     "scripts",
+    "bin",
     "README.md"
   ],
+  "config": {
+    "apiOutput": "src/api"
+  },
   "bin": {
-    "typedapi-generate": "./scripts/generate-api-minimal.mjs"
+    "typedapi-generate": "./bin/typedapi-generate.js"
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
-    "generate:api-minimal": "node ./scripts/generate-api-minimal.mjs",
-    "pack:test": "npm pack"
+    "generate:api": "node ./scripts/generate-api-minimal.mjs",
+    "pack:local": "npm pack"
   },
   "dependencies": {
     "prettier": "^3.8.3",

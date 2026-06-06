@@ -1,34 +1,47 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+
+#if NET10_0_OR_GREATER
+using Microsoft.OpenApi;
+#else
+using Microsoft.OpenApi.Models;
+#endif
 
 namespace TypedApi.Swagger
 {
     public class RequireAllPropertiesSchemaFilter : ISchemaFilter
     {
-        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+#if NET10_0_OR_GREATER
+        public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
+#else
+public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+#endif
         {
             if (schema.Properties == null || context.Type == null)
                 return;
 
-            if (schema.Required == null)
-                schema.Required = new HashSet<string>();
+#if !NET10_0_OR_GREATER
+    if (schema.Required == null)
+        schema.Required = new HashSet<string>();
+#endif
 
             foreach (PropertyInfo property in context.Type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
                 string schemaPropertyName = ToCamelCase(property.Name);
 
-                OpenApiSchema propertySchema;
-                if (!schema.Properties.TryGetValue(schemaPropertyName, out propertySchema))
+                if (!schema.Properties.TryGetValue(schemaPropertyName, out var propertySchema))
                     continue;
 
                 if (IsNullable(property))
                     continue;
 
-                schema.Required.Add(schemaPropertyName);
-                propertySchema.Nullable = false;
+                schema.Required?.Add(schemaPropertyName);
+
+#if !NET10_0_OR_GREATER
+        propertySchema.Nullable = false;
+#endif
             }
         }
 
@@ -53,27 +66,30 @@ namespace TypedApi.Swagger
 
                 if (attributeType.FullName == "System.Runtime.CompilerServices.NullableAttribute")
                 {
-                    FieldInfo flagsField = attributeType.GetField("NullableFlags");
+                    FieldInfo? flagsField = attributeType.GetField("NullableFlags");
 
                     if (flagsField != null)
                     {
-                        byte[] flags = flagsField.GetValue(attribute) as byte[];
+                        byte[]? flags = flagsField.GetValue(attribute) as byte[];
 
                         if (flags != null && flags.Length > 0)
                             return flags[0] == 2;
                     }
 
-                    FieldInfo flagField = attributeType.GetField("NullableFlag");
+                    FieldInfo? flagField = attributeType.GetField("NullableFlag");
 
                     if (flagField != null)
                     {
-                        byte flag = (byte)flagField.GetValue(attribute);
-                        return flag == 2;
+                        object? value = flagField.GetValue(attribute);
+
+                        if (value is byte flag)
+                            return flag == 2;
                     }
                 }
             }
 
-            object[] declaringTypeAttributes = property.DeclaringType.GetCustomAttributes(false);
+            object[] declaringTypeAttributes =
+                property.DeclaringType?.GetCustomAttributes(false) ?? Array.Empty<object>();
 
             foreach (object attribute in declaringTypeAttributes)
             {
@@ -81,12 +97,14 @@ namespace TypedApi.Swagger
 
                 if (attributeType.FullName == "System.Runtime.CompilerServices.NullableContextAttribute")
                 {
-                    FieldInfo flagField = attributeType.GetField("Flag");
+                    FieldInfo? flagField = attributeType.GetField("Flag");
 
                     if (flagField != null)
                     {
-                        byte flag = (byte)flagField.GetValue(attribute);
-                        return flag == 2;
+                        object? value = flagField.GetValue(attribute);
+
+                        if (value is byte flag)
+                            return flag == 2;
                     }
                 }
             }

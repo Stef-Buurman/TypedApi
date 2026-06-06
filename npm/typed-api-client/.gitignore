@@ -20,3 +20,4 @@ pnpm-debug.log*
 /src/api/generated/
 /src/api/methods/
 /src/api/index.ts
+*.tgz

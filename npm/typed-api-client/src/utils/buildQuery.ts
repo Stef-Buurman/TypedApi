@@ -2,7 +2,7 @@ import { FilterFormValues, OptionValue } from "../interfaces/Filter";
 
 export type SortDirection = number | string;
 
-export function buildQuery<TQuery, TSortModel = unknown>(
+export function buildQuery<TQuery, TSortModel = keyof TQuery>(
   filters: FilterFormValues<TQuery>[],
   page = 1,
   pageSize = 100,
