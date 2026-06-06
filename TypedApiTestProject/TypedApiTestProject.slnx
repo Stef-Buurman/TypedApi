@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="typedapitestproject.client/typedapitestproject.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="TypedApiTestProject.Server/TypedApiTestProject.Server.csproj" />
+</Solution>

@@ -1,0 +1,43 @@
+using Microsoft.AspNetCore.Mvc;
+using TypedApiTestProject.Server.Models;
+
+namespace TypedApiTestProject.Server.Controllers
+{
+    [ApiController]
+    [Route("api/imports")]
+    public class ImportController : ControllerBase
+    {
+        [HttpPost("products")]
+        public ActionResult<UploadResult> UploadProductFiles([FromForm] MultipleFileUploadRequest request)
+        {
+            return Ok(new UploadResult
+            {
+                FileCount = request.Files.Count,
+                FileNames = request.Files.Select(file => file.FileName).ToList(),
+                Message = "Product files uploaded successfully."
+            });
+        }
+
+        [HttpPost("supplier")]
+        public ActionResult<UploadResult> UploadSupplierFile([FromForm] SingleFileUploadRequest request)
+        {
+            return Ok(new UploadResult
+            {
+                FileCount = request.File == null ? 0 : 1,
+                FileNames = request.File == null ? [] : [request.File.FileName],
+                Message = "Supplier file uploaded successfully."
+            });
+        }
+
+        [HttpPost("mixed")]
+        public ActionResult<UploadResult> UploadMixedImport([FromForm] MixedImportUploadRequest request)
+        {
+            return Ok(new UploadResult
+            {
+                FileCount = request.Files.Count,
+                FileNames = request.Files.Select(file => file.FileName).ToList(),
+                Message = $"Import '{request.ImportName}' received. ValidateOnly={request.ValidateOnly}"
+            });
+        }
+    }
+}
