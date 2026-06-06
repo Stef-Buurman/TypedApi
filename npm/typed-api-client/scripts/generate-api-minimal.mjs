@@ -54,6 +54,11 @@ const apiRoot = path.resolve(
 const generatedDir = path.join(apiRoot, "generated");
 const methodsDir = path.join(apiRoot, "methods");
 
+const useTypeOnlyImports =
+  process.env.TYPED_API_USE_TYPE_ONLY_IMPORTS === "true" ||
+  process.env.npm_config_typed_api_use_type_only_imports === "true" ||
+  config.typedApiUseTypeOnlyImports === true;
+
 function pascalCase(value) {
   return value
     .split(/[-_]/)
@@ -109,9 +114,25 @@ async function generateOpenApiClient() {
   await generateApi(generateOptions);
 }
 
+function createImportStatement({ names, from, typeOnly = false }) {
+  if (!names || names.length === 0) {
+    return "";
+  }
+
+  const importKeyword = typeOnly ? "import type" : "import";
+
+  return `${importKeyword} {
+${names.map((name) => `  ${name},`).join("\n")}
+} from "${from}";`;
+}
+
 async function createTypesFile() {
+  const httpClientImport = useTypeOnlyImports
+    ? `import type { HttpResponse, RequestParams } from "../generated/http-client";`
+    : `import { HttpResponse, RequestParams } from "../generated/http-client";`;
+
   const content = `
-import { HttpResponse, RequestParams } from "../generated/http-client";
+${httpClientImport}
 
 export type ExtractResponse<T> =
   T extends Promise<HttpResponse<infer R, any>> ? R : never;
@@ -259,6 +280,8 @@ export type ${toQueryName(methodName)} =
 `.trim(),
       )
       .join("\n\n");
+    const hasPaginatedMethods = paginatedMethods.length > 0;
+    const hasNonQueryMethods = nonQueryMethods.length > 0;
 
     const paginatedMethodWrappers = paginatedMethods
       .map((methodName) =>
@@ -336,28 +359,66 @@ export async function ${methodName}(
 `.trim(),
       )
       .join("\n\n");
+    const runtimeValueImportNames = [
+      ...(hasPaginatedMethods ? ["buildQuery"] : []),
+      ...(hasNonQueryMethods ? ["extractArgsToastsAndParams"] : []),
+      "handleApiResponse",
+    ];
+
+    const runtimeTypeImportNames = [
+      "ApiResult",
+      ...(hasPaginatedMethods ? ["FilterFormValues", "SortDirection"] : []),
+      "ToastOptions",
+    ];
+
+    const localTypeImportNames = [
+      ...(hasPaginatedMethods
+        ? ["ExtractDataIfPaginated", "SortableKeys", "UnwrapArray"]
+        : []),
+      "ExtractResponse",
+      ...(hasNonQueryMethods ? ["WithoutRequestParams"] : []),
+    ];
+
+    const runtimeValueImports = createImportStatement({
+      names: runtimeValueImportNames,
+      from: runtimePackageName,
+    });
+
+    const runtimeTypeImports = createImportStatement({
+      names: runtimeTypeImportNames,
+      from: runtimePackageName,
+      typeOnly: useTypeOnlyImports,
+    });
+
+    const generatedValueImports = createImportStatement({
+      names: [className],
+      from: `../generated/${baseName}`,
+    });
+
+    const generatedTypeImports = hasNonQueryMethods
+      ? createImportStatement({
+          names: ["RequestParams"],
+          from: "../generated/http-client",
+          typeOnly: useTypeOnlyImports,
+        })
+      : "";
+
+    const localTypeImports = createImportStatement({
+      names: localTypeImportNames,
+      from: "./Types",
+      typeOnly: useTypeOnlyImports,
+    });
 
     const content = `
-import {
-  ApiResult,
-  buildQuery,
-  extractArgsToastsAndParams,
-  FilterFormValues,
-  handleApiResponse,
-  SortDirection,
-  ToastOptions
-} from "${runtimePackageName}";
+${runtimeValueImports}
 
-import { ${className} } from "../generated/${baseName}";
-import { RequestParams } from "../generated/http-client";
+${runtimeTypeImports}
 
-import {
-  ExtractDataIfPaginated,
-  ExtractResponse,
-  SortableKeys,
-  UnwrapArray,
-  WithoutRequestParams
-} from "./Types";
+${generatedValueImports}
+
+${generatedTypeImports}
+
+${localTypeImports}
 
 /* =======================
    Query Types

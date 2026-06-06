@@ -12,7 +12,8 @@
   },
   "config": {
     "swaggerUrl": "http://localhost:5145/swagger/v1/swagger.json",
-    "apiOutput": "src/api"
+    "apiOutput": "src/api",
+    "typedApiUseTypeOnlyImports": true
   },
   "dependencies": {
     "react": "^19.2.6",

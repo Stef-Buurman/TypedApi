@@ -1,4 +1,4 @@
-import { HttpResponse, RequestParams } from "../generated/http-client";
+import type { HttpResponse, RequestParams } from "../generated/http-client";
 
 export type ExtractResponse<T> =
   T extends Promise<HttpResponse<infer R, any>> ? R : never;
