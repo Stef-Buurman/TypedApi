@@ -13,7 +13,8 @@
   "config": {
     "swaggerUrl": "http://localhost:5145/swagger/v1/swagger.json",
     "apiOutput": "src/api",
-    "typedApiUseTypeOnlyImports": true
+    "typedApiUseTypeOnlyImports": true,
+    "typedApiUseFilterFormValues": true
   },
   "dependencies": {
     "react": "^19.2.6",

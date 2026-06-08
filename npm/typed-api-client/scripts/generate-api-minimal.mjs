@@ -59,6 +59,11 @@ const useTypeOnlyImports =
   process.env.npm_config_typed_api_use_type_only_imports === "true" ||
   config.typedApiUseTypeOnlyImports === true;
 
+const useFilterFormValues =
+  process.env.TYPED_API_USE_FILTER_FORM_VALUES === "true" ||
+  process.env.npm_config_typed_api_use_filter_form_values === "true" ||
+  config.typedApiUseFilterFormValues === true;
+
 function pascalCase(value) {
   return value
     .split(/[-_]/)
@@ -369,32 +374,19 @@ export type ${toQueryName(methodName)} =
     );
 
     const paginatedMethodWrappers = paginatedMethods
-      .map((methodName) =>
-        `
+      .map((methodName) => {
+        if (useFilterFormValues) {
+          return `
 export async function ${methodName}(
-  filters: FilterFormValues<
-    ${toQueryName(methodName)}
-  >[] = [],
+  filters: FilterFormValues<${toQueryName(methodName)}>[] = [],
   page = 1,
   pageSize = 100,
   sortBy: SortableKeys<
-    ExtractResponse<
-      ReturnType<
-        ${className}["${methodName}"]
-      >
-    >
+    ExtractResponse<ReturnType<${className}["${methodName}"]>>
   > | null = null,
   sortDirection?: SortDirection,
   toastOptions?: ToastOptions
-): Promise<
-  ApiResult<
-    ExtractResponse<
-      ReturnType<
-        ${className}["${methodName}"]
-      >
-    >
-  >
-> {
+): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
   return handleApiResponse(
     () =>
       ${instanceName}.${methodName}(
@@ -402,26 +394,29 @@ export async function ${methodName}(
           ${toQueryName(methodName)},
           UnwrapArray<
             ExtractDataIfPaginated<
-              ExtractResponse<
-                ReturnType<
-                  ${className}["${methodName}"]
-                >
-              >
+              ExtractResponse<ReturnType<${className}["${methodName}"]>>
             >
           >
-        >(
-          filters,
-          page,
-          pageSize,
-          sortBy,
-          sortDirection
-        )
+        >(filters, page, pageSize, sortBy, sortDirection)
       ),
     toastOptions
   );
 }
-`.trim(),
-      )
+`.trim();
+        }
+
+        return `
+export async function ${methodName}(
+  query?: ${toQueryName(methodName)},
+  toastOptions?: ToastOptions
+): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
+  return handleApiResponse(
+    () => ${instanceName}.${methodName}(query),
+    toastOptions
+  );
+}
+`.trim();
+      })
       .join("\n\n");
 
     const simpleQueryMethodWrappers = simpleQueryMethods
@@ -536,7 +531,7 @@ export async function ${methodName}(
       .join("\n\n");
 
     const runtimeValueImportNames = [
-      ...(hasPaginatedMethods ? ["buildQuery"] : []),
+      ...(hasPaginatedMethods && useFilterFormValues ? ["buildQuery"] : []),
       ...(hasRegularNonQueryMethods ? ["extractArgsToastsAndParams"] : []),
       ...(hasFormDataMethods ? ["toFormData"] : []),
       "handleApiResponse",
@@ -544,12 +539,14 @@ export async function ${methodName}(
 
     const runtimeTypeImportNames = [
       "ApiResult",
-      ...(hasPaginatedMethods ? ["FilterFormValues", "SortDirection"] : []),
+      ...(hasPaginatedMethods && useFilterFormValues
+        ? ["FilterFormValues", "SortDirection"]
+        : []),
       "ToastOptions",
     ];
 
     const localTypeImportNames = [
-      ...(hasPaginatedMethods
+      ...(hasPaginatedMethods && useFilterFormValues
         ? ["ExtractDataIfPaginated", "SortableKeys", "UnwrapArray"]
         : []),
       "ExtractResponse",
