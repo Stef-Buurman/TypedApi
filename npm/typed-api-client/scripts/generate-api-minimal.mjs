@@ -178,29 +178,102 @@ function getAllTsFiles(dir) {
   return results;
 }
 
-function convertGeneratedUploadMethods(apiDir) {
+async function convertGeneratedUploadMethods(apiDir) {
   const tsFiles = getAllTsFiles(apiDir);
+  let changedMethods = 0;
 
   console.log(
-    `Checking ${tsFiles.length} TypeScript files for upload methods...`,
+    `Checking ${tsFiles.length} generated TypeScript files for multipart methods...`,
   );
 
   for (const filePath of tsFiles) {
-    let content = fs.readFileSync(filePath, "utf8");
-    const originalContent = content;
+    if (
+      filePath.endsWith("data-contracts.ts") ||
+      filePath.endsWith("http-client.ts")
+    ) {
+      continue;
+    }
 
-    content = content.replace(
-      /(=\s*\(\s*data\s*:\s*)\{\s*(?:file|files)\??\s*:\s*File(?:\[\])?\s*;?\s*\}(\s*,\s*params\s*:\s*RequestParams\s*=\s*\{\}\s*,?\s*\))/g,
-      "$1FormData$2",
+    const originalContent = fs.readFileSync(filePath, "utf8");
+
+    const methodRegex =
+      /(\b\w+\s*=\s*\(\s*data\s*:\s*)([^,\n]+)(,\s*params\s*:\s*RequestParams\s*=\s*\{\}\s*,?\s*\)\s*=>\s*this\.request<[\s\S]*?type:\s*ContentType\.FormData,[\s\S]*?\}\);)/g;
+
+    let fileChanges = 0;
+
+    const updatedContent = originalContent.replace(
+      methodRegex,
+      (_match, start, currentType, rest) => {
+        console.log(
+          `  Replacing multipart payload type "${currentType.trim()}" with FormData`,
+        );
+
+        fileChanges++;
+        changedMethods++;
+
+        return `${start}FormData${rest}`;
+      },
     );
 
-    if (content !== originalContent) {
-      fs.writeFileSync(filePath, content, "utf8");
+    if (fileChanges > 0) {
+      await writeFormattedFile(filePath, updatedContent);
+
       console.log(
-        `Updated upload method: ${path.relative(process.cwd(), filePath)}`,
+        `Updated ${fileChanges} multipart method(s) in ${path.relative(
+          process.cwd(),
+          filePath,
+        )}`,
       );
     }
   }
+
+  if (changedMethods === 0) {
+    throw new Error(
+      "No multipart methods were converted. Check the generated method format and output directory.",
+    );
+  }
+
+  console.log(`Converted ${changedMethods} multipart method(s) to FormData.`);
+}
+
+function isMultipartMethod(source, methodName) {
+  const startPattern = new RegExp(`\\b${methodName}\\s*=\\s*\\(`);
+
+  const startMatch = startPattern.exec(source);
+
+  if (!startMatch) {
+    return false;
+  }
+
+  const nextMethodPattern = /^\s*\w+\s*=\s*\(/gm;
+  nextMethodPattern.lastIndex = startMatch.index + startMatch[0].length;
+
+  const nextMatch = nextMethodPattern.exec(source);
+  const endIndex = nextMatch?.index ?? source.length;
+
+  const methodSource = source.slice(startMatch.index, endIndex);
+
+  return methodSource.includes("type: ContentType.FormData");
+}
+
+function getGeneratedMethods(source) {
+  const methodRegex = /^\s*(\w+)\s*=\s*\(/gm;
+  const matches = [...source.matchAll(methodRegex)];
+
+  return matches.map((match, index) => {
+    const methodName = match[1];
+    const startIndex = match.index ?? 0;
+    const endIndex =
+      index + 1 < matches.length ? matches[index + 1].index : source.length;
+
+    const methodSource = source.slice(startIndex, endIndex);
+
+    return {
+      methodName,
+      methodSource,
+      isFormData: methodSource.includes("type: ContentType.FormData"),
+    };
+  });
 }
 
 async function createMethodFiles() {
@@ -223,25 +296,24 @@ async function createMethodFiles() {
 
     const baseName = file.replace(".ts", "");
     const className = baseName.split("-").map(pascalCase).join("");
-    const instanceName = `${className.charAt(0).toLowerCase()}${className.slice(1)}Api`;
 
-    const methodRegex = /^\s*(\w+)\s*=\s*\(/gm;
+    const instanceName = `${className.charAt(0).toLowerCase()}${className.slice(1)}Api`;
 
     const paginatedMethods = [];
     const simpleQueryMethods = [];
     const nonQueryMethods = [];
 
-    let match;
+    const generatedMethods = getGeneratedMethods(source);
 
-    while ((match = methodRegex.exec(source)) !== null) {
-      const methodName = match[1];
+    for (const generatedMethod of generatedMethods) {
+      const { methodName, methodSource, isFormData } = generatedMethod;
 
       const signatureRegex = new RegExp(
         `${methodName}\\s*=\\s*\\(([^)]*)\\)\\s*=>`,
         "m",
       );
 
-      const signatureMatch = source.match(signatureRegex);
+      const signatureMatch = methodSource.match(signatureRegex);
 
       if (!signatureMatch) {
         continue;
@@ -249,13 +321,9 @@ async function createMethodFiles() {
 
       const params = signatureMatch[1].trim();
 
-      const returnTypeRegex = new RegExp(
-        `${methodName}[\\s\\S]*?this\\.request<([^,>]+)`,
-        "m",
-      );
+      const returnTypeMatch = methodSource.match(/this\.request<([^,>]+)/m);
 
-      const returnMatch = source.match(returnTypeRegex);
-      const returnType = returnMatch?.[1] ?? "";
+      const returnType = returnTypeMatch?.[1] ?? "";
 
       const isPaginated =
         returnType.includes("ApiPaginationResponse") ||
@@ -267,35 +335,66 @@ async function createMethodFiles() {
         } else {
           simpleQueryMethods.push(methodName);
         }
-      } else {
-        nonQueryMethods.push(methodName);
+
+        continue;
       }
+
+      nonQueryMethods.push({
+        methodName,
+        isFormData,
+      });
     }
 
     const queryTypes = [...paginatedMethods, ...simpleQueryMethods]
       .map((methodName) =>
         `
 export type ${toQueryName(methodName)} =
-  NonNullable<Parameters<${className}["${methodName}"]>[0]>;
+  NonNullable<
+    Parameters<${className}["${methodName}"]>[0]
+  >;
 `.trim(),
       )
       .join("\n\n");
+
     const hasPaginatedMethods = paginatedMethods.length > 0;
+
     const hasNonQueryMethods = nonQueryMethods.length > 0;
+
+    const hasFormDataMethods = nonQueryMethods.some(
+      ({ isFormData }) => isFormData,
+    );
+
+    const hasRegularNonQueryMethods = nonQueryMethods.some(
+      ({ isFormData }) => !isFormData,
+    );
 
     const paginatedMethodWrappers = paginatedMethods
       .map((methodName) =>
         `
 export async function ${methodName}(
-  filters: FilterFormValues<${toQueryName(methodName)}>[] = [],
+  filters: FilterFormValues<
+    ${toQueryName(methodName)}
+  >[] = [],
   page = 1,
   pageSize = 100,
   sortBy: SortableKeys<
-    ExtractResponse<ReturnType<${className}["${methodName}"]>>
+    ExtractResponse<
+      ReturnType<
+        ${className}["${methodName}"]
+      >
+    >
   > | null = null,
   sortDirection?: SortDirection,
   toastOptions?: ToastOptions
-): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        ${className}["${methodName}"]
+      >
+    >
+  >
+> {
   return handleApiResponse(
     () =>
       ${instanceName}.${methodName}(
@@ -303,10 +402,20 @@ export async function ${methodName}(
           ${toQueryName(methodName)},
           UnwrapArray<
             ExtractDataIfPaginated<
-              ExtractResponse<ReturnType<${className}["${methodName}"]>>
+              ExtractResponse<
+                ReturnType<
+                  ${className}["${methodName}"]
+                >
+              >
             >
           >
-        >(filters, page, pageSize, sortBy, sortDirection)
+        >(
+          filters,
+          page,
+          pageSize,
+          sortBy,
+          sortDirection
+        )
       ),
     toastOptions
   );
@@ -321,9 +430,18 @@ export async function ${methodName}(
 export async function ${methodName}(
   query?: ${toQueryName(methodName)},
   toastOptions?: ToastOptions
-): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        ${className}["${methodName}"]
+      >
+    >
+  >
+> {
   return handleApiResponse(
-    () => ${instanceName}.${methodName}(query),
+    () =>
+      ${instanceName}.${methodName}(query),
     toastOptions
   );
 }
@@ -332,36 +450,95 @@ export async function ${methodName}(
       .join("\n\n");
 
     const nonQueryMethodWrappers = nonQueryMethods
-      .map((methodName) =>
-        `
+      .map(({ methodName, isFormData }) => {
+        if (isFormData) {
+          return `
 export async function ${methodName}(
-  ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<${className}["${methodName}"]>>,
-    ToastOptions?,
-    RequestParams?
-  ]
-): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<${className}["${methodName}"]>>
-    >(argsWithToast);
-
-    const requestArgs = [
-    ...args,
-    params ?? {}
-    ] as unknown as Parameters<${className}["${methodName}"]>;
+  data: Parameters<
+    ${className}["${methodName}"]
+  >[0],
+  toastOptions?: ToastOptions,
+  params?: RequestParams
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        ${className}["${methodName}"]
+      >
+    >
+  >
+> {
+  const formData = toFormData(data);
 
   return handleApiResponse(
-    () => ${instanceName}.${methodName}(...requestArgs),
+    () =>
+      ${instanceName}.${methodName}(
+        formData as unknown as Parameters<
+          ${className}["${methodName}"]
+        >[0],
+        params ?? {}
+      ),
     toastOptions
   );
 }
-`.trim(),
-      )
+`.trim();
+        }
+
+        return `
+export async function ${methodName}(
+  ...argsWithToast: [
+    ...WithoutRequestParams<
+      Parameters<
+        ${className}["${methodName}"]
+      >
+    >,
+    ToastOptions?,
+    RequestParams?
+  ]
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        ${className}["${methodName}"]
+      >
+    >
+  >
+> {
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        ${className}["${methodName}"]
+      >
+    >
+  >(argsWithToast);
+
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
+    ${className}["${methodName}"]
+  >;
+
+  return handleApiResponse(
+    () =>
+      ${instanceName}.${methodName}(
+        ...requestArgs
+      ),
+    toastOptions
+  );
+}
+`.trim();
+      })
       .join("\n\n");
+
     const runtimeValueImportNames = [
       ...(hasPaginatedMethods ? ["buildQuery"] : []),
-      ...(hasNonQueryMethods ? ["extractArgsToastsAndParams"] : []),
+      ...(hasRegularNonQueryMethods ? ["extractArgsToastsAndParams"] : []),
+      ...(hasFormDataMethods ? ["toFormData"] : []),
       "handleApiResponse",
     ];
 
@@ -376,7 +553,7 @@ export async function ${methodName}(
         ? ["ExtractDataIfPaginated", "SortableKeys", "UnwrapArray"]
         : []),
       "ExtractResponse",
-      ...(hasNonQueryMethods ? ["WithoutRequestParams"] : []),
+      ...(hasRegularNonQueryMethods ? ["WithoutRequestParams"] : []),
     ];
 
     const runtimeValueImports = createImportStatement({
@@ -464,13 +641,95 @@ ${methodExports.join("\n")}
   await writeFormattedFile(path.join(apiRoot, "index.ts"), apiIndexContent);
 }
 
+async function fixGeneratedMixedImports(apiDir) {
+  const tsFiles = getAllTsFiles(apiDir);
+
+  for (const filePath of tsFiles) {
+    if (
+      filePath.endsWith("http-client.ts") ||
+      filePath.endsWith("data-contracts.ts")
+    ) {
+      continue;
+    }
+
+    const originalContent = fs.readFileSync(filePath, "utf8");
+    let content = originalContent;
+
+    /*
+     * Converts:
+     *
+     * import { ContentType, HttpClient, RequestParams }
+     *   from "./http-client";
+     *
+     * into separate runtime and type imports.
+     */
+    content = content.replace(
+      /import\s*\{([\s\S]*?)\}\s*from\s*["']\.\/http-client["'];/g,
+      (_match, importsText) => {
+        const importedNames = importsText
+          .split(",")
+          .map((name) => name.trim())
+          .filter(Boolean);
+
+        const typeNames = importedNames.filter(
+          (name) => name === "RequestParams",
+        );
+
+        const valueNames = importedNames.filter(
+          (name) => name !== "RequestParams",
+        );
+
+        const statements = [];
+
+        if (valueNames.length > 0) {
+          statements.push(
+            `import { ${valueNames.join(", ")} } from "./http-client";`,
+          );
+        }
+
+        if (typeNames.length > 0 && useTypeOnlyImports) {
+          statements.push(
+            `import type { ${typeNames.join(", ")} } from "./http-client";`,
+          );
+        } else if (typeNames.length > 0) {
+          statements.push(
+            `import { ${typeNames.join(", ")} } from "./http-client";`,
+          );
+        }
+
+        return statements.join("\n");
+      },
+    );
+
+    /*
+     * Everything imported from data-contracts by generated API classes
+     * is normally used as a TypeScript type.
+     */
+    if (useTypeOnlyImports) {
+      content = content.replace(
+        /import\s*\{([\s\S]*?)\}\s*from\s*["']\.\/data-contracts["'];/g,
+        (_match, importsText) =>
+          `import type {${importsText}} from "./data-contracts";`,
+      );
+    }
+
+    if (content !== originalContent) {
+      await writeFormattedFile(filePath, content);
+
+      console.log(
+        `Fixed mixed imports in ${path.relative(process.cwd(), filePath)}`,
+      );
+    }
+  }
+}
+
 async function main() {
   console.log(`Generating API from: ${swaggerInput}`);
   console.log(`Output folder: ${apiRoot}`);
 
   await generateOpenApiClient();
 
-  convertGeneratedUploadMethods(generatedDir);
+  await fixGeneratedMixedImports(generatedDir);
 
   await createTypesFile();
   await createMethodFiles();
