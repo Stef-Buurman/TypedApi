@@ -10,7 +10,7 @@
  * ---------------------------------------------------------------
  */
 
-import {
+import type {
   DeleteSupplierParams,
   GetSupplierByIdParams,
   GetSuppliersParams,
@@ -20,7 +20,8 @@ import {
   UpdateSupplierParams,
   VerifySupplierParams,
 } from "./data-contracts";
-import { ContentType, HttpClient, RequestParams } from "./http-client";
+import { ContentType, HttpClient } from "./http-client";
+import type { RequestParams } from "./http-client";
 
 export class Supplier<
   SecurityDataType = unknown,

@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using TypedApi.Swagger.Enums;
+using TypedApi.Swagger.Models;
 using TypedApiTestProject.Server.Models;
 
 namespace TypedApiTestProject.Server.Controllers

@@ -10,7 +10,7 @@
  * ---------------------------------------------------------------
  */
 
-import {
+import type {
   DeleteProductParams,
   ExportProductsParams,
   GetProductByIdParams,
@@ -21,7 +21,8 @@ import {
   ToggleProductActiveParams,
   UpdateProductParams,
 } from "./data-contracts";
-import { ContentType, HttpClient, RequestParams } from "./http-client";
+import { ContentType, HttpClient } from "./http-client";
+import type { RequestParams } from "./http-client";
 
 export class Product<
   SecurityDataType = unknown,

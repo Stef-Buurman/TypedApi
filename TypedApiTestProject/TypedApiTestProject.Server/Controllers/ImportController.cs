@@ -8,12 +8,12 @@ namespace TypedApiTestProject.Server.Controllers
     public class ImportController : ControllerBase
     {
         [HttpPost("products")]
-        public ActionResult<UploadResult> UploadProductFiles([FromForm] MultipleFileUploadRequest request)
+        public ActionResult<UploadResult> UploadProductFiles([FromForm] List<IFormFile> Files)
         {
             return Ok(new UploadResult
             {
-                FileCount = request.Files.Count,
-                FileNames = request.Files.Select(file => file.FileName).ToList(),
+                FileCount = Files.Count,
+                FileNames = Files.Select(file => file.FileName).ToList(),
                 Message = "Product files uploaded successfully."
             });
         }

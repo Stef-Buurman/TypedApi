@@ -1,7 +1,4 @@
-import {
-  extractArgsToastsAndParams,
-  handleApiResponse,
-} from "typedapi-client-helpers";
+import { toFormData, handleApiResponse } from "typedapi-client-helpers";
 
 import type { ApiResult, ToastOptions } from "typedapi-client-helpers";
 
@@ -9,7 +6,7 @@ import { Import } from "../generated/Import";
 
 import type { RequestParams } from "../generated/http-client";
 
-import type { ExtractResponse, WithoutRequestParams } from "./Types";
+import type { ExtractResponse } from "./Types";
 
 /* =======================
    Query Types
@@ -32,73 +29,58 @@ const importApi = new Import();
    Non-Query Methods
    ======================= */
 export async function uploadProductFiles(
-  ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Import["uploadProductFiles"]>>,
-    ToastOptions?,
-    RequestParams?,
-  ]
+  data: Parameters<Import["uploadProductFiles"]>[0],
+  toastOptions?: ToastOptions,
+  params?: RequestParams,
 ): Promise<
   ApiResult<ExtractResponse<ReturnType<Import["uploadProductFiles"]>>>
 > {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Import["uploadProductFiles"]>>
-    >(argsWithToast);
-
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
-    Import["uploadProductFiles"]
-  >;
+  const formData = toFormData(data);
 
   return handleApiResponse(
-    () => importApi.uploadProductFiles(...requestArgs),
+    () =>
+      importApi.uploadProductFiles(
+        formData as unknown as Parameters<Import["uploadProductFiles"]>[0],
+        params ?? {},
+      ),
     toastOptions,
   );
 }
 
 export async function uploadSupplierFile(
-  ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Import["uploadSupplierFile"]>>,
-    ToastOptions?,
-    RequestParams?,
-  ]
+  data: Parameters<Import["uploadSupplierFile"]>[0],
+  toastOptions?: ToastOptions,
+  params?: RequestParams,
 ): Promise<
   ApiResult<ExtractResponse<ReturnType<Import["uploadSupplierFile"]>>>
 > {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Import["uploadSupplierFile"]>>
-    >(argsWithToast);
-
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
-    Import["uploadSupplierFile"]
-  >;
+  const formData = toFormData(data);
 
   return handleApiResponse(
-    () => importApi.uploadSupplierFile(...requestArgs),
+    () =>
+      importApi.uploadSupplierFile(
+        formData as unknown as Parameters<Import["uploadSupplierFile"]>[0],
+        params ?? {},
+      ),
     toastOptions,
   );
 }
 
 export async function uploadMixedImport(
-  ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Import["uploadMixedImport"]>>,
-    ToastOptions?,
-    RequestParams?,
-  ]
+  data: Parameters<Import["uploadMixedImport"]>[0],
+  toastOptions?: ToastOptions,
+  params?: RequestParams,
 ): Promise<
   ApiResult<ExtractResponse<ReturnType<Import["uploadMixedImport"]>>>
 > {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Import["uploadMixedImport"]>>
-    >(argsWithToast);
-
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
-    Import["uploadMixedImport"]
-  >;
+  const formData = toFormData(data);
 
   return handleApiResponse(
-    () => importApi.uploadMixedImport(...requestArgs),
+    () =>
+      importApi.uploadMixedImport(
+        formData as unknown as Parameters<Import["uploadMixedImport"]>[0],
+        params ?? {},
+      ),
     toastOptions,
   );
 }

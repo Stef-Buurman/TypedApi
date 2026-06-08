@@ -10,20 +10,18 @@
  * ---------------------------------------------------------------
  */
 
-/** @format int32 */
 export enum SortDirection {
-  Value0 = 0,
-  Value1 = 1,
-  Value2 = 2,
+  Default = "Default",
+  Ascending = "Ascending",
+  Descending = "Descending",
 }
 
-/** @format int32 */
 export enum OrderStatus {
-  Value0 = 0,
-  Value1 = 1,
-  Value2 = 2,
-  Value3 = 3,
-  Value4 = 4,
+  Draft = "Draft",
+  Pending = "Pending",
+  Approved = "Approved",
+  Shipped = "Shipped",
+  Cancelled = "Cancelled",
 }
 
 export interface OrderModel {
@@ -183,16 +181,6 @@ export interface WarehouseRequest {
   /** @format int32 */
   capacity: number;
   isActive: boolean;
-}
-
-export interface WeatherForecast {
-  /** @format date */
-  date: string;
-  /** @format int32 */
-  temperatureC: number;
-  /** @format int32 */
-  temperatureF: number;
-  summary?: string | null;
 }
 
 export interface UploadProductFilesPayload {

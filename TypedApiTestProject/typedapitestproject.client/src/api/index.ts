@@ -7,4 +7,3 @@ export * from "./methods/Order.api";
 export * from "./methods/Product.api";
 export * from "./methods/Supplier.api";
 export * from "./methods/Warehouse.api";
-export * from "./methods/WeatherForecast.api";
