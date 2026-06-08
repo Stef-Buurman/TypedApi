@@ -1,6 +1,6 @@
 {
   "name": "typedapi-client-helpers",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Reusable typed OpenAPI client helpers.",
   "type": "module",
   "main": "./dist/index.js",
@@ -15,12 +15,21 @@
     "apiOutput": "src/api"
   },
   "bin": {
-    "typedapi-generate": "./bin/typedapi-generate.js"
+    "typedapi-generate": "bin/typedapi-generate.js"
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
     "generate:api": "node ./scripts/generate-api-minimal.mjs",
-    "pack:local": "npm pack"
+    "clean:package": "powershell -NoProfile -Command \"Remove-Item -Force .\\*.tgz -ErrorAction SilentlyContinue\"",
+    "pack:check": "npm run build && npm pack --dry-run",
+    "pack:local": "npm run build && npm pack",
+    "version:patch": "npm version patch --no-git-tag-version",
+    "version:minor": "npm version minor --no-git-tag-version",
+    "version:major": "npm version major --no-git-tag-version",
+    "publish:check": "npm whoami && npm run pack:check",
+    "publish:patch": "npm run version:patch && npm run publish:check && npm publish",
+    "publish:minor": "npm run version:minor && npm run publish:check && npm publish",
+    "publish:major": "npm run version:major && npm run publish:check && npm publish"
   },
   "dependencies": {
     "prettier": "^3.8.3",
