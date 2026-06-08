@@ -5,6 +5,12 @@ import { ToastOptions } from "../types/ToastTypes";
 
 let isHandlingUnauthorized = false;
 
+/**
+ * Handles a `401 Unauthorized` response in one shared place.
+ *
+ * Clears stored session data, shows a session-expired toast,
+ * and dispatches an `unauthorized` event unless the user is already on `/login`.
+ */
 function handleUnauthorized(): ApiResult<undefined> {
   if (isHandlingUnauthorized) {
     return {
@@ -34,10 +40,22 @@ function handleUnauthorized(): ApiResult<undefined> {
   };
 }
 
+/**
+ * Resets the unauthorized handling lock.
+ *
+ * This allows future `401 Unauthorized` responses to trigger the shared handling again.
+ */
 export function resetUnauthorizedHandling() {
   isHandlingUnauthorized = false;
 }
 
+/**
+ * Executes an API call and converts the response into an `ApiResult`.
+ *
+ * Successful responses return `{ ok: true }`.
+ * Failed responses return `{ ok: false }` and show either a custom error toast
+ * or the response error message.
+ */
 export async function handleApiResponse<T>(
   call: () => Promise<HttpResponse<T, unknown>>,
   toastOptions?: ToastOptions

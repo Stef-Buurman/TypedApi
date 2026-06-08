@@ -28,8 +28,6 @@ public sealed class StringEnumSchemaFilter : ISchemaFilter
             return;
         }
 
-        // In Microsoft.OpenApi 2.x, the interface is read-only for
-        // several properties. Mutate the concrete schema instance.
         if (schema is not OpenApiSchema openApiSchema)
         {
             return;

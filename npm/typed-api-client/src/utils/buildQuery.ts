@@ -2,6 +2,13 @@ import { FilterFormValues, OptionValue } from "../interfaces/Filter";
 
 export type SortDirection = number | string;
 
+/**
+ * Builds a typed query object from filter form values, pagination, and sorting.
+ *
+ * Empty filter values are ignored.
+ * List filters are converted item by item.
+ * `OptionValue` lists send their `value` fields instead of the display names.
+ */
 export function buildQuery<TQuery, TSortModel = keyof TQuery>(
   filters: FilterFormValues<TQuery>[],
   page = 1,
@@ -89,14 +96,30 @@ export function buildQuery<TQuery, TSortModel = keyof TQuery>(
   return query;
 }
 
+/**
+ * Checks whether a value is an option object used by option-based filters.
+ *
+ * Used to safely read the real filter value from `OptionValue.value`.
+ */
 function isOptionValue(value: unknown): value is OptionValue {
   return typeof value === "object" && value !== null && "value" in value;
 }
 
+/**
+ * Checks whether all items in an array are `OptionValue` objects.
+ *
+ * This is used for list filters where the UI stores selected options.
+ */
 function isOptionValueArray(value: unknown[]): value is OptionValue[] {
   return value.every(isOptionValue);
 }
 
+/**
+ * Converts a filter value to the type expected by the query.
+ *
+ * Dates are converted to ISO strings, numbers to `number`,
+ * and booleans to `boolean`.
+ */
 function convertType(type: string, value: unknown): unknown {
   switch (type) {
     case "date":

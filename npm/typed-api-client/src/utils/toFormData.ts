@@ -1,3 +1,9 @@
+/**
+ * Converts an object payload into `FormData`.
+ *
+ * Supports single files, file arrays, primitive values, and nested objects.
+ * Arrays are appended as repeated fields with the same key.
+ */
 export function toFormData<T extends object>(payload: T): FormData {
   const formData = new FormData();
 
@@ -8,6 +14,12 @@ export function toFormData<T extends object>(payload: T): FormData {
   return formData;
 }
 
+/**
+ * Appends a single value to a `FormData` object.
+ *
+ * Files keep their filename, blobs are appended directly,
+ * primitives are converted to strings, and objects are JSON-stringified.
+ */
 function appendFormDataValue(
   formData: FormData,
   key: string,

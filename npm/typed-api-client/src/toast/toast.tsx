@@ -9,6 +9,12 @@ function ToastContent({ title, message }: { title: string; message?: string }) {
   );
 }
 
+/**
+ * Toast helper for showing consistent success, error, warning, and info messages.
+ *
+ * Wraps `react-toastify` with a shared title/message layout.
+ */
+
 export const toast = {
   success(message: string, title = "Success!") {
     reactToast.success(<ToastContent title={title} message={message} />);
