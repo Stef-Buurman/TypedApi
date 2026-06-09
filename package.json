@@ -16,15 +16,15 @@
     "test-client-generate-api": "cd ./TypedApiTestProject/typedapitestproject.client && npm run generate:api",
     "test-client-build": "cd ./TypedApiTestProject/typedapitestproject.client && npm run build",
     "test-client-full-reset": "npm run test-client-update-local-package && npm run test-client-generate-api && npm run test-client-build",
-    "clean:package": "cd ./TypedApiTestProject/typedapitestproject.client && powershell -NoProfile -Command \"Remove-Item -Force .\\*.tgz -ErrorAction SilentlyContinue\"",
-    "pack:check": "cd ./TypedApiTestProject/typedapitestproject.client && npm run build && npm pack --dry-run",
-    "pack:local": "cd ./TypedApiTestProject/typedapitestproject.client && npm run build && npm pack",
-    "version:patch": "cd ./TypedApiTestProject/typedapitestproject.client && npm version patch --no-git-tag-version",
-    "version:minor": "cd ./TypedApiTestProject/typedapitestproject.client && npm version minor --no-git-tag-version",
-    "version:major": "cd ./TypedApiTestProject/typedapitestproject.client && npm version major --no-git-tag-version",
-    "publish:check": "cd ./TypedApiTestProject/typedapitestproject.client && npm whoami && npm run pack:check",
-    "publish:patch": "cd ./TypedApiTestProject/typedapitestproject.client && npm run version:patch && npm run publish:check && npm publish",
-    "publish:minor": "cd ./TypedApiTestProject/typedapitestproject.client && npm run version:minor && npm run publish:check && npm publish",
-    "publish:major": "cd ./TypedApiTestProject/typedapitestproject.client && npm run version:major && npm run publish:check && npm publish"
+    "clean:package": "cd ./npm/typed-api-client && powershell -NoProfile -Command \"Remove-Item -Force .\\*.tgz -ErrorAction SilentlyContinue\"",
+    "pack:check": "cd ./npm/typed-api-client && npm run build && npm pack --dry-run",
+    "pack:local": "cd ./npm/typed-api-client && npm run build && npm pack",
+    "version:patch": "cd ./npm/typed-api-client && npm version patch --no-git-tag-version",
+    "version:minor": "cd ./npm/typed-api-client && npm version minor --no-git-tag-version",
+    "version:major": "cd ./npm/typed-api-client && npm version major --no-git-tag-version",
+    "publish:check": "npm whoami && npm run pack:check",
+    "publish:patch": "npm run version:patch && npm run publish:check &&cd ./npm/typed-api-client && npm publish",
+    "publish:minor": "npm run version:minor && npm run publish:check &&cd ./npm/typed-api-client && npm publish",
+    "publish:major": "npm run version:major && npm run publish:check &&cd ./npm/typed-api-client && npm publish"
   }
 }
