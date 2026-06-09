@@ -11,9 +11,13 @@ import type {
   ToastOptions,
 } from "typedapi-client-helpers";
 
-import { Warehouse } from "../generated/Warehouse";
+import {
+  Warehouse,
+} from "../generated/Warehouse";
 
-import type { RequestParams } from "../generated/http-client";
+import type {
+  RequestParams,
+} from "../generated/http-client";
 
 import type {
   ExtractDataIfPaginated,
@@ -26,9 +30,10 @@ import type {
 /* =======================
    Query Types
    ======================= */
-export type GetWarehousesQuery = NonNullable<
-  Parameters<Warehouse["getWarehouses"]>[0]
->;
+export type GetWarehousesQuery =
+  NonNullable<
+    Parameters<Warehouse["getWarehouses"]>[0]
+  >;
 
 /* =======================
    API Instance
@@ -46,7 +51,7 @@ export async function getWarehouses(
     ExtractResponse<ReturnType<Warehouse["getWarehouses"]>>
   > | null = null,
   sortDirection?: SortDirection,
-  toastOptions?: ToastOptions,
+  toastOptions?: ToastOptions
 ): Promise<ApiResult<ExtractResponse<ReturnType<Warehouse["getWarehouses"]>>>> {
   return handleApiResponse(
     () =>
@@ -58,9 +63,9 @@ export async function getWarehouses(
               ExtractResponse<ReturnType<Warehouse["getWarehouses"]>>
             >
           >
-        >(filters, page, pageSize, sortBy, sortDirection),
+        >(filters, page, pageSize, sortBy, sortDirection)
       ),
-    toastOptions,
+    toastOptions
   );
 }
 
@@ -68,101 +73,194 @@ export async function getWarehouses(
    Simple Query Methods
    ======================= */
 
+
 /* =======================
    Non-Query Methods
    ======================= */
 export async function createWarehouse(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Warehouse["createWarehouse"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Warehouse["createWarehouse"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
 ): Promise<
-  ApiResult<ExtractResponse<ReturnType<Warehouse["createWarehouse"]>>>
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Warehouse["createWarehouse"]
+      >
+    >
+  >
 > {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Warehouse["createWarehouse"]>>
-    >(argsWithToast);
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Warehouse["createWarehouse"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Warehouse["createWarehouse"]
   >;
 
   return handleApiResponse(
-    () => warehouseApi.createWarehouse(...requestArgs),
-    toastOptions,
+    () =>
+      warehouseApi.createWarehouse(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }
 
 export async function getWarehouseById(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Warehouse["getWarehouseById"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Warehouse["getWarehouseById"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
 ): Promise<
-  ApiResult<ExtractResponse<ReturnType<Warehouse["getWarehouseById"]>>>
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Warehouse["getWarehouseById"]
+      >
+    >
+  >
 > {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Warehouse["getWarehouseById"]>>
-    >(argsWithToast);
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Warehouse["getWarehouseById"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Warehouse["getWarehouseById"]
   >;
 
   return handleApiResponse(
-    () => warehouseApi.getWarehouseById(...requestArgs),
-    toastOptions,
+    () =>
+      warehouseApi.getWarehouseById(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }
 
 export async function updateWarehouse(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Warehouse["updateWarehouse"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Warehouse["updateWarehouse"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
 ): Promise<
-  ApiResult<ExtractResponse<ReturnType<Warehouse["updateWarehouse"]>>>
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Warehouse["updateWarehouse"]
+      >
+    >
+  >
 > {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Warehouse["updateWarehouse"]>>
-    >(argsWithToast);
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Warehouse["updateWarehouse"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Warehouse["updateWarehouse"]
   >;
 
   return handleApiResponse(
-    () => warehouseApi.updateWarehouse(...requestArgs),
-    toastOptions,
+    () =>
+      warehouseApi.updateWarehouse(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }
 
 export async function deleteWarehouse(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Warehouse["deleteWarehouse"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Warehouse["deleteWarehouse"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
 ): Promise<
-  ApiResult<ExtractResponse<ReturnType<Warehouse["deleteWarehouse"]>>>
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Warehouse["deleteWarehouse"]
+      >
+    >
+  >
 > {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Warehouse["deleteWarehouse"]>>
-    >(argsWithToast);
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Warehouse["deleteWarehouse"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Warehouse["deleteWarehouse"]
   >;
 
   return handleApiResponse(
-    () => warehouseApi.deleteWarehouse(...requestArgs),
-    toastOptions,
+    () =>
+      warehouseApi.deleteWarehouse(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }

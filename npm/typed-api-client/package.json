@@ -19,20 +19,9 @@
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
-    "generate:api": "node ./scripts/generate-api-minimal.mjs",
-    "clean:package": "powershell -NoProfile -Command \"Remove-Item -Force .\\*.tgz -ErrorAction SilentlyContinue\"",
-    "pack:check": "npm run build && npm pack --dry-run",
-    "pack:local": "npm run build && npm pack",
-    "version:patch": "npm version patch --no-git-tag-version",
-    "version:minor": "npm version minor --no-git-tag-version",
-    "version:major": "npm version major --no-git-tag-version",
-    "publish:check": "npm whoami && npm run pack:check",
-    "publish:patch": "npm run version:patch && npm run publish:check && npm publish",
-    "publish:minor": "npm run version:minor && npm run publish:check && npm publish",
-    "publish:major": "npm run version:major && npm run publish:check && npm publish"
+    "generate:api": "node ./scripts/generate-api-minimal.mjs"
   },
   "dependencies": {
-    "prettier": "^3.8.3",
     "react-toastify": "^11.0.5",
     "swagger-typescript-api": "^13.2.16"
   },

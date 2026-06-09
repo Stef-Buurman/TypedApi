@@ -19,7 +19,7 @@
   "dependencies": {
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "typedapi-client-helpers": "file:../../npm/typed-api-client/typedapi-client-helpers-0.1.0.tgz"
+    "typedapi-client-helpers": "file:../../npm/typed-api-client/typedapi-client-helpers-0.1.2.tgz"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

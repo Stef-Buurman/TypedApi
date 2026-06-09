@@ -10,16 +10,7 @@
  * ---------------------------------------------------------------
  */
 
-import type {
-  DeleteSupplierParams,
-  GetSupplierByIdParams,
-  GetSuppliersParams,
-  SupplierModel,
-  SupplierModelApiPaginationResponse,
-  SupplierRequest,
-  UpdateSupplierParams,
-  VerifySupplierParams,
-} from "./data-contracts";
+import type { DeleteSupplierParams, GetSupplierByIdParams, GetSuppliersParams, SupplierModel, SupplierModelApiPaginationResponse, SupplierRequest, UpdateSupplierParams, VerifySupplierParams, } from "./data-contracts";
 import { ContentType, HttpClient } from "./http-client";
 import type { RequestParams } from "./http-client";
 

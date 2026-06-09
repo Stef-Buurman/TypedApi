@@ -10,12 +10,7 @@
  * ---------------------------------------------------------------
  */
 
-import type {
-  UploadMixedImportPayload,
-  UploadProductFilesPayload,
-  UploadResult,
-  UploadSupplierFilePayload,
-} from "./data-contracts";
+import type { UploadMixedImportPayload, UploadProductFilesPayload, UploadResult, UploadSupplierFilePayload, } from "./data-contracts";
 import { ContentType, HttpClient } from "./http-client";
 import type { RequestParams } from "./http-client";
 

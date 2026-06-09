@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import prettier from "prettier";
 import { generateApi } from "swagger-typescript-api";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -85,11 +84,7 @@ function cleanDirectory(directory) {
 }
 
 async function writeFormattedFile(filePath, content) {
-  const formatted = await prettier.format(content, {
-    parser: "typescript",
-  });
-
-  fs.writeFileSync(filePath, formatted);
+  fs.writeFileSync(filePath, content);
 }
 
 async function generateOpenApiClient() {

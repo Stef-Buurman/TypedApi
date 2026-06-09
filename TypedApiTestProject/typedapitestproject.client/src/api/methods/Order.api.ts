@@ -11,9 +11,13 @@ import type {
   ToastOptions,
 } from "typedapi-client-helpers";
 
-import { Order } from "../generated/Order";
+import {
+  Order,
+} from "../generated/Order";
 
-import type { RequestParams } from "../generated/http-client";
+import type {
+  RequestParams,
+} from "../generated/http-client";
 
 import type {
   ExtractDataIfPaginated,
@@ -26,7 +30,10 @@ import type {
 /* =======================
    Query Types
    ======================= */
-export type GetOrdersQuery = NonNullable<Parameters<Order["getOrders"]>[0]>;
+export type GetOrdersQuery =
+  NonNullable<
+    Parameters<Order["getOrders"]>[0]
+  >;
 
 /* =======================
    API Instance
@@ -44,7 +51,7 @@ export async function getOrders(
     ExtractResponse<ReturnType<Order["getOrders"]>>
   > | null = null,
   sortDirection?: SortDirection,
-  toastOptions?: ToastOptions,
+  toastOptions?: ToastOptions
 ): Promise<ApiResult<ExtractResponse<ReturnType<Order["getOrders"]>>>> {
   return handleApiResponse(
     () =>
@@ -56,9 +63,9 @@ export async function getOrders(
               ExtractResponse<ReturnType<Order["getOrders"]>>
             >
           >
-        >(filters, page, pageSize, sortBy, sortDirection),
+        >(filters, page, pageSize, sortBy, sortDirection)
       ),
-    toastOptions,
+    toastOptions
   );
 }
 
@@ -66,137 +73,288 @@ export async function getOrders(
    Simple Query Methods
    ======================= */
 
+
 /* =======================
    Non-Query Methods
    ======================= */
 export async function createOrder(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Order["createOrder"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Order["createOrder"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
-): Promise<ApiResult<ExtractResponse<ReturnType<Order["createOrder"]>>>> {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Order["createOrder"]>>
-    >(argsWithToast);
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Order["createOrder"]
+      >
+    >
+  >
+> {
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Order["createOrder"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Order["createOrder"]
   >;
 
   return handleApiResponse(
-    () => orderApi.createOrder(...requestArgs),
-    toastOptions,
+    () =>
+      orderApi.createOrder(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }
 
 export async function getOrderById(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Order["getOrderById"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Order["getOrderById"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
-): Promise<ApiResult<ExtractResponse<ReturnType<Order["getOrderById"]>>>> {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Order["getOrderById"]>>
-    >(argsWithToast);
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Order["getOrderById"]
+      >
+    >
+  >
+> {
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Order["getOrderById"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Order["getOrderById"]
   >;
 
   return handleApiResponse(
-    () => orderApi.getOrderById(...requestArgs),
-    toastOptions,
+    () =>
+      orderApi.getOrderById(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }
 
 export async function updateOrder(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Order["updateOrder"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Order["updateOrder"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
-): Promise<ApiResult<ExtractResponse<ReturnType<Order["updateOrder"]>>>> {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Order["updateOrder"]>>
-    >(argsWithToast);
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Order["updateOrder"]
+      >
+    >
+  >
+> {
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Order["updateOrder"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Order["updateOrder"]
   >;
 
   return handleApiResponse(
-    () => orderApi.updateOrder(...requestArgs),
-    toastOptions,
+    () =>
+      orderApi.updateOrder(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }
 
 export async function deleteOrder(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Order["deleteOrder"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Order["deleteOrder"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
-): Promise<ApiResult<ExtractResponse<ReturnType<Order["deleteOrder"]>>>> {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Order["deleteOrder"]>>
-    >(argsWithToast);
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Order["deleteOrder"]
+      >
+    >
+  >
+> {
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Order["deleteOrder"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Order["deleteOrder"]
   >;
 
   return handleApiResponse(
-    () => orderApi.deleteOrder(...requestArgs),
-    toastOptions,
+    () =>
+      orderApi.deleteOrder(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }
 
 export async function approveOrder(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Order["approveOrder"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Order["approveOrder"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
-): Promise<ApiResult<ExtractResponse<ReturnType<Order["approveOrder"]>>>> {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Order["approveOrder"]>>
-    >(argsWithToast);
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Order["approveOrder"]
+      >
+    >
+  >
+> {
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Order["approveOrder"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Order["approveOrder"]
   >;
 
   return handleApiResponse(
-    () => orderApi.approveOrder(...requestArgs),
-    toastOptions,
+    () =>
+      orderApi.approveOrder(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }
 
 export async function cancelOrder(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Order["cancelOrder"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Order["cancelOrder"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
-): Promise<ApiResult<ExtractResponse<ReturnType<Order["cancelOrder"]>>>> {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Order["cancelOrder"]>>
-    >(argsWithToast);
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Order["cancelOrder"]
+      >
+    >
+  >
+> {
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Order["cancelOrder"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Order["cancelOrder"]
   >;
 
   return handleApiResponse(
-    () => orderApi.cancelOrder(...requestArgs),
-    toastOptions,
+    () =>
+      orderApi.cancelOrder(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }

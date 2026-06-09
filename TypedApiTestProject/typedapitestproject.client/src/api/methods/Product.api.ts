@@ -11,9 +11,13 @@ import type {
   ToastOptions,
 } from "typedapi-client-helpers";
 
-import { Product } from "../generated/Product";
+import {
+  Product,
+} from "../generated/Product";
 
-import type { RequestParams } from "../generated/http-client";
+import type {
+  RequestParams,
+} from "../generated/http-client";
 
 import type {
   ExtractDataIfPaginated,
@@ -26,13 +30,15 @@ import type {
 /* =======================
    Query Types
    ======================= */
-export type GetProductsQuery = NonNullable<
-  Parameters<Product["getProducts"]>[0]
->;
+export type GetProductsQuery =
+  NonNullable<
+    Parameters<Product["getProducts"]>[0]
+  >;
 
-export type ExportProductsQuery = NonNullable<
-  Parameters<Product["exportProducts"]>[0]
->;
+export type ExportProductsQuery =
+  NonNullable<
+    Parameters<Product["exportProducts"]>[0]
+  >;
 
 /* =======================
    API Instance
@@ -50,7 +56,7 @@ export async function getProducts(
     ExtractResponse<ReturnType<Product["getProducts"]>>
   > | null = null,
   sortDirection?: SortDirection,
-  toastOptions?: ToastOptions,
+  toastOptions?: ToastOptions
 ): Promise<ApiResult<ExtractResponse<ReturnType<Product["getProducts"]>>>> {
   return handleApiResponse(
     () =>
@@ -62,9 +68,9 @@ export async function getProducts(
               ExtractResponse<ReturnType<Product["getProducts"]>>
             >
           >
-        >(filters, page, pageSize, sortBy, sortDirection),
+        >(filters, page, pageSize, sortBy, sortDirection)
       ),
-    toastOptions,
+    toastOptions
   );
 }
 
@@ -73,11 +79,20 @@ export async function getProducts(
    ======================= */
 export async function exportProducts(
   query?: ExportProductsQuery,
-  toastOptions?: ToastOptions,
-): Promise<ApiResult<ExtractResponse<ReturnType<Product["exportProducts"]>>>> {
+  toastOptions?: ToastOptions
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Product["exportProducts"]
+      >
+    >
+  >
+> {
   return handleApiResponse(
-    () => productApi.exportProducts(query),
-    toastOptions,
+    () =>
+      productApi.exportProducts(query),
+    toastOptions
   );
 }
 
@@ -86,112 +101,235 @@ export async function exportProducts(
    ======================= */
 export async function createProduct(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Product["createProduct"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Product["createProduct"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
-): Promise<ApiResult<ExtractResponse<ReturnType<Product["createProduct"]>>>> {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Product["createProduct"]>>
-    >(argsWithToast);
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Product["createProduct"]
+      >
+    >
+  >
+> {
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Product["createProduct"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Product["createProduct"]
   >;
 
   return handleApiResponse(
-    () => productApi.createProduct(...requestArgs),
-    toastOptions,
+    () =>
+      productApi.createProduct(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }
 
 export async function getProductById(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Product["getProductById"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Product["getProductById"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
-): Promise<ApiResult<ExtractResponse<ReturnType<Product["getProductById"]>>>> {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Product["getProductById"]>>
-    >(argsWithToast);
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Product["getProductById"]
+      >
+    >
+  >
+> {
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Product["getProductById"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Product["getProductById"]
   >;
 
   return handleApiResponse(
-    () => productApi.getProductById(...requestArgs),
-    toastOptions,
+    () =>
+      productApi.getProductById(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }
 
 export async function updateProduct(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Product["updateProduct"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Product["updateProduct"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
-): Promise<ApiResult<ExtractResponse<ReturnType<Product["updateProduct"]>>>> {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Product["updateProduct"]>>
-    >(argsWithToast);
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Product["updateProduct"]
+      >
+    >
+  >
+> {
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Product["updateProduct"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Product["updateProduct"]
   >;
 
   return handleApiResponse(
-    () => productApi.updateProduct(...requestArgs),
-    toastOptions,
+    () =>
+      productApi.updateProduct(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }
 
 export async function deleteProduct(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Product["deleteProduct"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Product["deleteProduct"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
-): Promise<ApiResult<ExtractResponse<ReturnType<Product["deleteProduct"]>>>> {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Product["deleteProduct"]>>
-    >(argsWithToast);
+): Promise<
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Product["deleteProduct"]
+      >
+    >
+  >
+> {
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Product["deleteProduct"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Product["deleteProduct"]
   >;
 
   return handleApiResponse(
-    () => productApi.deleteProduct(...requestArgs),
-    toastOptions,
+    () =>
+      productApi.deleteProduct(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }
 
 export async function toggleProductActive(
   ...argsWithToast: [
-    ...WithoutRequestParams<Parameters<Product["toggleProductActive"]>>,
+    ...WithoutRequestParams<
+      Parameters<
+        Product["toggleProductActive"]
+      >
+    >,
     ToastOptions?,
-    RequestParams?,
+    RequestParams?
   ]
 ): Promise<
-  ApiResult<ExtractResponse<ReturnType<Product["toggleProductActive"]>>>
+  ApiResult<
+    ExtractResponse<
+      ReturnType<
+        Product["toggleProductActive"]
+      >
+    >
+  >
 > {
-  const { args, toastOptions, params } =
-    extractArgsToastsAndParams<
-      WithoutRequestParams<Parameters<Product["toggleProductActive"]>>
-    >(argsWithToast);
+  const {
+    args,
+    toastOptions,
+    params
+  } = extractArgsToastsAndParams<
+    WithoutRequestParams<
+      Parameters<
+        Product["toggleProductActive"]
+      >
+    >
+  >(argsWithToast);
 
-  const requestArgs = [...args, params ?? {}] as unknown as Parameters<
+  const requestArgs = [
+    ...args,
+    params ?? {}
+  ] as unknown as Parameters<
     Product["toggleProductActive"]
   >;
 
   return handleApiResponse(
-    () => productApi.toggleProductActive(...requestArgs),
-    toastOptions,
+    () =>
+      productApi.toggleProductActive(
+        ...requestArgs
+      ),
+    toastOptions
   );
 }

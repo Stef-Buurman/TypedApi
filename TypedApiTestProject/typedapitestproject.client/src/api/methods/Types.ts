@@ -5,17 +5,14 @@ export type ExtractResponse<T> =
 
 export type UnwrapArray<T> = T extends (infer U)[] ? U : T;
 
-export type ExtractDataIfPaginated<T> = T extends { data?: (infer U)[] | null }
-  ? U
-  : T;
+export type ExtractDataIfPaginated<T> =
+  T extends { data?: (infer U)[] | null } ? U : T;
 
 export type SortableKeys<T> = keyof UnwrapArray<ExtractDataIfPaginated<T>>;
 
-export type WithoutRequestParams<T extends any[]> = T extends [
-  infer First,
-  ...infer Rest,
-]
-  ? First extends RequestParams
-    ? Rest
-    : [First, ...WithoutRequestParams<Rest>]
-  : [];
+export type WithoutRequestParams<T extends any[]> =
+  T extends [infer First, ...infer Rest]
+    ? First extends RequestParams
+      ? Rest
+      : [First, ...WithoutRequestParams<Rest>]
+    : [];

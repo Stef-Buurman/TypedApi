@@ -10,15 +10,7 @@
  * ---------------------------------------------------------------
  */
 
-import type {
-  DeleteWarehouseParams,
-  GetWarehouseByIdParams,
-  GetWarehousesParams,
-  UpdateWarehouseParams,
-  WarehouseModel,
-  WarehouseModelApiPaginationResponse,
-  WarehouseRequest,
-} from "./data-contracts";
+import type { DeleteWarehouseParams, GetWarehouseByIdParams, GetWarehousesParams, UpdateWarehouseParams, WarehouseModel, WarehouseModelApiPaginationResponse, WarehouseRequest, } from "./data-contracts";
 import { ContentType, HttpClient } from "./http-client";
 import type { RequestParams } from "./http-client";
 

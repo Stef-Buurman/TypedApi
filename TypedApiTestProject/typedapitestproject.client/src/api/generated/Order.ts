@@ -10,17 +10,7 @@
  * ---------------------------------------------------------------
  */
 
-import type {
-  ApproveOrderParams,
-  CancelOrderParams,
-  DeleteOrderParams,
-  GetOrderByIdParams,
-  GetOrdersParams,
-  OrderModel,
-  OrderModelApiPaginationResponse,
-  OrderRequest,
-  UpdateOrderParams,
-} from "./data-contracts";
+import type { ApproveOrderParams, CancelOrderParams, DeleteOrderParams, GetOrderByIdParams, GetOrdersParams, OrderModel, OrderModelApiPaginationResponse, OrderRequest, UpdateOrderParams, } from "./data-contracts";
 import { ContentType, HttpClient } from "./http-client";
 import type { RequestParams } from "./http-client";
 

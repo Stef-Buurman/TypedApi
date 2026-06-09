@@ -10,17 +10,7 @@
  * ---------------------------------------------------------------
  */
 
-import type {
-  DeleteProductParams,
-  ExportProductsParams,
-  GetProductByIdParams,
-  GetProductsParams,
-  ProductModel,
-  ProductRequest,
-  ProductTableRowApiPaginationResponse,
-  ToggleProductActiveParams,
-  UpdateProductParams,
-} from "./data-contracts";
+import type { DeleteProductParams, ExportProductsParams, GetProductByIdParams, GetProductsParams, ProductModel, ProductRequest, ProductTableRowApiPaginationResponse, ToggleProductActiveParams, UpdateProductParams, } from "./data-contracts";
 import { ContentType, HttpClient } from "./http-client";
 import type { RequestParams } from "./http-client";
 
