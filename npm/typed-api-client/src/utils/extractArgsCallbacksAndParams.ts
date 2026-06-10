@@ -2,13 +2,20 @@ import type {
   ApiErrorHandler,
   ApiSuccessHandler,
 } from "../types/ApiCallOptions";
-import type { RuntimeRequestParams } from "../types/HttpResponse";
 
-function isCallback(value: unknown): value is (...args: never[]) => unknown {
+import type {
+  RuntimeRequestParams,
+} from "../types/HttpResponse";
+
+function isCallback(
+  value: unknown,
+): value is (...args: never[]) => unknown {
   return typeof value === "function";
 }
 
-function isRequestParams(value: unknown): value is RuntimeRequestParams {
+function isRequestParams(
+  value: unknown,
+): value is RuntimeRequestParams {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -17,29 +24,33 @@ function isRequestParams(value: unknown): value is RuntimeRequestParams {
 }
 
 /**
- * Extracts wrapper-only arguments in this order:
- * original API arguments, onSuccess, onError, request params.
+ * Extracts wrapper arguments in this order:
+ *
+ * 1. Original API arguments
+ * 2. Optional success callback
+ * 3. Optional error callback
+ * 4. Optional request params
  */
 export function extractArgsCallbacksAndParams<
-  TArgs extends readonly unknown[],
-  TSuccess,
+  TArgs extends unknown[],
+  TResponse,
   TError = unknown,
 >(
   argsWithCallbacks: [
     ...TArgs,
-    ApiSuccessHandler<TSuccess>?,
+    ApiSuccessHandler<TResponse>?,
     ApiErrorHandler<TError>?,
     RuntimeRequestParams?,
   ],
 ): {
   args: TArgs;
-  onSuccess?: ApiSuccessHandler<TSuccess>;
+  onSuccess?: ApiSuccessHandler<TResponse>;
   onError?: ApiErrorHandler<TError>;
   params?: RuntimeRequestParams;
 } {
   const values = [...argsWithCallbacks] as unknown[];
 
-  let onSuccess: ApiSuccessHandler<TSuccess> | undefined;
+  let onSuccess: ApiSuccessHandler<TResponse> | undefined;
   let onError: ApiErrorHandler<TError> | undefined;
   let params: RuntimeRequestParams | undefined;
 
@@ -60,12 +71,12 @@ export function extractArgsCallbacksAndParams<
   lastArgument = values[values.length - 1];
 
   if (isCallback(lastArgument)) {
-    onSuccess = lastArgument as ApiSuccessHandler<TSuccess>;
+    onSuccess = lastArgument as ApiSuccessHandler<TResponse>;
     values.pop();
   }
 
   return {
-    args: values as unknown as TArgs,
+    args: values as TArgs,
     onSuccess,
     onError,
     params,

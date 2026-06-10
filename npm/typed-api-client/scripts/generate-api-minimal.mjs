@@ -126,35 +126,6 @@ ${names.map((name) => `  ${name},`).join("\n")}
 } from "${from}";`;
 }
 
-async function createTypesFile() {
-  const httpClientImport = useTypeOnlyImports
-    ? `import type { HttpResponse, RequestParams } from "../generated/http-client";`
-    : `import { HttpResponse, RequestParams } from "../generated/http-client";`;
-
-  const content = `
-${httpClientImport}
-
-export type ExtractResponse<T> =
-  T extends Promise<HttpResponse<infer R, any>> ? R : never;
-
-export type UnwrapArray<T> = T extends (infer U)[] ? U : T;
-
-export type ExtractDataIfPaginated<T> =
-  T extends { data?: (infer U)[] | null } ? U : T;
-
-export type SortableKeys<T> = keyof UnwrapArray<ExtractDataIfPaginated<T>>;
-
-export type WithoutRequestParams<T extends any[]> =
-  T extends [infer First, ...infer Rest]
-    ? First extends RequestParams
-      ? Rest
-      : [First, ...WithoutRequestParams<Rest>]
-    : [];
-`.trim();
-
-  await writeFormattedFile(path.join(methodsDir, "Types.ts"), content);
-}
-
 function getAllTsFiles(dir) {
   let results = [];
 
@@ -380,7 +351,11 @@ export async function ${methodName}(
     ExtractResponse<ReturnType<${className}["${methodName}"]>>
   > | null = null,
   sortDirection?: SortDirection,
-  toastOptions?: ToastOptions
+  onSuccess?: ApiSuccessHandler<
+    ExtractResponse<ReturnType<${className}["${methodName}"]>>
+  >,
+  onError?: ApiErrorHandler,
+  params?: RequestParams
 ): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
   return handleApiResponse(
     () =>
@@ -392,9 +367,10 @@ export async function ${methodName}(
               ExtractResponse<ReturnType<${className}["${methodName}"]>>
             >
           >
-        >(filters, page, pageSize, sortBy, sortDirection)
+        >(filters, page, pageSize, sortBy, sortDirection),
+        params ?? {}
       ),
-    toastOptions
+    { onSuccess, onError }
   );
 }
 `.trim();
@@ -403,11 +379,15 @@ export async function ${methodName}(
         return `
 export async function ${methodName}(
   query?: ${toQueryName(methodName)},
-  toastOptions?: ToastOptions
+  onSuccess?: ApiSuccessHandler<
+    ExtractResponse<ReturnType<${className}["${methodName}"]>>
+  >,
+  onError?: ApiErrorHandler,
+  params?: RequestParams
 ): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
   return handleApiResponse(
-    () => ${instanceName}.${methodName}(query),
-    toastOptions
+    () => ${instanceName}.${methodName}(query, params ?? {}),
+    { onSuccess, onError }
   );
 }
 `.trim();
@@ -419,7 +399,11 @@ export async function ${methodName}(
         `
 export async function ${methodName}(
   query?: ${toQueryName(methodName)},
-  toastOptions?: ToastOptions
+  onSuccess?: ApiSuccessHandler<
+    ExtractResponse<ReturnType<${className}["${methodName}"]>>
+  >,
+  onError?: ApiErrorHandler,
+  params?: RequestParams
 ): Promise<
   ApiResult<
     ExtractResponse<
@@ -431,8 +415,8 @@ export async function ${methodName}(
 > {
   return handleApiResponse(
     () =>
-      ${instanceName}.${methodName}(query),
-    toastOptions
+      ${instanceName}.${methodName}(query, params ?? {}),
+    { onSuccess, onError }
   );
 }
 `.trim(),
@@ -447,7 +431,10 @@ export async function ${methodName}(
   data: Parameters<
     ${className}["${methodName}"]
   >[0],
-  toastOptions?: ToastOptions,
+  onSuccess?: ApiSuccessHandler<
+    ExtractResponse<ReturnType<${className}["${methodName}"]>>
+  >,
+  onError?: ApiErrorHandler,
   params?: RequestParams
 ): Promise<
   ApiResult<
@@ -468,7 +455,7 @@ export async function ${methodName}(
         >[0],
         params ?? {}
       ),
-    toastOptions
+    { onSuccess, onError }
   );
 }
 `.trim();
@@ -476,13 +463,18 @@ export async function ${methodName}(
 
         return `
 export async function ${methodName}(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        ${className}["${methodName}"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      ${className}["${methodName}"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          ${className}["${methodName}"]
+        >
+      >
+    >?,
+    ApiErrorHandler?,
     RequestParams?
   ]
 ): Promise<
@@ -496,15 +488,19 @@ export async function ${methodName}(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      ${className}["${methodName}"]
+    >,
+    ExtractResponse<
+      ReturnType<
         ${className}["${methodName}"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -518,7 +514,10 @@ export async function ${methodName}(
       ${instanceName}.${methodName}(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess,
+      onError
+    }
   );
 }
 `.trim();
@@ -527,25 +526,25 @@ export async function ${methodName}(
 
     const runtimeValueImportNames = [
       ...(hasPaginatedMethods && useFilterFormValues ? ["buildQuery"] : []),
-      ...(hasRegularNonQueryMethods ? ["extractArgsToastsAndParams"] : []),
+      ...(hasRegularNonQueryMethods ? ["extractArgsCallbacksAndParams"] : []),
       ...(hasFormDataMethods ? ["toFormData"] : []),
       "handleApiResponse",
     ];
-
     const runtimeTypeImportNames = [
       "ApiResult",
-      ...(hasPaginatedMethods && useFilterFormValues
-        ? ["FilterFormValues", "SortDirection"]
-        : []),
-      "ToastOptions",
-    ];
-
-    const localTypeImportNames = [
-      ...(hasPaginatedMethods && useFilterFormValues
-        ? ["ExtractDataIfPaginated", "SortableKeys", "UnwrapArray"]
-        : []),
+      "ApiSuccessHandler",
+      "ApiErrorHandler",
       "ExtractResponse",
-      ...(hasRegularNonQueryMethods ? ["WithoutRequestParams"] : []),
+
+      ...(hasPaginatedMethods && useFilterFormValues
+        ? [
+            "ExtractDataIfPaginated",
+            "FilterFormValues",
+            "SortableKeys",
+            "SortDirection",
+            "UnwrapArray",
+          ]
+        : []),
     ];
 
     const runtimeValueImports = createImportStatement({
@@ -564,19 +563,28 @@ export async function ${methodName}(
       from: `../generated/${baseName}`,
     });
 
-    const generatedTypeImports = hasNonQueryMethods
-      ? createImportStatement({
-          names: ["RequestParams"],
-          from: "../generated/http-client",
-          typeOnly: useTypeOnlyImports,
-        })
-      : "";
+    const generatedTypeImports =
+      generatedMethods.length > 0
+        ? createImportStatement({
+            names: ["RequestParams"],
+            from: "../generated/http-client",
+            typeOnly: useTypeOnlyImports,
+          })
+        : "";
 
-    const localTypeImports = createImportStatement({
-      names: localTypeImportNames,
-      from: "./Types",
-      typeOnly: useTypeOnlyImports,
-    });
+    const apiMethodArgumentsType = hasRegularNonQueryMethods
+      ? `
+    type ApiMethodArguments<
+      TMethod extends (...args: any[]) => unknown
+    > =
+      Parameters<TMethod> extends [
+        ...infer Arguments,
+        unknown?
+      ]
+        ? Arguments
+        : Parameters<TMethod>;
+    `.trim()
+      : "";
 
     const content = `
 ${runtimeValueImports}
@@ -587,7 +595,7 @@ ${generatedValueImports}
 
 ${generatedTypeImports}
 
-${localTypeImports}
+${apiMethodArgumentsType}
 
 /* =======================
    Query Types
@@ -625,8 +633,6 @@ ${nonQueryMethodWrappers}
   const apiIndexContent = `
 export * from "./generated/data-contracts";
 export * from "./generated/http-client";
-export * from "./methods/Types";
-
 ${methodExports.join("\n")}
 `.trim();
 
@@ -723,7 +729,6 @@ async function main() {
 
   await fixGeneratedMixedImports(generatedDir);
 
-  await createTypesFile();
   await createMethodFiles();
 
   console.log("API generation completed.");

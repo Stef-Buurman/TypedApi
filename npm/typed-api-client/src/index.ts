@@ -1,14 +1,10 @@
-export * from "./api/methods/Types";
-
 export * from "./interfaces/ApiResult";
 export * from "./interfaces/Filter";
 export * from "./interfaces/SortType";
 
-export * from "./toast/toast";
-export * from "./toast/ToastProvider";
-
+export * from "./types/ApiMethodTypes";
 export * from "./types/HttpResponse";
-export * from "./types/ToastTypes";
+export * from "./types/ApiCallOptions";
 
 export * from "./utils/buildQuery";
 export * from "./utils/extractArgsToastsAndParams";
