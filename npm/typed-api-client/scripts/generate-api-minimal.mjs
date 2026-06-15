@@ -617,7 +617,11 @@ export async function ${methodName}(
   params?: RequestParams
 ): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
   return handleApiResponse(
-    () => ${instanceName}.${methodName}(query, params ?? {}),
+    () =>
+      ${instanceName}.${methodName}(
+        (query ?? {}) as ${toQueryName(methodName)},
+        params ?? {}
+      ),
     ${callbackOptionsExpression(defaultHandlers)}
   );
 }
@@ -648,7 +652,10 @@ export async function ${methodName}(
 > {
   return handleApiResponse(
     () =>
-      ${instanceName}.${methodName}(query, params ?? {}),
+      ${instanceName}.${methodName}(
+        (query ?? {}) as ${toQueryName(methodName)},
+        params ?? {}
+      ),
     ${callbackOptionsExpression(defaultHandlers)}
   );
 }
