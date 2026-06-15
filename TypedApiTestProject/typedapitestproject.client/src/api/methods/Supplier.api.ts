@@ -1,14 +1,25 @@
 import {
   buildQuery,
-  extractArgsToastsAndParams,
+  extractArgsCallbacksAndParams,
   handleApiResponse,
 } from "typedapi-client-helpers";
 
+import {
+  handleGoodResult as typedApiDefaultSuccessHandler,
+  handleErrors as typedApiDefaultErrorHandler,
+} from "../../defaultApiFunctions";
+
 import type {
   ApiResult,
+  ApiSuccessHandler,
+  ApiErrorHandler,
+  ExtractResponse,
+  ExtractError,
+  ExtractDataIfPaginated,
   FilterFormValues,
+  SortableKeys,
   SortDirection,
-  ToastOptions,
+  UnwrapArray,
 } from "typedapi-client-helpers";
 
 import {
@@ -19,13 +30,15 @@ import type {
   RequestParams,
 } from "../generated/http-client";
 
-import type {
-  ExtractDataIfPaginated,
-  SortableKeys,
-  UnwrapArray,
-  ExtractResponse,
-  WithoutRequestParams,
-} from "./Types";
+type ApiMethodArguments<
+      TMethod extends (...args: any[]) => unknown
+    > =
+      Parameters<TMethod> extends [
+        ...infer Arguments,
+        unknown?
+      ]
+        ? Arguments
+        : Parameters<TMethod>;
 
 /* =======================
    Query Types
@@ -51,7 +64,13 @@ export async function getSuppliers(
     ExtractResponse<ReturnType<Supplier["getSuppliers"]>>
   > | null = null,
   sortDirection?: SortDirection,
-  toastOptions?: ToastOptions
+  onSuccess?: ApiSuccessHandler<
+    ExtractResponse<ReturnType<Supplier["getSuppliers"]>>
+  >,
+  onError?: ApiErrorHandler<
+    ExtractError<ReturnType<Supplier["getSuppliers"]>>
+  >,
+  params?: RequestParams
 ): Promise<ApiResult<ExtractResponse<ReturnType<Supplier["getSuppliers"]>>>> {
   return handleApiResponse(
     () =>
@@ -63,9 +82,13 @@ export async function getSuppliers(
               ExtractResponse<ReturnType<Supplier["getSuppliers"]>>
             >
           >
-        >(filters, page, pageSize, sortBy, sortDirection)
+        >(filters, page, pageSize, sortBy, sortDirection),
+        params ?? {}
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
@@ -78,13 +101,24 @@ export async function getSuppliers(
    Non-Query Methods
    ======================= */
 export async function createSupplier(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Supplier["createSupplier"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Supplier["createSupplier"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Supplier["createSupplier"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Supplier["createSupplier"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -98,15 +132,24 @@ export async function createSupplier(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Supplier["createSupplier"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Supplier["createSupplier"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Supplier["createSupplier"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -120,18 +163,32 @@ export async function createSupplier(
       supplierApi.createSupplier(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function getSupplierById(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Supplier["getSupplierById"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Supplier["getSupplierById"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Supplier["getSupplierById"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Supplier["getSupplierById"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -145,15 +202,24 @@ export async function getSupplierById(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Supplier["getSupplierById"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Supplier["getSupplierById"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Supplier["getSupplierById"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -167,18 +233,32 @@ export async function getSupplierById(
       supplierApi.getSupplierById(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function updateSupplier(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Supplier["updateSupplier"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Supplier["updateSupplier"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Supplier["updateSupplier"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Supplier["updateSupplier"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -192,15 +272,24 @@ export async function updateSupplier(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Supplier["updateSupplier"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Supplier["updateSupplier"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Supplier["updateSupplier"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -214,18 +303,32 @@ export async function updateSupplier(
       supplierApi.updateSupplier(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function deleteSupplier(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Supplier["deleteSupplier"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Supplier["deleteSupplier"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Supplier["deleteSupplier"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Supplier["deleteSupplier"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -239,15 +342,24 @@ export async function deleteSupplier(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Supplier["deleteSupplier"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Supplier["deleteSupplier"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Supplier["deleteSupplier"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -261,18 +373,32 @@ export async function deleteSupplier(
       supplierApi.deleteSupplier(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function verifySupplier(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Supplier["verifySupplier"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Supplier["verifySupplier"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Supplier["verifySupplier"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Supplier["verifySupplier"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -286,15 +412,24 @@ export async function verifySupplier(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Supplier["verifySupplier"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Supplier["verifySupplier"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Supplier["verifySupplier"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -308,6 +443,9 @@ export async function verifySupplier(
       supplierApi.verifySupplier(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }

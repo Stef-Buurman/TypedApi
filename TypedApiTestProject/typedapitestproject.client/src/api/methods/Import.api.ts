@@ -3,9 +3,17 @@ import {
   handleApiResponse,
 } from "typedapi-client-helpers";
 
+import {
+  handleGoodResult as typedApiDefaultSuccessHandler,
+  handleErrors as typedApiDefaultErrorHandler,
+} from "../../defaultApiFunctions";
+
 import type {
   ApiResult,
-  ToastOptions,
+  ApiSuccessHandler,
+  ApiErrorHandler,
+  ExtractResponse,
+  ExtractError,
 } from "typedapi-client-helpers";
 
 import {
@@ -16,9 +24,7 @@ import type {
   RequestParams,
 } from "../generated/http-client";
 
-import type {
-  ExtractResponse,
-} from "./Types";
+
 
 /* =======================
    Query Types
@@ -47,7 +53,12 @@ export async function uploadProductFiles(
   data: Parameters<
     Import["uploadProductFiles"]
   >[0],
-  toastOptions?: ToastOptions,
+  onSuccess?: ApiSuccessHandler<
+    ExtractResponse<ReturnType<Import["uploadProductFiles"]>>
+  >,
+  onError?: ApiErrorHandler<
+    ExtractError<ReturnType<Import["uploadProductFiles"]>>
+  >,
   params?: RequestParams
 ): Promise<
   ApiResult<
@@ -68,7 +79,10 @@ export async function uploadProductFiles(
         >[0],
         params ?? {}
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
@@ -76,7 +90,12 @@ export async function uploadSupplierFile(
   data: Parameters<
     Import["uploadSupplierFile"]
   >[0],
-  toastOptions?: ToastOptions,
+  onSuccess?: ApiSuccessHandler<
+    ExtractResponse<ReturnType<Import["uploadSupplierFile"]>>
+  >,
+  onError?: ApiErrorHandler<
+    ExtractError<ReturnType<Import["uploadSupplierFile"]>>
+  >,
   params?: RequestParams
 ): Promise<
   ApiResult<
@@ -97,7 +116,10 @@ export async function uploadSupplierFile(
         >[0],
         params ?? {}
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
@@ -105,7 +127,12 @@ export async function uploadMixedImport(
   data: Parameters<
     Import["uploadMixedImport"]
   >[0],
-  toastOptions?: ToastOptions,
+  onSuccess?: ApiSuccessHandler<
+    ExtractResponse<ReturnType<Import["uploadMixedImport"]>>
+  >,
+  onError?: ApiErrorHandler<
+    ExtractError<ReturnType<Import["uploadMixedImport"]>>
+  >,
   params?: RequestParams
 ): Promise<
   ApiResult<
@@ -126,6 +153,9 @@ export async function uploadMixedImport(
         >[0],
         params ?? {}
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }

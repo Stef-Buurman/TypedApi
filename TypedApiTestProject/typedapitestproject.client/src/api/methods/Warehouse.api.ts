@@ -1,14 +1,25 @@
 import {
   buildQuery,
-  extractArgsToastsAndParams,
+  extractArgsCallbacksAndParams,
   handleApiResponse,
 } from "typedapi-client-helpers";
 
+import {
+  handleGoodResult as typedApiDefaultSuccessHandler,
+  handleErrors as typedApiDefaultErrorHandler,
+} from "../../defaultApiFunctions";
+
 import type {
   ApiResult,
+  ApiSuccessHandler,
+  ApiErrorHandler,
+  ExtractResponse,
+  ExtractError,
+  ExtractDataIfPaginated,
   FilterFormValues,
+  SortableKeys,
   SortDirection,
-  ToastOptions,
+  UnwrapArray,
 } from "typedapi-client-helpers";
 
 import {
@@ -19,13 +30,15 @@ import type {
   RequestParams,
 } from "../generated/http-client";
 
-import type {
-  ExtractDataIfPaginated,
-  SortableKeys,
-  UnwrapArray,
-  ExtractResponse,
-  WithoutRequestParams,
-} from "./Types";
+type ApiMethodArguments<
+      TMethod extends (...args: any[]) => unknown
+    > =
+      Parameters<TMethod> extends [
+        ...infer Arguments,
+        unknown?
+      ]
+        ? Arguments
+        : Parameters<TMethod>;
 
 /* =======================
    Query Types
@@ -51,7 +64,13 @@ export async function getWarehouses(
     ExtractResponse<ReturnType<Warehouse["getWarehouses"]>>
   > | null = null,
   sortDirection?: SortDirection,
-  toastOptions?: ToastOptions
+  onSuccess?: ApiSuccessHandler<
+    ExtractResponse<ReturnType<Warehouse["getWarehouses"]>>
+  >,
+  onError?: ApiErrorHandler<
+    ExtractError<ReturnType<Warehouse["getWarehouses"]>>
+  >,
+  params?: RequestParams
 ): Promise<ApiResult<ExtractResponse<ReturnType<Warehouse["getWarehouses"]>>>> {
   return handleApiResponse(
     () =>
@@ -63,9 +82,13 @@ export async function getWarehouses(
               ExtractResponse<ReturnType<Warehouse["getWarehouses"]>>
             >
           >
-        >(filters, page, pageSize, sortBy, sortDirection)
+        >(filters, page, pageSize, sortBy, sortDirection),
+        params ?? {}
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
@@ -78,13 +101,24 @@ export async function getWarehouses(
    Non-Query Methods
    ======================= */
 export async function createWarehouse(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Warehouse["createWarehouse"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Warehouse["createWarehouse"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Warehouse["createWarehouse"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Warehouse["createWarehouse"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -98,15 +132,24 @@ export async function createWarehouse(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Warehouse["createWarehouse"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Warehouse["createWarehouse"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Warehouse["createWarehouse"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -120,18 +163,32 @@ export async function createWarehouse(
       warehouseApi.createWarehouse(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function getWarehouseById(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Warehouse["getWarehouseById"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Warehouse["getWarehouseById"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Warehouse["getWarehouseById"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Warehouse["getWarehouseById"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -145,15 +202,24 @@ export async function getWarehouseById(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Warehouse["getWarehouseById"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Warehouse["getWarehouseById"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Warehouse["getWarehouseById"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -167,18 +233,32 @@ export async function getWarehouseById(
       warehouseApi.getWarehouseById(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function updateWarehouse(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Warehouse["updateWarehouse"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Warehouse["updateWarehouse"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Warehouse["updateWarehouse"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Warehouse["updateWarehouse"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -192,15 +272,24 @@ export async function updateWarehouse(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Warehouse["updateWarehouse"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Warehouse["updateWarehouse"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Warehouse["updateWarehouse"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -214,18 +303,32 @@ export async function updateWarehouse(
       warehouseApi.updateWarehouse(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function deleteWarehouse(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Warehouse["deleteWarehouse"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Warehouse["deleteWarehouse"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Warehouse["deleteWarehouse"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Warehouse["deleteWarehouse"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -239,15 +342,24 @@ export async function deleteWarehouse(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Warehouse["deleteWarehouse"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Warehouse["deleteWarehouse"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Warehouse["deleteWarehouse"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -261,6 +373,9 @@ export async function deleteWarehouse(
       warehouseApi.deleteWarehouse(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }

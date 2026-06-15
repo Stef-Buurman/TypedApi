@@ -71,11 +71,6 @@ type TestDefinition = Omit<TestResult, "status"> & {
   capture?: (data: unknown, context: TestContext) => void;
 };
 
-const noToasts = {
-  toastSuccess: undefined,
-  toastError: undefined,
-};
-
 const productBody = (supplierId: string) => ({
   name: "Frontend test product",
   sku: `TEST-${Date.now()}`,
@@ -145,7 +140,7 @@ const tests: TestDefinition[] = [
     name: "Upload product files",
     method: "POST",
     path: "/api/imports/products",
-    run: () => uploadProductFiles({ Files: testFiles(2) }, noToasts),
+    run: () => uploadProductFiles({ Files: testFiles(2) }),
   },
   {
     id: "import-supplier",
@@ -153,7 +148,7 @@ const tests: TestDefinition[] = [
     name: "Upload supplier file",
     method: "POST",
     path: "/api/imports/supplier",
-    run: () => uploadSupplierFile({ File: testFiles(1)[0] }, noToasts),
+    run: () => uploadSupplierFile({ File: testFiles(1)[0] }),
   },
   {
     id: "import-mixed",
@@ -162,14 +157,11 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/imports/mixed",
     run: () =>
-      uploadMixedImport(
-        {
-          Files: testFiles(2),
-          ImportName: "Frontend suite",
-          ValidateOnly: true,
-        },
-        noToasts,
-      ),
+      uploadMixedImport({
+        Files: testFiles(2),
+        ImportName: "Frontend suite",
+        ValidateOnly: true,
+      }),
   },
 
   {
@@ -186,7 +178,7 @@ const tests: TestDefinition[] = [
     name: "Create supplier",
     method: "POST",
     path: "/api/suppliers",
-    run: () => createSupplier(supplierBody, noToasts),
+    run: () => createSupplier(supplierBody),
     capture: (data, context) => {
       context.supplierId = extractId(data);
     },
@@ -213,7 +205,6 @@ const tests: TestDefinition[] = [
           ...supplierBody,
           companyName: "Updated Frontend Supplier",
         },
-        noToasts,
       ),
   },
   {
@@ -223,10 +214,7 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/suppliers/{id}/verify",
     run: (context) =>
-      verifySupplier(
-        { id: requireId(context.supplierId, "Supplier ID") },
-        noToasts,
-      ),
+      verifySupplier({ id: requireId(context.supplierId, "Supplier ID") }),
   },
 
   {
@@ -244,10 +232,7 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/products",
     run: (context) =>
-      createProduct(
-        productBody(requireId(context.supplierId, "Supplier ID")),
-        noToasts,
-      ),
+      createProduct(productBody(requireId(context.supplierId, "Supplier ID"))),
     capture: (data, context) => {
       context.productId = extractId(data);
     },
@@ -274,7 +259,6 @@ const tests: TestDefinition[] = [
           ...productBody(requireId(context.supplierId, "Supplier ID")),
           name: "Updated frontend product",
         },
-        noToasts,
       ),
   },
   {
@@ -284,10 +268,7 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/products/{id}/toggle-active",
     run: (context) =>
-      toggleProductActive(
-        { id: requireId(context.productId, "Product ID") },
-        noToasts,
-      ),
+      toggleProductActive({ id: requireId(context.productId, "Product ID") }),
   },
   {
     id: "products-export",
@@ -312,7 +293,7 @@ const tests: TestDefinition[] = [
     name: "Create warehouse",
     method: "POST",
     path: "/api/warehouses",
-    run: () => createWarehouse(warehouseBody, noToasts),
+    run: () => createWarehouse(warehouseBody),
     capture: (data, context) => {
       context.warehouseId = extractId(data);
     },
@@ -341,7 +322,6 @@ const tests: TestDefinition[] = [
           ...warehouseBody,
           name: "Updated Frontend Warehouse",
         },
-        noToasts,
       ),
   },
 
@@ -360,15 +340,12 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/orders",
     run: (context) =>
-      createOrder(
-        {
-          request: orderBody(
-            requireId(context.productId, "Product ID"),
-            requireId(context.supplierId, "Supplier ID"),
-          ),
-        } as unknown as ReturnType<typeof orderBody>,
-        noToasts,
-      ),
+      createOrder({
+        request: orderBody(
+          requireId(context.productId, "Product ID"),
+          requireId(context.supplierId, "Supplier ID"),
+        ),
+      } as unknown as ReturnType<typeof orderBody>),
     capture: (data, context) => {
       context.orderId = extractId(data);
     },
@@ -389,20 +366,16 @@ const tests: TestDefinition[] = [
     method: "PUT",
     path: "/api/orders/{id}",
     run: (context) =>
-      updateOrder(
-        { id: requireId(context.orderId, "Order ID") },
-        {
-          request: {
-            ...orderBody(
-              requireId(context.productId, "Product ID"),
-              requireId(context.supplierId, "Supplier ID"),
-            ),
-            quantity: 4,
-            totalPrice: 79.8,
-          },
-        } as unknown as ReturnType<typeof orderBody>,
-        noToasts,
-      ),
+      updateOrder({ id: requireId(context.orderId, "Order ID") }, {
+        request: {
+          ...orderBody(
+            requireId(context.productId, "Product ID"),
+            requireId(context.supplierId, "Supplier ID"),
+          ),
+          quantity: 4,
+          totalPrice: 79.8,
+        },
+      } as unknown as ReturnType<typeof orderBody>),
   },
   {
     id: "orders-approve",
@@ -411,7 +384,7 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/orders/{id}/approve",
     run: (context) =>
-      approveOrder({ id: requireId(context.orderId, "Order ID") }, noToasts),
+      approveOrder({ id: requireId(context.orderId, "Order ID") }),
   },
   {
     id: "orders-cancel",
@@ -420,7 +393,7 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/orders/{id}/cancel",
     run: (context) =>
-      cancelOrder({ id: requireId(context.orderId, "Order ID") }, noToasts),
+      cancelOrder({ id: requireId(context.orderId, "Order ID") }),
   },
 
   {
@@ -430,7 +403,7 @@ const tests: TestDefinition[] = [
     method: "DELETE",
     path: "/api/orders/{id}",
     run: (context) =>
-      deleteOrder({ id: requireId(context.orderId, "Order ID") }, noToasts),
+      deleteOrder({ id: requireId(context.orderId, "Order ID") }),
   },
   {
     id: "products-delete",
@@ -439,10 +412,7 @@ const tests: TestDefinition[] = [
     method: "DELETE",
     path: "/api/products/{id}",
     run: (context) =>
-      deleteProduct(
-        { id: requireId(context.productId, "Product ID") },
-        noToasts,
-      ),
+      deleteProduct({ id: requireId(context.productId, "Product ID") }),
   },
   {
     id: "warehouses-delete",
@@ -451,10 +421,7 @@ const tests: TestDefinition[] = [
     method: "DELETE",
     path: "/api/warehouses/{id}",
     run: (context) =>
-      deleteWarehouse(
-        { id: requireId(context.warehouseId, "Warehouse ID") },
-        noToasts,
-      ),
+      deleteWarehouse({ id: requireId(context.warehouseId, "Warehouse ID") }),
   },
   {
     id: "suppliers-delete",
@@ -463,10 +430,7 @@ const tests: TestDefinition[] = [
     method: "DELETE",
     path: "/api/suppliers/{id}",
     run: (context) =>
-      deleteSupplier(
-        { id: requireId(context.supplierId, "Supplier ID") },
-        noToasts,
-      ),
+      deleteSupplier({ id: requireId(context.supplierId, "Supplier ID") }),
   },
 ];
 
@@ -575,18 +539,15 @@ function App() {
       let result: ApiResult<unknown>;
 
       if (manualUploadEndpoint === "products") {
-        result = await uploadProductFiles({ Files: selectedFiles }, noToasts);
+        result = await uploadProductFiles({ Files: selectedFiles });
       } else if (manualUploadEndpoint === "supplier") {
-        result = await uploadSupplierFile({ File: selectedFiles[0] }, noToasts);
+        result = await uploadSupplierFile({ File: selectedFiles[0] });
       } else {
-        result = await uploadMixedImport(
-          {
-            Files: selectedFiles,
-            ImportName: "Manual frontend upload",
-            ValidateOnly: false,
-          },
-          noToasts,
-        );
+        result = await uploadMixedImport({
+          Files: selectedFiles,
+          ImportName: "Manual frontend upload",
+          ValidateOnly: false,
+        });
       }
 
       setManualUploadResult(

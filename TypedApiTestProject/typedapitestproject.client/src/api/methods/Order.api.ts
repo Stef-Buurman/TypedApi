@@ -1,14 +1,25 @@
 import {
   buildQuery,
-  extractArgsToastsAndParams,
+  extractArgsCallbacksAndParams,
   handleApiResponse,
 } from "typedapi-client-helpers";
 
+import {
+  handleGoodResult as typedApiDefaultSuccessHandler,
+  handleErrors as typedApiDefaultErrorHandler,
+} from "../../defaultApiFunctions";
+
 import type {
   ApiResult,
+  ApiSuccessHandler,
+  ApiErrorHandler,
+  ExtractResponse,
+  ExtractError,
+  ExtractDataIfPaginated,
   FilterFormValues,
+  SortableKeys,
   SortDirection,
-  ToastOptions,
+  UnwrapArray,
 } from "typedapi-client-helpers";
 
 import {
@@ -19,13 +30,15 @@ import type {
   RequestParams,
 } from "../generated/http-client";
 
-import type {
-  ExtractDataIfPaginated,
-  SortableKeys,
-  UnwrapArray,
-  ExtractResponse,
-  WithoutRequestParams,
-} from "./Types";
+type ApiMethodArguments<
+      TMethod extends (...args: any[]) => unknown
+    > =
+      Parameters<TMethod> extends [
+        ...infer Arguments,
+        unknown?
+      ]
+        ? Arguments
+        : Parameters<TMethod>;
 
 /* =======================
    Query Types
@@ -51,7 +64,13 @@ export async function getOrders(
     ExtractResponse<ReturnType<Order["getOrders"]>>
   > | null = null,
   sortDirection?: SortDirection,
-  toastOptions?: ToastOptions
+  onSuccess?: ApiSuccessHandler<
+    ExtractResponse<ReturnType<Order["getOrders"]>>
+  >,
+  onError?: ApiErrorHandler<
+    ExtractError<ReturnType<Order["getOrders"]>>
+  >,
+  params?: RequestParams
 ): Promise<ApiResult<ExtractResponse<ReturnType<Order["getOrders"]>>>> {
   return handleApiResponse(
     () =>
@@ -63,9 +82,13 @@ export async function getOrders(
               ExtractResponse<ReturnType<Order["getOrders"]>>
             >
           >
-        >(filters, page, pageSize, sortBy, sortDirection)
+        >(filters, page, pageSize, sortBy, sortDirection),
+        params ?? {}
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
@@ -78,13 +101,24 @@ export async function getOrders(
    Non-Query Methods
    ======================= */
 export async function createOrder(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Order["createOrder"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Order["createOrder"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Order["createOrder"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Order["createOrder"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -98,15 +132,24 @@ export async function createOrder(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Order["createOrder"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Order["createOrder"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Order["createOrder"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -120,18 +163,32 @@ export async function createOrder(
       orderApi.createOrder(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function getOrderById(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Order["getOrderById"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Order["getOrderById"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Order["getOrderById"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Order["getOrderById"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -145,15 +202,24 @@ export async function getOrderById(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Order["getOrderById"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Order["getOrderById"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Order["getOrderById"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -167,18 +233,32 @@ export async function getOrderById(
       orderApi.getOrderById(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function updateOrder(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Order["updateOrder"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Order["updateOrder"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Order["updateOrder"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Order["updateOrder"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -192,15 +272,24 @@ export async function updateOrder(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Order["updateOrder"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Order["updateOrder"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Order["updateOrder"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -214,18 +303,32 @@ export async function updateOrder(
       orderApi.updateOrder(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function deleteOrder(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Order["deleteOrder"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Order["deleteOrder"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Order["deleteOrder"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Order["deleteOrder"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -239,15 +342,24 @@ export async function deleteOrder(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Order["deleteOrder"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Order["deleteOrder"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Order["deleteOrder"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -261,18 +373,32 @@ export async function deleteOrder(
       orderApi.deleteOrder(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function approveOrder(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Order["approveOrder"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Order["approveOrder"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Order["approveOrder"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Order["approveOrder"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -286,15 +412,24 @@ export async function approveOrder(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Order["approveOrder"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Order["approveOrder"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Order["approveOrder"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -308,18 +443,32 @@ export async function approveOrder(
       orderApi.approveOrder(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function cancelOrder(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Order["cancelOrder"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Order["cancelOrder"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Order["cancelOrder"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Order["cancelOrder"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -333,15 +482,24 @@ export async function cancelOrder(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Order["cancelOrder"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Order["cancelOrder"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Order["cancelOrder"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -355,6 +513,9 @@ export async function cancelOrder(
       orderApi.cancelOrder(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }

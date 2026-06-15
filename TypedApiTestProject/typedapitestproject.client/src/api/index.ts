@@ -1,7 +1,5 @@
 export * from "./generated/data-contracts";
 export * from "./generated/http-client";
-export * from "./methods/Types";
-
 export * from "./methods/Import.api";
 export * from "./methods/Order.api";
 export * from "./methods/Product.api";

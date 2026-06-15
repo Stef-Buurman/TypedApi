@@ -1,14 +1,25 @@
 import {
   buildQuery,
-  extractArgsToastsAndParams,
+  extractArgsCallbacksAndParams,
   handleApiResponse,
 } from "typedapi-client-helpers";
 
+import {
+  handleGoodResult as typedApiDefaultSuccessHandler,
+  handleErrors as typedApiDefaultErrorHandler,
+} from "../../defaultApiFunctions";
+
 import type {
   ApiResult,
+  ApiSuccessHandler,
+  ApiErrorHandler,
+  ExtractResponse,
+  ExtractError,
+  ExtractDataIfPaginated,
   FilterFormValues,
+  SortableKeys,
   SortDirection,
-  ToastOptions,
+  UnwrapArray,
 } from "typedapi-client-helpers";
 
 import {
@@ -19,13 +30,15 @@ import type {
   RequestParams,
 } from "../generated/http-client";
 
-import type {
-  ExtractDataIfPaginated,
-  SortableKeys,
-  UnwrapArray,
-  ExtractResponse,
-  WithoutRequestParams,
-} from "./Types";
+type ApiMethodArguments<
+      TMethod extends (...args: any[]) => unknown
+    > =
+      Parameters<TMethod> extends [
+        ...infer Arguments,
+        unknown?
+      ]
+        ? Arguments
+        : Parameters<TMethod>;
 
 /* =======================
    Query Types
@@ -56,7 +69,13 @@ export async function getProducts(
     ExtractResponse<ReturnType<Product["getProducts"]>>
   > | null = null,
   sortDirection?: SortDirection,
-  toastOptions?: ToastOptions
+  onSuccess?: ApiSuccessHandler<
+    ExtractResponse<ReturnType<Product["getProducts"]>>
+  >,
+  onError?: ApiErrorHandler<
+    ExtractError<ReturnType<Product["getProducts"]>>
+  >,
+  params?: RequestParams
 ): Promise<ApiResult<ExtractResponse<ReturnType<Product["getProducts"]>>>> {
   return handleApiResponse(
     () =>
@@ -68,9 +87,13 @@ export async function getProducts(
               ExtractResponse<ReturnType<Product["getProducts"]>>
             >
           >
-        >(filters, page, pageSize, sortBy, sortDirection)
+        >(filters, page, pageSize, sortBy, sortDirection),
+        params ?? {}
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
@@ -79,7 +102,13 @@ export async function getProducts(
    ======================= */
 export async function exportProducts(
   query?: ExportProductsQuery,
-  toastOptions?: ToastOptions
+  onSuccess?: ApiSuccessHandler<
+    ExtractResponse<ReturnType<Product["exportProducts"]>>
+  >,
+  onError?: ApiErrorHandler<
+    ExtractError<ReturnType<Product["exportProducts"]>>
+  >,
+  params?: RequestParams
 ): Promise<
   ApiResult<
     ExtractResponse<
@@ -91,8 +120,11 @@ export async function exportProducts(
 > {
   return handleApiResponse(
     () =>
-      productApi.exportProducts(query),
-    toastOptions
+      productApi.exportProducts(query, params ?? {}),
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
@@ -100,13 +132,24 @@ export async function exportProducts(
    Non-Query Methods
    ======================= */
 export async function createProduct(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Product["createProduct"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Product["createProduct"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Product["createProduct"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Product["createProduct"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -120,15 +163,24 @@ export async function createProduct(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Product["createProduct"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Product["createProduct"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Product["createProduct"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -142,18 +194,32 @@ export async function createProduct(
       productApi.createProduct(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function getProductById(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Product["getProductById"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Product["getProductById"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Product["getProductById"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Product["getProductById"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -167,15 +233,24 @@ export async function getProductById(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Product["getProductById"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Product["getProductById"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Product["getProductById"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -189,18 +264,32 @@ export async function getProductById(
       productApi.getProductById(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function updateProduct(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Product["updateProduct"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Product["updateProduct"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Product["updateProduct"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Product["updateProduct"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -214,15 +303,24 @@ export async function updateProduct(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Product["updateProduct"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Product["updateProduct"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Product["updateProduct"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -236,18 +334,32 @@ export async function updateProduct(
       productApi.updateProduct(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function deleteProduct(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Product["deleteProduct"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Product["deleteProduct"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Product["deleteProduct"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Product["deleteProduct"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -261,15 +373,24 @@ export async function deleteProduct(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Product["deleteProduct"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Product["deleteProduct"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Product["deleteProduct"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -283,18 +404,32 @@ export async function deleteProduct(
       productApi.deleteProduct(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
 
 export async function toggleProductActive(
-  ...argsWithToast: [
-    ...WithoutRequestParams<
-      Parameters<
-        Product["toggleProductActive"]
-      >
+  ...argsWithCallbacks: [
+    ...ApiMethodArguments<
+      Product["toggleProductActive"]
     >,
-    ToastOptions?,
+    ApiSuccessHandler<
+      ExtractResponse<
+        ReturnType<
+          Product["toggleProductActive"]
+        >
+      >
+    >?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          Product["toggleProductActive"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -308,15 +443,24 @@ export async function toggleProductActive(
 > {
   const {
     args,
-    toastOptions,
+    onSuccess,
+    onError,
     params
-  } = extractArgsToastsAndParams<
-    WithoutRequestParams<
-      Parameters<
+  } = extractArgsCallbacksAndParams<
+    ApiMethodArguments<
+      Product["toggleProductActive"]
+    >,
+    ExtractResponse<
+      ReturnType<
+        Product["toggleProductActive"]
+      >
+    >,
+    ExtractError<
+      ReturnType<
         Product["toggleProductActive"]
       >
     >
-  >(argsWithToast);
+  >(argsWithCallbacks);
 
   const requestArgs = [
     ...args,
@@ -330,6 +474,9 @@ export async function toggleProductActive(
       productApi.toggleProductActive(
         ...requestArgs
       ),
-    toastOptions
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }
   );
 }
