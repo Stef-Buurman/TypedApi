@@ -2,7 +2,7 @@
 
 `typedapi-client-helpers` generates a typed TypeScript API client from an OpenAPI/Swagger document and adds reusable helper types and functions for API results, callbacks, filtering, sorting, request parameters, and multipart uploads.
 
-The package is meant for frontend projects that want a generated API client while still keeping the generated files inside their own source tree.
+The package is intended for frontend projects that want a generated API client while still keeping generated files inside their own source tree.
 
 ## Installation
 
@@ -28,7 +28,13 @@ Run the generator:
 npm run generate:api
 ```
 
-By default the generator reads the Swagger document from `https://localhost:7000/swagger/v1/swagger.json` and writes the generated API client to `src/api`.
+By default, the generator reads the Swagger document from `https://localhost:7000/swagger/v1/swagger.json` and writes the generated API client to `src/api`.
+
+You can also run the command directly:
+
+```bash
+npx typedapi-generate
+```
 
 ## Configuration
 
@@ -44,7 +50,7 @@ Configuration can be supplied in the `config` section of your `package.json`, wi
     "apiOutput": "src/api",
     "typedApiUseTypeOnlyImports": true,
     "typedApiUseFilterFormValues": false,
-    "typedApiDefaultFunctionsPath": "../../defaultApiFunctions",
+    "typedApiDefaultFunctionsPath": "src/defaultApiFunctions",
     "typedApiDefaultSuccessHandler": "handleGoodResult",
     "typedApiDefaultErrorHandler": "handleErrors"
   }
@@ -62,19 +68,22 @@ Configuration can be supplied in the `config` section of your `package.json`, wi
 | `apiOutput`                     | `src/api`                                        | Directory where the generated API files are written.                                                                           |
 | `typedApiUseTypeOnlyImports`    | `false`                                          | Generates `import type` statements for imports that are only used as types.                                                    |
 | `typedApiUseFilterFormValues`   | `false`                                          | Generates paginated methods that accept `FilterFormValues[]`, page values, and sort values instead of a prebuilt query object. |
-| `typedApiDefaultFunctionsPath`  | `../../defaultApiFunctions`                      | Import path used by generated method files for shared success and error handlers.                                              |
+| `typedApiDefaultFunctionsPath`  | `src/defaultApiFunctions`                        | Import path used by generated method files for shared success and error handlers.                                              |
 | `typedApiDefaultSuccessHandler` | `handleGoodResult`                               | Name of the default success handler function imported into generated methods.                                                  |
 | `typedApiDefaultErrorHandler`   | `handleErrors`                                   | Name of the default error handler function imported into generated methods.                                                    |
 
 ### Environment variables
 
-| Environment variable               | Description                                                     |
-| ---------------------------------- | --------------------------------------------------------------- |
-| `SWAGGER_URL`                      | URL of the OpenAPI/Swagger document.                            |
-| `SWAGGER_FILE`                     | Local path to an OpenAPI/Swagger document.                      |
-| `API_OUTPUT`                       | Directory where generated API files are written.                |
-| `TYPED_API_USE_TYPE_ONLY_IMPORTS`  | Enables type-only imports when set to `true`.                   |
-| `TYPED_API_USE_FILTER_FORM_VALUES` | Enables filter-form based paginated methods when set to `true`. |
+| Environment variable                | Description                                        |
+| ----------------------------------- | -------------------------------------------------- |
+| `SWAGGER_URL`                       | URL of the OpenAPI/Swagger document.               |
+| `SWAGGER_FILE`                      | Local path to an OpenAPI/Swagger document.         |
+| `API_OUTPUT`                        | Directory where generated API files are written.   |
+| `TYPED_API_USE_TYPE_ONLY_IMPORTS`   | Enables type-only imports when set to `true`.      |
+| `TYPED_API_USE_FILTER_FORM_VALUES`  | Enables filter-form based paginated methods.       |
+| `TYPED_API_DEFAULT_FUNCTIONS_PATH`  | Path to the shared default callback handler file.  |
+| `TYPED_API_DEFAULT_SUCCESS_HANDLER` | Export name of the shared default success handler. |
+| `TYPED_API_DEFAULT_ERROR_HANDLER`   | Export name of the shared default error handler.   |
 
 Example:
 
@@ -88,6 +97,7 @@ SWAGGER_URL=https://localhost:7000/swagger/v1/swagger.json npm run generate:api
 npm run generate:api --swagger-url=https://localhost:7000/swagger/v1/swagger.json
 npm run generate:api --swagger-file=swagger/openapi.json
 npm run generate:api --api-output=src/api
+npm run generate:api --typed-api-use-filter-form-values=true
 ```
 
 ## Generated structure
@@ -135,6 +145,39 @@ if (result.ok) {
 ```
 
 Checking `result.ok` narrows the result automatically.
+
+## Generated method argument order
+
+Generated wrappers preserve the original generated API arguments and then add optional wrapper-only arguments at the end.
+
+For query methods:
+
+```ts
+await getSuppliers(query, onSuccess, onError, params);
+```
+
+For non-query methods:
+
+```ts
+await updateSupplier(id, body, onSuccess, onError, params);
+```
+
+For filter-form paginated methods when `typedApiUseFilterFormValues` is enabled:
+
+```ts
+await getSuppliers(
+  filters,
+  page,
+  pageSize,
+  sortBy,
+  sortDirection,
+  onSuccess,
+  onError,
+  params,
+);
+```
+
+The final `params` object is forwarded to the generated HTTP client and can contain values such as headers or other request options.
 
 ## Success and error callbacks
 
@@ -268,15 +311,16 @@ Arrays are appended as repeated fields, files keep their filename, primitives be
 
 ### Utility functions
 
-| Export                             | Description                                                                                                      |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `buildQuery<TQuery, TSortModel>()` | Builds a query object from filter form values, page values, and sort values.                                     |
-| `extractArgsCallbacksAndParams()`  | Splits wrapper arguments into original API arguments, success callback, error callback, and request params.      |
-| `extractArgsToastsAndParams()`     | Backwards-compatible alias-style extractor for wrapper arguments with success/error handlers and request params. |
-| `handleApiResponse()`              | Executes a generated API call and converts the response or thrown error into `ApiResult<T>`.                     |
-| `getSortTypeFromSortDirection()`   | Converts an API sort direction into a UI `SortType`.                                                             |
-| `getSortDirectionFromSortType()`   | Converts a UI `SortType` into an API sort direction.                                                             |
-| `toFormData()`                     | Converts an object payload into `FormData`.                                                                      |
+| Export                             | Description                                                                                                 |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `buildQuery<TQuery, TSortModel>()` | Builds a query object from filter form values, page values, and sort values.                                |
+| `extractArgsCallbacksAndParams()`  | Splits wrapper arguments into original API arguments, success callback, error callback, and request params. |
+| `extractArgsToastsAndParams()`     | Backwards-compatible extractor for wrapper arguments with success/error handlers and request params.        |
+| `handleApiResponse()`              | Executes a generated API call and converts the response or thrown error into `ApiResult<T>`.                |
+| `HandleApiResponseOptions<T>`      | Options object for passing success and error callbacks to `handleApiResponse`.                              |
+| `getSortTypeFromSortDirection()`   | Converts an API sort direction into a UI `SortType`.                                                        |
+| `getSortDirectionFromSortType()`   | Converts a UI `SortType` into an API sort direction.                                                        |
+| `toFormData()`                     | Converts an object payload into `FormData`.                                                                 |
 
 ### Default callback functions
 

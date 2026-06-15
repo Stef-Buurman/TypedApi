@@ -18,7 +18,6 @@
   },
   "homepage": "https://github.com/Stef-Buurman/TypedApi/tree/main/npm/typed-api-client#readme",
   "config": {
-    "swaggerFile": "swagger/TestSwagger.json",
     "apiOutput": "src/api",
     "typedApiDefaultFunctionsPath": "src/defaultApiFunctions",
     "typedApiDefaultSuccessHandler": "handleGoodResult",

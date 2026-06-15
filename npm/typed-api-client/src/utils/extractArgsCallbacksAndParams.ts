@@ -3,24 +3,20 @@ import type {
   ApiSuccessHandler,
 } from "../types/ApiCallOptions";
 
-import type {
-  RuntimeRequestParams,
-} from "../types/HttpResponse";
+import type { RuntimeRequestParams } from "../types/HttpResponse";
 
-function isCallback(
-  value: unknown,
-): value is (...args: never[]) => unknown {
+/**
+ * Checks whether a value can be used as a generated wrapper callback.
+ */
+function isCallback(value: unknown): value is (...args: never[]) => unknown {
   return typeof value === "function";
 }
 
-function isRequestParams(
-  value: unknown,
-): value is RuntimeRequestParams {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    !Array.isArray(value)
-  );
+/**
+ * Checks whether a value is the optional request-params object accepted as the final wrapper argument.
+ */
+function isRequestParams(value: unknown): value is RuntimeRequestParams {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 /**
