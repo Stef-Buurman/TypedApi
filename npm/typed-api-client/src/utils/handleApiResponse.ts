@@ -11,12 +11,9 @@ import type {
   HttpResponse,
 } from "../types/HttpResponse";
 
-export type HandleApiResponseOptions<
-  TResponse,
-  TError = unknown,
-> = {
+export type HandleApiResponseOptions<TResponse> = {
   onSuccess?: ApiSuccessHandler<TResponse>;
-  onError?: ApiErrorHandler<TError>;
+  onError?: ApiErrorHandler<TResponse>;
 };
 
 async function readResponseBody<T>(
@@ -44,10 +41,10 @@ async function readResponseBody<T>(
 
 export async function handleApiResponse<
   TResponse,
-  TError = unknown,
+  TError,
 >(
   call: () => Promise<HttpResponse<TResponse, TError>>,
-  options?: HandleApiResponseOptions<TResponse, TError>,
+  options?: HandleApiResponseOptions<TResponse>,
 ): Promise<ApiResult<TResponse>> {
   let response:
     | HttpResponse<TResponse, TError>
@@ -60,30 +57,32 @@ export async function handleApiResponse<
       await readResponseBody<TResponse>(response);
 
     if (response.ok) {
-      await options?.onSuccess?.(data as TResponse);
-
-      return {
+      const result: ApiResult<TResponse> = {
         ok: true,
         status: response.status,
         response: data as TResponse,
       };
+
+      await options?.onSuccess?.(result);
+
+      return result;
     }
 
     const errorData =
       data as unknown as TError;
 
-    await options?.onError?.(errorData);
-
-    return {
+    const result: ApiResult<TResponse> = {
       ok: false,
       status: response.status,
       response: data,
       error: errorData,
     };
-  } catch (error) {
-    await options?.onError?.(error as TError);
 
-    return {
+    await options?.onError?.(result);
+
+    return result;
+  } catch (error) {
+    const result: ApiResult<TResponse> = {
       ok: false,
       status:
         error instanceof Response
@@ -92,5 +91,9 @@ export async function handleApiResponse<
       response: undefined,
       error,
     };
+
+    await options?.onError?.(result);
+
+    return result;
   }
 }

@@ -1,17 +1,22 @@
 import type {
   RequestParams,
-} from "../api/generated/http-client";
+} from "./httpClientTypes";
+
+import type {
+  ApiErrorResult,
+  ApiSuccessResult,
+} from "../interfaces/ApiResult";
 
 export type ApiSuccessHandler<TResponse> = (
-  response: TResponse,
+  result: ApiSuccessResult<TResponse>,
 ) => void | Promise<void>;
 
-export type ApiErrorHandler<TError = unknown> = (
-  error: TError,
+export type ApiErrorHandler<TResponse> = (
+  result: ApiErrorResult<TResponse>,
 ) => void | Promise<void>;
 
-export type ApiMethodCallbacks<TResponse, TError = unknown> = {
+export type ApiMethodCallbacks<TResponse> = {
   onSuccess?: ApiSuccessHandler<TResponse>;
-  onError?: ApiErrorHandler<TError>;
+  onError?: ApiErrorHandler<TResponse>;
   params?: RequestParams;
 };

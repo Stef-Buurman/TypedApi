@@ -16,3 +16,13 @@ export type ApiResult<T> =
       response?: T;
       error: unknown;
     };
+
+export type ApiSuccessResult<T> = Extract<
+  ApiResult<T>,
+  { ok: true }
+>;
+
+export type ApiErrorResult<T> = Extract<
+  ApiResult<T>,
+  { ok: false }
+>;

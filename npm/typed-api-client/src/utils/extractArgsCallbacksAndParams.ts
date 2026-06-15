@@ -34,24 +34,26 @@ function isRequestParams(
 export function extractArgsCallbacksAndParams<
   TArgs extends unknown[],
   TResponse,
-  TError = unknown,
+  // Kept for backwards compatibility with generated files from older patches.
+  // Error callbacks receive ApiErrorResult<TResponse>, whose `error` field is unknown.
+  _TError = unknown,
 >(
   argsWithCallbacks: [
     ...TArgs,
     ApiSuccessHandler<TResponse>?,
-    ApiErrorHandler<TError>?,
+    ApiErrorHandler<TResponse>?,
     RuntimeRequestParams?,
   ],
 ): {
   args: TArgs;
   onSuccess?: ApiSuccessHandler<TResponse>;
-  onError?: ApiErrorHandler<TError>;
+  onError?: ApiErrorHandler<TResponse>;
   params?: RuntimeRequestParams;
 } {
   const values = [...argsWithCallbacks] as unknown[];
 
   let onSuccess: ApiSuccessHandler<TResponse> | undefined;
-  let onError: ApiErrorHandler<TError> | undefined;
+  let onError: ApiErrorHandler<TResponse> | undefined;
   let params: RuntimeRequestParams | undefined;
 
   let lastArgument = values[values.length - 1];
@@ -64,7 +66,7 @@ export function extractArgsCallbacksAndParams<
   lastArgument = values[values.length - 1];
 
   if (isCallback(lastArgument)) {
-    onError = lastArgument as ApiErrorHandler<TError>;
+    onError = lastArgument as ApiErrorHandler<TResponse>;
     values.pop();
   }
 

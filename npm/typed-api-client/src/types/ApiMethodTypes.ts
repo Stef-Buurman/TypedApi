@@ -1,11 +1,16 @@
 import type {
   HttpResponse,
   RequestParams,
-} from "../api/generated/http-client";
+} from "./httpClientTypes";
 
 export type ExtractResponse<T> =
   T extends Promise<HttpResponse<infer Response, unknown>>
     ? Response
+    : never;
+
+export type ExtractError<T> =
+  T extends Promise<HttpResponse<unknown, infer Error>>
+    ? Error
     : never;
 
 export type UnwrapArray<T> =

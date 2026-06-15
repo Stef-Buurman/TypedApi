@@ -20,27 +20,26 @@ function isRequestParams(value: unknown): value is RuntimeRequestParams {
  * Extracts wrapper-only arguments in this order:
  * original API arguments, onSuccess, onError, request params.
  */
-export function extractArgsCallbacksAndParams<
+export function extractArgsToastsAndParams<
   TArgs extends readonly unknown[],
-  TSuccess,
-  TError = unknown,
+  TResponse,
 >(
   argsWithCallbacks: [
     ...TArgs,
-    ApiSuccessHandler<TSuccess>?,
-    ApiErrorHandler<TError>?,
+    ApiSuccessHandler<TResponse>?,
+    ApiErrorHandler<TResponse>?,
     RuntimeRequestParams?,
   ],
 ): {
   args: TArgs;
-  onSuccess?: ApiSuccessHandler<TSuccess>;
-  onError?: ApiErrorHandler<TError>;
+  onSuccess?: ApiSuccessHandler<TResponse>;
+  onError?: ApiErrorHandler<TResponse>;
   params?: RuntimeRequestParams;
 } {
   const values = [...argsWithCallbacks] as unknown[];
 
-  let onSuccess: ApiSuccessHandler<TSuccess> | undefined;
-  let onError: ApiErrorHandler<TError> | undefined;
+  let onSuccess: ApiSuccessHandler<TResponse> | undefined;
+  let onError: ApiErrorHandler<TResponse> | undefined;
   let params: RuntimeRequestParams | undefined;
 
   let lastArgument = values[values.length - 1];
@@ -53,14 +52,14 @@ export function extractArgsCallbacksAndParams<
   lastArgument = values[values.length - 1];
 
   if (isCallback(lastArgument)) {
-    onError = lastArgument as ApiErrorHandler<TError>;
+    onError = lastArgument as ApiErrorHandler<TResponse>;
     values.pop();
   }
 
   lastArgument = values[values.length - 1];
 
   if (isCallback(lastArgument)) {
-    onSuccess = lastArgument as ApiSuccessHandler<TSuccess>;
+    onSuccess = lastArgument as ApiSuccessHandler<TResponse>;
     values.pop();
   }
 
