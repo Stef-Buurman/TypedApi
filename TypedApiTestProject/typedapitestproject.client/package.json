@@ -13,13 +13,14 @@
   "config": {
     "swaggerUrl": "http://localhost:5145/swagger/v1/swagger.json",
     "apiOutput": "src/api",
+    "typedApiDefaultFunctionsPath": "src/utils/defaultApiFunctions",
     "typedApiUseTypeOnlyImports": true,
     "typedApiUseFilterFormValues": true
   },
   "dependencies": {
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "typedapi-client-helpers": "file:../../npm/typed-api-client/typedapi-client-helpers-0.1.5.tgz"
+    "typedapi-client-helpers": "file:../../npm/typed-api-client/typedapi-client-helpers-0.1.8.tgz"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

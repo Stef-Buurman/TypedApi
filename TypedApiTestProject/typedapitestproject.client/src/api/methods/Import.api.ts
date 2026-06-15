@@ -6,7 +6,7 @@ import {
 import {
   handleGoodResult as typedApiDefaultSuccessHandler,
   handleErrors as typedApiDefaultErrorHandler,
-} from "../../defaultApiFunctions";
+} from "../../utils/defaultApiFunctions";
 
 import type {
   ApiResult,
