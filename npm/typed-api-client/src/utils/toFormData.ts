@@ -1,6 +1,3 @@
-import { getOrders } from "../api";
-import { createSupplier, getSupplierById } from "../api/methods/Supplier.api";
-
 /**
  * Converts an object payload into `FormData`.
  *
@@ -61,43 +58,3 @@ function appendFormDataValue(
 
   formData.append(key, JSON.stringify(value));
 }
-
-const x = createSupplier(
-  { id: "", name: "Test Supplier", active: true,countryCode: "US", email: "test.supplier@example.com" , rating: 4.5},
-  () => {
-    console.info("Created");
-  },
-  (error) => {
-    console.error("Error", error);
-  },
-);
-
-const y = getOrders(
-  {  },
-  (response) => {
-    console.info("Created", response);
-  },
-  (error) => {
-    console.error("Error", error);
-  },
-);
-
-const x2 = getSupplierById(
-  { id: "1" },
-  () => {
-    console.info("Created");
-  },
-  (error) => {
-    console.error("Error", error);
-  },
-);
-
-const y2 = getSupplierById(
-  { id: "1" },
-  (response) => {
-    console.info("Created", response);
-  },
-  (error) => {
-    console.error("Error", error);
-  },
-);

@@ -12,7 +12,6 @@
     "README.md"
   ],
   "config": {
-    "swaggerFile": "swagger/TestSwagger.json",
     "apiOutput": "src/api",
     "typedApiDefaultFunctionsPath": "../../defaultApiFunctions",
     "typedApiDefaultSuccessHandler": "handleGoodResult",

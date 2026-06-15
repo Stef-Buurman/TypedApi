@@ -211,14 +211,22 @@ function createDefaultFunctionsFileIfMissing(fromDirectory, importPath) {
 
   fs.writeFileSync(
     filePath,
-    `export function ${defaultSuccessHandlerName}<TResponse>(
-  _response: TResponse,
+    `
+${createImportStatement({
+  names: ["ApiErrorResult", "ApiSuccessResult"],
+  from: "typedapi-client-helpers",
+  typeOnly: true,
+})}
+
+
+export function ${defaultSuccessHandlerName}<T>(
+  _response: ApiSuccessResult<T>,
 ): void | Promise<void> {
   // Add your default success handling here.
 }
 
-export function ${defaultErrorHandlerName}<TError>(
-  _error: TError,
+export function ${defaultErrorHandlerName}<T>(
+  _error: ApiErrorResult<T>,
 ): void | Promise<void> {
   // Add your default error handling here.
 }
