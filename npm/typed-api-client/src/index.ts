@@ -1,10 +1,10 @@
-export * from "./interfaces/a-piResult";
-export * from "./interfaces/f-ilter";
-export * from "./interfaces/s-ortType";
+export * from "./interfaces/ApiResult";
+export * from "./interfaces/Filter";
+export * from "./interfaces/SortType";
 
-export * from "./types/a-piMethodTypes";
-export * from "./types/h-ttpResponse";
-export * from "./types/a-piCallOptions";
+export * from "./types/ApiMethodTypes";
+export * from "./types/HttpResponse";
+export * from "./types/ApiCallOptions";
 
 export * from "./utils/buildQuery";
 export * from "./utils/extractArgsToastsAndParams";

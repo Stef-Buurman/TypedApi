@@ -1,8 +1,8 @@
 import type {
   ApiErrorHandler,
   ApiSuccessHandler,
-} from "../types/a-piCallOptions";
-import type { RuntimeRequestParams } from "../types/h-ttpResponse";
+} from "../types/ApiCallOptions";
+import type { RuntimeRequestParams } from "../types/HttpResponse";
 
 /**
  * Checks whether a value can be used as a generated wrapper callback.

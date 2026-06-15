@@ -1,4 +1,4 @@
-import type { SortType } from "../interfaces/s-ortType";
+import type { SortType } from "../interfaces/SortType";
 
 /** Values supported by the generated API SortDirection enum. */
 export type ApiSortDirection = "Default" | "Ascending" | "Descending";
