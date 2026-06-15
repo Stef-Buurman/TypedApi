@@ -1,6 +1,5 @@
 import {
   buildQuery,
-  extractArgsCallbacksAndParams,
   handleApiResponse,
 } from "typedapi-client-helpers";
 
@@ -11,10 +10,9 @@ import {
 
 import type {
   ApiResult,
-  ApiSuccessHandler,
-  ApiErrorHandler,
+  ApiMethodOptions,
+  ApiMethodArguments,
   ExtractResponse,
-  ExtractError,
   ExtractDataIfPaginated,
   FilterFormValues,
   SortableKeys,
@@ -29,16 +27,6 @@ import {
 import type {
   RequestParams,
 } from "../generated/http-client";
-
-type ApiMethodArguments<
-      TMethod extends (...args: any[]) => unknown
-    > =
-      Parameters<TMethod> extends [
-        ...infer Arguments,
-        unknown?
-      ]
-        ? Arguments
-        : Parameters<TMethod>;
 
 /* =======================
    Query Types
@@ -69,14 +57,13 @@ export async function getProducts(
     ExtractResponse<ReturnType<Product["getProducts"]>>
   > | null = null,
   sortDirection?: SortDirection,
-  onSuccess?: ApiSuccessHandler<
-    ExtractResponse<ReturnType<Product["getProducts"]>>
-  >,
-  onError?: ApiErrorHandler<
-    ExtractError<ReturnType<Product["getProducts"]>>
-  >,
-  params?: RequestParams
+  options: ApiMethodOptions<
+    ReturnType<Product["getProducts"]>,
+    RequestParams
+  > = {}
 ): Promise<ApiResult<ExtractResponse<ReturnType<Product["getProducts"]>>>> {
+  const { onSuccess, onError, params } = options;
+
   return handleApiResponse(
     () =>
       productApi.getProducts(
@@ -102,13 +89,10 @@ export async function getProducts(
    ======================= */
 export async function exportProducts(
   query?: ExportProductsQuery,
-  onSuccess?: ApiSuccessHandler<
-    ExtractResponse<ReturnType<Product["exportProducts"]>>
-  >,
-  onError?: ApiErrorHandler<
-    ExtractError<ReturnType<Product["exportProducts"]>>
-  >,
-  params?: RequestParams
+  options: ApiMethodOptions<
+    ReturnType<Product["exportProducts"]>,
+    RequestParams
+  > = {}
 ): Promise<
   ApiResult<
     ExtractResponse<
@@ -118,9 +102,14 @@ export async function exportProducts(
     >
   >
 > {
+  const { onSuccess, onError, params } = options;
+
   return handleApiResponse(
     () =>
-      productApi.exportProducts(query, params ?? {}),
+      productApi.exportProducts(
+        (query ?? {}) as ExportProductsQuery,
+        params ?? {}
+      ),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler
@@ -132,25 +121,15 @@ export async function exportProducts(
    Non-Query Methods
    ======================= */
 export async function createProduct(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Product["createProduct"]
+      Product["createProduct"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Product["createProduct"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Product["createProduct"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Product["createProduct"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -161,26 +140,17 @@ export async function createProduct(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Product["createProduct"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Product["createProduct"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Product["createProduct"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Product["createProduct"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -202,25 +172,15 @@ export async function createProduct(
 }
 
 export async function getProductById(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Product["getProductById"]
+      Product["getProductById"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Product["getProductById"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Product["getProductById"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Product["getProductById"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -231,26 +191,17 @@ export async function getProductById(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Product["getProductById"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Product["getProductById"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Product["getProductById"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Product["getProductById"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -272,25 +223,15 @@ export async function getProductById(
 }
 
 export async function updateProduct(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Product["updateProduct"]
+      Product["updateProduct"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Product["updateProduct"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Product["updateProduct"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Product["updateProduct"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -301,26 +242,17 @@ export async function updateProduct(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Product["updateProduct"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Product["updateProduct"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Product["updateProduct"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 2
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Product["updateProduct"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -342,25 +274,15 @@ export async function updateProduct(
 }
 
 export async function deleteProduct(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Product["deleteProduct"]
+      Product["deleteProduct"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Product["deleteProduct"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Product["deleteProduct"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Product["deleteProduct"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -371,26 +293,17 @@ export async function deleteProduct(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Product["deleteProduct"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Product["deleteProduct"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Product["deleteProduct"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Product["deleteProduct"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -412,25 +325,15 @@ export async function deleteProduct(
 }
 
 export async function toggleProductActive(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Product["toggleProductActive"]
+      Product["toggleProductActive"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Product["toggleProductActive"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Product["toggleProductActive"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Product["toggleProductActive"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -441,26 +344,17 @@ export async function toggleProductActive(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Product["toggleProductActive"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Product["toggleProductActive"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Product["toggleProductActive"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Product["toggleProductActive"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,

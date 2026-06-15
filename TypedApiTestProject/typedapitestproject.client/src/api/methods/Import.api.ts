@@ -10,10 +10,8 @@ import {
 
 import type {
   ApiResult,
-  ApiSuccessHandler,
-  ApiErrorHandler,
+  ApiMethodOptions,
   ExtractResponse,
-  ExtractError,
 } from "typedapi-client-helpers";
 
 import {
@@ -23,8 +21,6 @@ import {
 import type {
   RequestParams,
 } from "../generated/http-client";
-
-
 
 /* =======================
    Query Types
@@ -53,13 +49,10 @@ export async function uploadProductFiles(
   data: Parameters<
     Import["uploadProductFiles"]
   >[0],
-  onSuccess?: ApiSuccessHandler<
-    ExtractResponse<ReturnType<Import["uploadProductFiles"]>>
-  >,
-  onError?: ApiErrorHandler<
-    ExtractError<ReturnType<Import["uploadProductFiles"]>>
-  >,
-  params?: RequestParams
+  options: ApiMethodOptions<
+    ReturnType<Import["uploadProductFiles"]>,
+    RequestParams
+  > = {}
 ): Promise<
   ApiResult<
     ExtractResponse<
@@ -69,6 +62,7 @@ export async function uploadProductFiles(
     >
   >
 > {
+  const { onSuccess, onError, params } = options;
   const formData = toFormData(data);
 
   return handleApiResponse(
@@ -90,13 +84,10 @@ export async function uploadSupplierFile(
   data: Parameters<
     Import["uploadSupplierFile"]
   >[0],
-  onSuccess?: ApiSuccessHandler<
-    ExtractResponse<ReturnType<Import["uploadSupplierFile"]>>
-  >,
-  onError?: ApiErrorHandler<
-    ExtractError<ReturnType<Import["uploadSupplierFile"]>>
-  >,
-  params?: RequestParams
+  options: ApiMethodOptions<
+    ReturnType<Import["uploadSupplierFile"]>,
+    RequestParams
+  > = {}
 ): Promise<
   ApiResult<
     ExtractResponse<
@@ -106,6 +97,7 @@ export async function uploadSupplierFile(
     >
   >
 > {
+  const { onSuccess, onError, params } = options;
   const formData = toFormData(data);
 
   return handleApiResponse(
@@ -127,13 +119,10 @@ export async function uploadMixedImport(
   data: Parameters<
     Import["uploadMixedImport"]
   >[0],
-  onSuccess?: ApiSuccessHandler<
-    ExtractResponse<ReturnType<Import["uploadMixedImport"]>>
-  >,
-  onError?: ApiErrorHandler<
-    ExtractError<ReturnType<Import["uploadMixedImport"]>>
-  >,
-  params?: RequestParams
+  options: ApiMethodOptions<
+    ReturnType<Import["uploadMixedImport"]>,
+    RequestParams
+  > = {}
 ): Promise<
   ApiResult<
     ExtractResponse<
@@ -143,6 +132,7 @@ export async function uploadMixedImport(
     >
   >
 > {
+  const { onSuccess, onError, params } = options;
   const formData = toFormData(data);
 
   return handleApiResponse(

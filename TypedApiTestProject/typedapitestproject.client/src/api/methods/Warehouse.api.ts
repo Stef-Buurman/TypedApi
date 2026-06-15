@@ -1,6 +1,5 @@
 import {
   buildQuery,
-  extractArgsCallbacksAndParams,
   handleApiResponse,
 } from "typedapi-client-helpers";
 
@@ -11,10 +10,9 @@ import {
 
 import type {
   ApiResult,
-  ApiSuccessHandler,
-  ApiErrorHandler,
+  ApiMethodOptions,
+  ApiMethodArguments,
   ExtractResponse,
-  ExtractError,
   ExtractDataIfPaginated,
   FilterFormValues,
   SortableKeys,
@@ -29,16 +27,6 @@ import {
 import type {
   RequestParams,
 } from "../generated/http-client";
-
-type ApiMethodArguments<
-      TMethod extends (...args: any[]) => unknown
-    > =
-      Parameters<TMethod> extends [
-        ...infer Arguments,
-        unknown?
-      ]
-        ? Arguments
-        : Parameters<TMethod>;
 
 /* =======================
    Query Types
@@ -64,14 +52,13 @@ export async function getWarehouses(
     ExtractResponse<ReturnType<Warehouse["getWarehouses"]>>
   > | null = null,
   sortDirection?: SortDirection,
-  onSuccess?: ApiSuccessHandler<
-    ExtractResponse<ReturnType<Warehouse["getWarehouses"]>>
-  >,
-  onError?: ApiErrorHandler<
-    ExtractError<ReturnType<Warehouse["getWarehouses"]>>
-  >,
-  params?: RequestParams
+  options: ApiMethodOptions<
+    ReturnType<Warehouse["getWarehouses"]>,
+    RequestParams
+  > = {}
 ): Promise<ApiResult<ExtractResponse<ReturnType<Warehouse["getWarehouses"]>>>> {
+  const { onSuccess, onError, params } = options;
+
   return handleApiResponse(
     () =>
       warehouseApi.getWarehouses(
@@ -101,25 +88,15 @@ export async function getWarehouses(
    Non-Query Methods
    ======================= */
 export async function createWarehouse(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Warehouse["createWarehouse"]
+      Warehouse["createWarehouse"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Warehouse["createWarehouse"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Warehouse["createWarehouse"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Warehouse["createWarehouse"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -130,26 +107,17 @@ export async function createWarehouse(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Warehouse["createWarehouse"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Warehouse["createWarehouse"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Warehouse["createWarehouse"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Warehouse["createWarehouse"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -171,25 +139,15 @@ export async function createWarehouse(
 }
 
 export async function getWarehouseById(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Warehouse["getWarehouseById"]
+      Warehouse["getWarehouseById"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Warehouse["getWarehouseById"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Warehouse["getWarehouseById"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Warehouse["getWarehouseById"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -200,26 +158,17 @@ export async function getWarehouseById(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Warehouse["getWarehouseById"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Warehouse["getWarehouseById"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Warehouse["getWarehouseById"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Warehouse["getWarehouseById"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -241,25 +190,15 @@ export async function getWarehouseById(
 }
 
 export async function updateWarehouse(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Warehouse["updateWarehouse"]
+      Warehouse["updateWarehouse"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Warehouse["updateWarehouse"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Warehouse["updateWarehouse"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Warehouse["updateWarehouse"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -270,26 +209,17 @@ export async function updateWarehouse(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Warehouse["updateWarehouse"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Warehouse["updateWarehouse"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Warehouse["updateWarehouse"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 2
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Warehouse["updateWarehouse"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -311,25 +241,15 @@ export async function updateWarehouse(
 }
 
 export async function deleteWarehouse(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Warehouse["deleteWarehouse"]
+      Warehouse["deleteWarehouse"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Warehouse["deleteWarehouse"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Warehouse["deleteWarehouse"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Warehouse["deleteWarehouse"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -340,26 +260,17 @@ export async function deleteWarehouse(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Warehouse["deleteWarehouse"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Warehouse["deleteWarehouse"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Warehouse["deleteWarehouse"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Warehouse["deleteWarehouse"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,

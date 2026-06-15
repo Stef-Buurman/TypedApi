@@ -1,6 +1,5 @@
 import {
   buildQuery,
-  extractArgsCallbacksAndParams,
   handleApiResponse,
 } from "typedapi-client-helpers";
 
@@ -11,10 +10,9 @@ import {
 
 import type {
   ApiResult,
-  ApiSuccessHandler,
-  ApiErrorHandler,
+  ApiMethodOptions,
+  ApiMethodArguments,
   ExtractResponse,
-  ExtractError,
   ExtractDataIfPaginated,
   FilterFormValues,
   SortableKeys,
@@ -29,16 +27,6 @@ import {
 import type {
   RequestParams,
 } from "../generated/http-client";
-
-type ApiMethodArguments<
-      TMethod extends (...args: any[]) => unknown
-    > =
-      Parameters<TMethod> extends [
-        ...infer Arguments,
-        unknown?
-      ]
-        ? Arguments
-        : Parameters<TMethod>;
 
 /* =======================
    Query Types
@@ -64,14 +52,13 @@ export async function getSuppliers(
     ExtractResponse<ReturnType<Supplier["getSuppliers"]>>
   > | null = null,
   sortDirection?: SortDirection,
-  onSuccess?: ApiSuccessHandler<
-    ExtractResponse<ReturnType<Supplier["getSuppliers"]>>
-  >,
-  onError?: ApiErrorHandler<
-    ExtractError<ReturnType<Supplier["getSuppliers"]>>
-  >,
-  params?: RequestParams
+  options: ApiMethodOptions<
+    ReturnType<Supplier["getSuppliers"]>,
+    RequestParams
+  > = {}
 ): Promise<ApiResult<ExtractResponse<ReturnType<Supplier["getSuppliers"]>>>> {
+  const { onSuccess, onError, params } = options;
+
   return handleApiResponse(
     () =>
       supplierApi.getSuppliers(
@@ -101,25 +88,15 @@ export async function getSuppliers(
    Non-Query Methods
    ======================= */
 export async function createSupplier(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Supplier["createSupplier"]
+      Supplier["createSupplier"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Supplier["createSupplier"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Supplier["createSupplier"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Supplier["createSupplier"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -130,26 +107,17 @@ export async function createSupplier(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Supplier["createSupplier"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Supplier["createSupplier"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Supplier["createSupplier"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Supplier["createSupplier"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -171,25 +139,15 @@ export async function createSupplier(
 }
 
 export async function getSupplierById(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Supplier["getSupplierById"]
+      Supplier["getSupplierById"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Supplier["getSupplierById"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Supplier["getSupplierById"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Supplier["getSupplierById"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -200,26 +158,17 @@ export async function getSupplierById(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Supplier["getSupplierById"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Supplier["getSupplierById"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Supplier["getSupplierById"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Supplier["getSupplierById"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -241,25 +190,15 @@ export async function getSupplierById(
 }
 
 export async function updateSupplier(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Supplier["updateSupplier"]
+      Supplier["updateSupplier"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Supplier["updateSupplier"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Supplier["updateSupplier"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Supplier["updateSupplier"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -270,26 +209,17 @@ export async function updateSupplier(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Supplier["updateSupplier"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Supplier["updateSupplier"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Supplier["updateSupplier"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 2
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Supplier["updateSupplier"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -311,25 +241,15 @@ export async function updateSupplier(
 }
 
 export async function deleteSupplier(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Supplier["deleteSupplier"]
+      Supplier["deleteSupplier"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Supplier["deleteSupplier"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Supplier["deleteSupplier"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Supplier["deleteSupplier"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -340,26 +260,17 @@ export async function deleteSupplier(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Supplier["deleteSupplier"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Supplier["deleteSupplier"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Supplier["deleteSupplier"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Supplier["deleteSupplier"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -381,25 +292,15 @@ export async function deleteSupplier(
 }
 
 export async function verifySupplier(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Supplier["verifySupplier"]
+      Supplier["verifySupplier"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Supplier["verifySupplier"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Supplier["verifySupplier"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Supplier["verifySupplier"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -410,26 +311,17 @@ export async function verifySupplier(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Supplier["verifySupplier"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Supplier["verifySupplier"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Supplier["verifySupplier"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Supplier["verifySupplier"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,

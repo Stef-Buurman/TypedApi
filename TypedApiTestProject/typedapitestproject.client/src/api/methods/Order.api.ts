@@ -1,6 +1,5 @@
 import {
   buildQuery,
-  extractArgsCallbacksAndParams,
   handleApiResponse,
 } from "typedapi-client-helpers";
 
@@ -11,10 +10,9 @@ import {
 
 import type {
   ApiResult,
-  ApiSuccessHandler,
-  ApiErrorHandler,
+  ApiMethodOptions,
+  ApiMethodArguments,
   ExtractResponse,
-  ExtractError,
   ExtractDataIfPaginated,
   FilterFormValues,
   SortableKeys,
@@ -29,16 +27,6 @@ import {
 import type {
   RequestParams,
 } from "../generated/http-client";
-
-type ApiMethodArguments<
-      TMethod extends (...args: any[]) => unknown
-    > =
-      Parameters<TMethod> extends [
-        ...infer Arguments,
-        unknown?
-      ]
-        ? Arguments
-        : Parameters<TMethod>;
 
 /* =======================
    Query Types
@@ -64,14 +52,13 @@ export async function getOrders(
     ExtractResponse<ReturnType<Order["getOrders"]>>
   > | null = null,
   sortDirection?: SortDirection,
-  onSuccess?: ApiSuccessHandler<
-    ExtractResponse<ReturnType<Order["getOrders"]>>
-  >,
-  onError?: ApiErrorHandler<
-    ExtractError<ReturnType<Order["getOrders"]>>
-  >,
-  params?: RequestParams
+  options: ApiMethodOptions<
+    ReturnType<Order["getOrders"]>,
+    RequestParams
+  > = {}
 ): Promise<ApiResult<ExtractResponse<ReturnType<Order["getOrders"]>>>> {
+  const { onSuccess, onError, params } = options;
+
   return handleApiResponse(
     () =>
       orderApi.getOrders(
@@ -101,25 +88,15 @@ export async function getOrders(
    Non-Query Methods
    ======================= */
 export async function createOrder(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Order["createOrder"]
+      Order["createOrder"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Order["createOrder"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Order["createOrder"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Order["createOrder"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -130,26 +107,17 @@ export async function createOrder(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Order["createOrder"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Order["createOrder"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Order["createOrder"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Order["createOrder"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -171,25 +139,15 @@ export async function createOrder(
 }
 
 export async function getOrderById(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Order["getOrderById"]
+      Order["getOrderById"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Order["getOrderById"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Order["getOrderById"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Order["getOrderById"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -200,26 +158,17 @@ export async function getOrderById(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Order["getOrderById"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Order["getOrderById"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Order["getOrderById"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Order["getOrderById"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -241,25 +190,15 @@ export async function getOrderById(
 }
 
 export async function updateOrder(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Order["updateOrder"]
+      Order["updateOrder"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Order["updateOrder"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Order["updateOrder"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Order["updateOrder"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -270,26 +209,17 @@ export async function updateOrder(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Order["updateOrder"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Order["updateOrder"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Order["updateOrder"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 2
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Order["updateOrder"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -311,25 +241,15 @@ export async function updateOrder(
 }
 
 export async function deleteOrder(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Order["deleteOrder"]
+      Order["deleteOrder"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Order["deleteOrder"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Order["deleteOrder"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Order["deleteOrder"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -340,26 +260,17 @@ export async function deleteOrder(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Order["deleteOrder"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Order["deleteOrder"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Order["deleteOrder"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Order["deleteOrder"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -381,25 +292,15 @@ export async function deleteOrder(
 }
 
 export async function approveOrder(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Order["approveOrder"]
+      Order["approveOrder"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Order["approveOrder"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Order["approveOrder"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Order["approveOrder"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -410,26 +311,17 @@ export async function approveOrder(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Order["approveOrder"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Order["approveOrder"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Order["approveOrder"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Order["approveOrder"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -451,25 +343,15 @@ export async function approveOrder(
 }
 
 export async function cancelOrder(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
-      Order["cancelOrder"]
+      Order["cancelOrder"],
+      RequestParams
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          Order["cancelOrder"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          Order["cancelOrder"]
-        >
-      >
-    >?,
-    RequestParams?
+    ApiMethodOptions<
+      ReturnType<Order["cancelOrder"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -480,26 +362,17 @@ export async function cancelOrder(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      Order["cancelOrder"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        Order["cancelOrder"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        Order["cancelOrder"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > 1
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<Order["cancelOrder"]>,
+          RequestParams
+        >)
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
