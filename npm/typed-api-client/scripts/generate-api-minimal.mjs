@@ -122,6 +122,16 @@ async function writeFormattedFile(filePath, content) {
   fs.writeFileSync(filePath, content);
 }
 
+function removeGeneratedRouteFiles() {
+  const files = fs.readdirSync(generatedDir);
+
+  for (const file of files) {
+    if (/route\.ts$/i.test(file)) {
+      fs.rmSync(path.join(generatedDir, file), { force: true });
+    }
+  }
+}
+
 async function generateOpenApiClient() {
   cleanDirectory(generatedDir);
   cleanDirectory(methodsDir);
@@ -147,6 +157,7 @@ async function generateOpenApiClient() {
   }
 
   await generateApi(generateOptions);
+  removeGeneratedRouteFiles();
 }
 
 function createImportStatement({ names, from, typeOnly = false }) {
@@ -471,7 +482,7 @@ async function createMethodFiles() {
         file.endsWith(".ts") &&
         file !== "http-client.ts" &&
         file !== "data-contracts.ts" &&
-        !file.endsWith("Route.ts") &&
+        !/route\.ts$/i.test(file) &&
         !file.includes(".api"),
     );
 
