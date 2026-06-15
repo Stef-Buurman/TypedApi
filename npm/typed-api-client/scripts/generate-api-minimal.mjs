@@ -33,16 +33,16 @@ const config = {
 const swaggerFile =
   process.env.SWAGGER_FILE ??
   process.env.npm_config_swagger_file ??
-  config.swaggerFile ?? 
-  "swagger/swagger.json";
+  config.swaggerFile;
 
 const swaggerUrl =
   process.env.SWAGGER_URL ??
   process.env.npm_config_swagger_url ??
-  config.swaggerUrl ??
-  "https://localhost:7000/swagger/v1/swagger.json";
+  config.swaggerUrl;
 
-const swaggerInput = swaggerFile ? path.resolve(cwd, swaggerFile) : swaggerUrl;
+const swaggerInput = swaggerFile
+  ? path.resolve(cwd, swaggerFile)
+  : (swaggerUrl ?? path.resolve(cwd, "swagger/swagger.json"));
 
 const apiRoot = path.resolve(
   cwd,
@@ -110,10 +110,6 @@ function pascalCase(value) {
 
 function toQueryName(methodName) {
   return `${pascalCase(methodName)}Query`;
-}
-
-function toOptionsName(methodName) {
-  return `${pascalCase(methodName)}Options`;
 }
 
 function cleanDirectory(directory) {
@@ -556,22 +552,6 @@ export type ${toQueryName(methodName)} =
       )
       .join("\n\n");
 
-    const methodOptionTypes = generatedMethods
-      .map(({ methodName }) =>
-        `
-export type ${toOptionsName(methodName)} = {
-  onSuccess?: ApiSuccessHandler<
-    ExtractResponse<ReturnType<${className}["${methodName}"]>>
-  >;
-  onError?: ApiErrorHandler<
-    ExtractError<ReturnType<${className}["${methodName}"]>>
-  >;
-  params?: RequestParams;
-};
-`.trim(),
-      )
-      .join("\n\n");
-
     const hasPaginatedMethods = paginatedMethods.length > 0;
 
     const hasFormDataMethods = nonQueryMethods.some(
@@ -594,7 +574,10 @@ export async function ${methodName}(
     ExtractResponse<ReturnType<${className}["${methodName}"]>>
   > | null = null,
   sortDirection?: SortDirection,
-  options: ${toOptionsName(methodName)} = {}
+  options: ApiMethodOptions<
+    ReturnType<${className}["${methodName}"]>,
+    RequestParams
+  > = {}
 ): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
   const { onSuccess, onError, params } = options;
 
@@ -620,7 +603,10 @@ export async function ${methodName}(
         return `
 export async function ${methodName}(
   query?: ${toQueryName(methodName)},
-  options: ${toOptionsName(methodName)} = {}
+  options: ApiMethodOptions<
+    ReturnType<${className}["${methodName}"]>,
+    RequestParams
+  > = {}
 ): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
   const { onSuccess, onError, params } = options;
 
@@ -642,7 +628,10 @@ export async function ${methodName}(
         `
 export async function ${methodName}(
   query?: ${toQueryName(methodName)},
-  options: ${toOptionsName(methodName)} = {}
+  options: ApiMethodOptions<
+    ReturnType<${className}["${methodName}"]>,
+    RequestParams
+  > = {}
 ): Promise<
   ApiResult<
     ExtractResponse<
@@ -675,7 +664,10 @@ export async function ${methodName}(
   data: Parameters<
     ${className}["${methodName}"]
   >[0],
-  options: ${toOptionsName(methodName)} = {}
+  options: ApiMethodOptions<
+    ReturnType<${className}["${methodName}"]>,
+    RequestParams
+  > = {}
 ): Promise<
   ApiResult<
     ExtractResponse<
@@ -706,9 +698,13 @@ export async function ${methodName}(
 export async function ${methodName}(
   ...argsWithOptions: [
     ...ApiMethodArguments<
-      ${className}["${methodName}"]
+      ${className}["${methodName}"],
+      RequestParams
     >,
-    ${toOptionsName(methodName)}?
+    ApiMethodOptions<
+      ReturnType<${className}["${methodName}"]>,
+      RequestParams
+    >?
   ]
 ): Promise<
   ApiResult<
@@ -723,7 +719,10 @@ export async function ${methodName}(
 
   const options =
     args.length > ${methodArgumentCount}
-      ? (args.pop() as ${toOptionsName(methodName)})
+      ? (args.pop() as ApiMethodOptions<
+          ReturnType<${className}["${methodName}"]>,
+          RequestParams
+        >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};
@@ -755,10 +754,9 @@ export async function ${methodName}(
 
     const runtimeTypeImportNames = [
       "ApiResult",
-      "ApiSuccessHandler",
-      "ApiErrorHandler",
+      "ApiMethodOptions",
+      ...(hasRegularNonQueryMethods ? ["ApiMethodArguments"] : []),
       "ExtractResponse",
-      "ExtractError",
 
       ...(hasPaginatedMethods && useFilterFormValues
         ? [
@@ -812,20 +810,6 @@ export async function ${methodName}(
           })
         : "";
 
-    const apiMethodArgumentsType = hasRegularNonQueryMethods
-      ? `
-type ApiMethodArguments<
-  TMethod extends (...args: any[]) => unknown
-> =
-  Parameters<TMethod> extends [
-    ...infer Arguments,
-    RequestParams?
-  ]
-    ? Arguments
-    : Parameters<TMethod>;
-`.trim()
-      : "";
-
     const content = `
 ${runtimeValueImports}
 
@@ -837,17 +821,10 @@ ${generatedValueImports}
 
 ${generatedTypeImports}
 
-${apiMethodArgumentsType}
-
 /* =======================
    Query Types
    ======================= */
 ${queryTypes}
-
-/* =======================
-   Method Option Types
-   ======================= */
-${methodOptionTypes}
 
 /* =======================
    API Instance

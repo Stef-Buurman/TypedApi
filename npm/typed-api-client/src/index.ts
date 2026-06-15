@@ -5,6 +5,8 @@ export * from "./interfaces/SortType";
 export * from "./types/ApiMethodTypes";
 export * from "./types/HttpResponse";
 export * from "./types/ApiCallOptions";
+export * from "./types/ApiMethodOptions";
+export * from "./types/ApiMethodArguments";
 
 export * from "./utils/buildQuery";
 export * from "./utils/extractArgsToastsAndParams";
