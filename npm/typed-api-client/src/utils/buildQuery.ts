@@ -1,4 +1,4 @@
-import { FilterFormValues, OptionValue } from "../interfaces/Filter";
+import { FilterFormValues, OptionValue } from "../interfaces/f-ilter";
 
 /**
  * Sort direction value accepted by generated query objects.

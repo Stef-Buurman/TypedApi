@@ -1,11 +1,11 @@
-import type { ApiResult } from "../interfaces/ApiResult";
+import type { ApiResult } from "../interfaces/a-piResult";
 
 import type {
   ApiErrorHandler,
   ApiSuccessHandler,
-} from "../types/ApiCallOptions";
+} from "../types/a-piCallOptions";
 
-import type { HttpResponse } from "../types/HttpResponse";
+import type { HttpResponse } from "../types/h-ttpResponse";
 
 /**
  * Optional callbacks used while converting a generated HTTP response into `ApiResult<TResponse>`.

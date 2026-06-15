@@ -1,6 +1,6 @@
 import type { RequestParams } from "./httpClientTypes";
 
-import type { ApiErrorResult, ApiSuccessResult } from "../interfaces/ApiResult";
+import type { ApiErrorResult, ApiSuccessResult } from "../interfaces/a-piResult";
 
 /**
  * Function called after a generated wrapper method receives a successful API result.
