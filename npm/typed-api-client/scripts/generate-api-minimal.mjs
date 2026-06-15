@@ -73,14 +73,16 @@ function getStringSetting(...values) {
   return undefined;
 }
 
-const fallbackDefaultFunctionsPath = "../../defaultApiFunctions";
+const fallbackDefaultFunctionsPath = "defaultApiFunctions";
 
-const defaultFunctionsPath = getStringSetting(
+const defaultFunctionsPathSetting = getStringSetting(
   process.env.TYPED_API_DEFAULT_FUNCTIONS_PATH,
   process.env.npm_config_typed_api_default_functions_path,
   config.typedApiDefaultFunctionsPath,
   fallbackDefaultFunctionsPath,
 );
+
+const defaultFunctionsFilePath = path.resolve(cwd, defaultFunctionsPathSetting);
 
 const defaultSuccessHandlerName = getStringSetting(
   process.env.TYPED_API_DEFAULT_SUCCESS_HANDLER,
@@ -194,23 +196,18 @@ function resolveImportFilePath(fromDirectory, importPath) {
   return candidates.find((candidate) => fs.existsSync(candidate));
 }
 
-function createDefaultFunctionsFileIfMissing(fromDirectory, importPath) {
-  if (!importPath.startsWith(".")) {
-    return undefined;
+function createDefaultFunctionsFileIfMissing(filePath) {
+  const extension = path.extname(filePath);
+  const resolvedFilePath = extension ? filePath : `${filePath}.ts`;
+
+  if (fs.existsSync(resolvedFilePath)) {
+    return resolvedFilePath;
   }
 
-  const basePath = path.resolve(fromDirectory, importPath);
-  const extension = path.extname(basePath);
-  const filePath = extension ? basePath : `${basePath}.ts`;
-
-  if (fs.existsSync(filePath)) {
-    return filePath;
-  }
-
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.mkdirSync(path.dirname(resolvedFilePath), { recursive: true });
 
   fs.writeFileSync(
-    filePath,
+    resolvedFilePath,
     `
 ${createImportStatement({
   names: ["ApiErrorResult", "ApiSuccessResult"],
@@ -234,10 +231,22 @@ export function ${defaultErrorHandlerName}<T>(
   );
 
   console.log(
-    `Created default API handler file: ${path.relative(process.cwd(), filePath)}`,
+    `Created default API handler file: ${path.relative(process.cwd(), resolvedFilePath)}`,
   );
 
-  return filePath;
+  return resolvedFilePath;
+}
+
+function toRelativeImportPath(fromDirectory, filePath) {
+  let relativePath = path.relative(fromDirectory, filePath);
+
+  if (!relativePath.startsWith(".")) {
+    relativePath = `./${relativePath}`;
+  }
+
+  relativePath = relativePath.replaceAll(path.sep, "/");
+
+  return relativePath.replace(/\.(ts|tsx|js|jsx)$/, "");
 }
 
 function escapeRegExp(value) {
@@ -284,19 +293,8 @@ function fileExportsName(source, exportName) {
 
 function resolveDefaultHandlers(importFromDirectory) {
   const defaultFunctionsFile =
-    resolveImportFilePath(importFromDirectory, defaultFunctionsPath) ??
-    createDefaultFunctionsFileIfMissing(
-      importFromDirectory,
-      defaultFunctionsPath,
-    );
-
-  if (!defaultFunctionsFile) {
-    console.warn(
-      `Default API handlers were not imported because "${defaultFunctionsPath}" is not a relative path and could not be created automatically.`,
-    );
-
-    return undefined;
-  }
+    resolveImportFilePath(importFromDirectory, defaultFunctionsFilePath) ??
+    createDefaultFunctionsFileIfMissing(defaultFunctionsFilePath);
 
   const source = fs.readFileSync(defaultFunctionsFile, "utf8");
   const hasSuccessHandler = fileExportsName(source, defaultSuccessHandlerName);
@@ -319,7 +317,10 @@ function resolveDefaultHandlers(importFromDirectory) {
   }
 
   return {
-    defaultFunctionsPath,
+    defaultFunctionsPath: toRelativeImportPath(
+      importFromDirectory,
+      defaultFunctionsFile,
+    ),
     defaultSuccessHandlerName,
     defaultErrorHandlerName,
   };

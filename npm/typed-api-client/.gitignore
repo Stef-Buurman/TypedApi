@@ -22,3 +22,4 @@ pnpm-debug.log*
 /src/api/index.ts
 *.tgz
 */defaultApiFunctions.ts
+/defaultApiFunctions.ts
