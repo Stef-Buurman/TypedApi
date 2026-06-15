@@ -33,7 +33,8 @@ const config = {
 const swaggerFile =
   process.env.SWAGGER_FILE ??
   process.env.npm_config_swagger_file ??
-  config.swaggerFile;
+  config.swaggerFile ?? 
+  "swagger/swagger.json";
 
 const swaggerUrl =
   process.env.SWAGGER_URL ??
@@ -50,6 +51,7 @@ const apiRoot = path.resolve(
     config.apiOutput ??
     "src/api",
 );
+
 const generatedDir = path.join(apiRoot, "generated");
 const methodsDir = path.join(apiRoot, "methods");
 
@@ -110,6 +112,10 @@ function toQueryName(methodName) {
   return `${pascalCase(methodName)}Query`;
 }
 
+function toOptionsName(methodName) {
+  return `${pascalCase(methodName)}Options`;
+}
+
 function cleanDirectory(directory) {
   if (fs.existsSync(directory)) {
     fs.rmSync(directory, { recursive: true, force: true });
@@ -157,6 +163,7 @@ async function generateOpenApiClient() {
   }
 
   await generateApi(generateOptions);
+
   removeGeneratedRouteFiles();
 }
 
@@ -225,7 +232,6 @@ ${createImportStatement({
   from: "typedapi-client-helpers",
   typeOnly: true,
 })}
-
 
 export function ${defaultSuccessHandlerName}<T>(
   _response: ApiSuccessResult<T>,
@@ -374,84 +380,6 @@ function getAllTsFiles(dir) {
   return results;
 }
 
-async function convertGeneratedUploadMethods(apiDir) {
-  const tsFiles = getAllTsFiles(apiDir);
-  let changedMethods = 0;
-
-  console.log(
-    `Checking ${tsFiles.length} generated TypeScript files for multipart methods...`,
-  );
-
-  for (const filePath of tsFiles) {
-    if (
-      filePath.endsWith("data-contracts.ts") ||
-      filePath.endsWith("http-client.ts")
-    ) {
-      continue;
-    }
-
-    const originalContent = fs.readFileSync(filePath, "utf8");
-
-    const methodRegex =
-      /(\b\w+\s*=\s*\(\s*data\s*:\s*)([^,\n]+)(,\s*params\s*:\s*RequestParams\s*=\s*\{\}\s*,?\s*\)\s*=>\s*this\.request<[\s\S]*?type:\s*ContentType\.FormData,[\s\S]*?\}\);)/g;
-
-    let fileChanges = 0;
-
-    const updatedContent = originalContent.replace(
-      methodRegex,
-      (_match, start, currentType, rest) => {
-        console.log(
-          `  Replacing multipart payload type "${currentType.trim()}" with FormData`,
-        );
-
-        fileChanges++;
-        changedMethods++;
-
-        return `${start}FormData${rest}`;
-      },
-    );
-
-    if (fileChanges > 0) {
-      await writeFormattedFile(filePath, updatedContent);
-
-      console.log(
-        `Updated ${fileChanges} multipart method(s) in ${path.relative(
-          process.cwd(),
-          filePath,
-        )}`,
-      );
-    }
-  }
-
-  if (changedMethods === 0) {
-    throw new Error(
-      "No multipart methods were converted. Check the generated method format and output directory.",
-    );
-  }
-
-  console.log(`Converted ${changedMethods} multipart method(s) to FormData.`);
-}
-
-function isMultipartMethod(source, methodName) {
-  const startPattern = new RegExp(`\\b${methodName}\\s*=\\s*\\(`);
-
-  const startMatch = startPattern.exec(source);
-
-  if (!startMatch) {
-    return false;
-  }
-
-  const nextMethodPattern = /^\s*\w+\s*=\s*\(/gm;
-  nextMethodPattern.lastIndex = startMatch.index + startMatch[0].length;
-
-  const nextMatch = nextMethodPattern.exec(source);
-  const endIndex = nextMatch?.index ?? source.length;
-
-  const methodSource = source.slice(startMatch.index, endIndex);
-
-  return methodSource.includes("type: ContentType.FormData");
-}
-
 function getGeneratedMethods(source) {
   const methodRegex = /^\s*(\w+)\s*=\s*\(/gm;
   const matches = [...source.matchAll(methodRegex)];
@@ -470,6 +398,79 @@ function getGeneratedMethods(source) {
       isFormData: methodSource.includes("type: ContentType.FormData"),
     };
   });
+}
+
+function splitTopLevelArguments(value) {
+  const args = [];
+  let current = "";
+  let depth = 0;
+  let quote = "";
+
+  for (let index = 0; index < value.length; index++) {
+    const char = value[index];
+    const previousChar = value[index - 1];
+
+    if (quote) {
+      current += char;
+
+      if (char === quote && previousChar !== "\\") {
+        quote = "";
+      }
+
+      continue;
+    }
+
+    if (char === '"' || char === "'" || char === "`") {
+      quote = char;
+      current += char;
+      continue;
+    }
+
+    if (char === "(" || char === "{" || char === "[" || char === "<") {
+      depth++;
+      current += char;
+      continue;
+    }
+
+    if (char === ")" || char === "}" || char === "]" || char === ">") {
+      depth--;
+      current += char;
+      continue;
+    }
+
+    if (char === "," && depth === 0) {
+      if (current.trim()) {
+        args.push(current.trim());
+      }
+
+      current = "";
+      continue;
+    }
+
+    current += char;
+  }
+
+  if (current.trim()) {
+    args.push(current.trim());
+  }
+
+  return args;
+}
+
+function getGeneratedMethodArgumentCount(signatureParams) {
+  const args = splitTopLevelArguments(signatureParams);
+
+  if (args.length === 0) {
+    return 0;
+  }
+
+  const lastArg = args[args.length - 1];
+
+  if (/\bparams\s*:\s*RequestParams\b/.test(lastArg)) {
+    return args.length - 1;
+  }
+
+  return args.length;
 }
 
 async function createMethodFiles() {
@@ -518,9 +519,9 @@ async function createMethodFiles() {
       }
 
       const params = signatureMatch[1].trim();
+      const methodArgumentCount = getGeneratedMethodArgumentCount(params);
 
       const returnTypeMatch = methodSource.match(/this\.request<([^,>]+)/m);
-
       const returnType = returnTypeMatch?.[1] ?? "";
 
       const isPaginated =
@@ -540,6 +541,7 @@ async function createMethodFiles() {
       nonQueryMethods.push({
         methodName,
         isFormData,
+        methodArgumentCount,
       });
     }
 
@@ -554,9 +556,23 @@ export type ${toQueryName(methodName)} =
       )
       .join("\n\n");
 
-    const hasPaginatedMethods = paginatedMethods.length > 0;
+    const methodOptionTypes = generatedMethods
+      .map(({ methodName }) =>
+        `
+export type ${toOptionsName(methodName)} = {
+  onSuccess?: ApiSuccessHandler<
+    ExtractResponse<ReturnType<${className}["${methodName}"]>>
+  >;
+  onError?: ApiErrorHandler<
+    ExtractError<ReturnType<${className}["${methodName}"]>>
+  >;
+  params?: RequestParams;
+};
+`.trim(),
+      )
+      .join("\n\n");
 
-    const hasNonQueryMethods = nonQueryMethods.length > 0;
+    const hasPaginatedMethods = paginatedMethods.length > 0;
 
     const hasFormDataMethods = nonQueryMethods.some(
       ({ isFormData }) => isFormData,
@@ -578,14 +594,10 @@ export async function ${methodName}(
     ExtractResponse<ReturnType<${className}["${methodName}"]>>
   > | null = null,
   sortDirection?: SortDirection,
-  onSuccess?: ApiSuccessHandler<
-    ExtractResponse<ReturnType<${className}["${methodName}"]>>
-  >,
-  onError?: ApiErrorHandler<
-    ExtractError<ReturnType<${className}["${methodName}"]>>
-  >,
-  params?: RequestParams
+  options: ${toOptionsName(methodName)} = {}
 ): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
+  const { onSuccess, onError, params } = options;
+
   return handleApiResponse(
     () =>
       ${instanceName}.${methodName}(
@@ -608,14 +620,10 @@ export async function ${methodName}(
         return `
 export async function ${methodName}(
   query?: ${toQueryName(methodName)},
-  onSuccess?: ApiSuccessHandler<
-    ExtractResponse<ReturnType<${className}["${methodName}"]>>
-  >,
-  onError?: ApiErrorHandler<
-    ExtractError<ReturnType<${className}["${methodName}"]>>
-  >,
-  params?: RequestParams
+  options: ${toOptionsName(methodName)} = {}
 ): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
+  const { onSuccess, onError, params } = options;
+
   return handleApiResponse(
     () =>
       ${instanceName}.${methodName}(
@@ -634,13 +642,7 @@ export async function ${methodName}(
         `
 export async function ${methodName}(
   query?: ${toQueryName(methodName)},
-  onSuccess?: ApiSuccessHandler<
-    ExtractResponse<ReturnType<${className}["${methodName}"]>>
-  >,
-  onError?: ApiErrorHandler<
-    ExtractError<ReturnType<${className}["${methodName}"]>>
-  >,
-  params?: RequestParams
+  options: ${toOptionsName(methodName)} = {}
 ): Promise<
   ApiResult<
     ExtractResponse<
@@ -650,6 +652,8 @@ export async function ${methodName}(
     >
   >
 > {
+  const { onSuccess, onError, params } = options;
+
   return handleApiResponse(
     () =>
       ${instanceName}.${methodName}(
@@ -664,20 +668,14 @@ export async function ${methodName}(
       .join("\n\n");
 
     const nonQueryMethodWrappers = nonQueryMethods
-      .map(({ methodName, isFormData }) => {
+      .map(({ methodName, isFormData, methodArgumentCount }) => {
         if (isFormData) {
           return `
 export async function ${methodName}(
   data: Parameters<
     ${className}["${methodName}"]
   >[0],
-  onSuccess?: ApiSuccessHandler<
-    ExtractResponse<ReturnType<${className}["${methodName}"]>>
-  >,
-  onError?: ApiErrorHandler<
-    ExtractError<ReturnType<${className}["${methodName}"]>>
-  >,
-  params?: RequestParams
+  options: ${toOptionsName(methodName)} = {}
 ): Promise<
   ApiResult<
     ExtractResponse<
@@ -687,6 +685,7 @@ export async function ${methodName}(
     >
   >
 > {
+  const { onSuccess, onError, params } = options;
   const formData = toFormData(data);
 
   return handleApiResponse(
@@ -705,25 +704,11 @@ export async function ${methodName}(
 
         return `
 export async function ${methodName}(
-  ...argsWithCallbacks: [
+  ...argsWithOptions: [
     ...ApiMethodArguments<
       ${className}["${methodName}"]
     >,
-    ApiSuccessHandler<
-      ExtractResponse<
-        ReturnType<
-          ${className}["${methodName}"]
-        >
-      >
-    >?,
-    ApiErrorHandler<
-      ExtractError<
-        ReturnType<
-          ${className}["${methodName}"]
-        >
-      >
-    >?,
-    RequestParams?
+    ${toOptionsName(methodName)}?
   ]
 ): Promise<
   ApiResult<
@@ -734,26 +719,14 @@ export async function ${methodName}(
     >
   >
 > {
-  const {
-    args,
-    onSuccess,
-    onError,
-    params
-  } = extractArgsCallbacksAndParams<
-    ApiMethodArguments<
-      ${className}["${methodName}"]
-    >,
-    ExtractResponse<
-      ReturnType<
-        ${className}["${methodName}"]
-      >
-    >,
-    ExtractError<
-      ReturnType<
-        ${className}["${methodName}"]
-      >
-    >
-  >(argsWithCallbacks);
+  const args = [...argsWithOptions] as unknown[];
+
+  const options =
+    args.length > ${methodArgumentCount}
+      ? (args.pop() as ${toOptionsName(methodName)})
+      : {};
+
+  const { onSuccess, onError, params } = options ?? {};
 
   const requestArgs = [
     ...args,
@@ -776,10 +749,10 @@ export async function ${methodName}(
 
     const runtimeValueImportNames = [
       ...(hasPaginatedMethods && useFilterFormValues ? ["buildQuery"] : []),
-      ...(hasRegularNonQueryMethods ? ["extractArgsCallbacksAndParams"] : []),
       ...(hasFormDataMethods ? ["toFormData"] : []),
       "handleApiResponse",
     ];
+
     const runtimeTypeImportNames = [
       "ApiResult",
       "ApiSuccessHandler",
@@ -841,16 +814,16 @@ export async function ${methodName}(
 
     const apiMethodArgumentsType = hasRegularNonQueryMethods
       ? `
-    type ApiMethodArguments<
-      TMethod extends (...args: any[]) => unknown
-    > =
-      Parameters<TMethod> extends [
-        ...infer Arguments,
-        unknown?
-      ]
-        ? Arguments
-        : Parameters<TMethod>;
-    `.trim()
+type ApiMethodArguments<
+  TMethod extends (...args: any[]) => unknown
+> =
+  Parameters<TMethod> extends [
+    ...infer Arguments,
+    RequestParams?
+  ]
+    ? Arguments
+    : Parameters<TMethod>;
+`.trim()
       : "";
 
     const content = `
@@ -870,6 +843,11 @@ ${apiMethodArgumentsType}
    Query Types
    ======================= */
 ${queryTypes}
+
+/* =======================
+   Method Option Types
+   ======================= */
+${methodOptionTypes}
 
 /* =======================
    API Instance

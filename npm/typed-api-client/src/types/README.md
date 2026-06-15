@@ -10,6 +10,35 @@ This folder contains public TypeScript helper types used by generated API wrappe
 | `ApiErrorHandler<TResponse>`    | Function type for error callbacks. Receives `ApiErrorResult<TResponse>`.          |
 | `ApiMethodCallbacks<TResponse>` | Object shape containing optional `onSuccess`, `onError`, and `params` properties. |
 
+## Generated method option types
+
+Generated wrapper files create one options type per method.
+
+For example, a generated `getSuppliers` wrapper creates:
+
+```ts
+export type GetSuppliersOptions = {
+  onSuccess?: ApiSuccessHandler<
+    ExtractResponse<ReturnType<Supplier["getSuppliers"]>>
+  >;
+  onError?: ApiErrorHandler<ExtractError<ReturnType<Supplier["getSuppliers"]>>>;
+  params?: RequestParams;
+};
+```
+
+These generated options types are used as the final wrapper argument.
+
+```ts
+await getSuppliers(
+  { pageNumber: 1, pageSize: 25 },
+  {
+    onError: handleError,
+  },
+);
+```
+
+This allows you to pass only `onError`, only `onSuccess`, only `params`, or any combination of them.
+
 ## API method helper types
 
 | Export                      | Description                                                                         |
@@ -48,4 +77,12 @@ const onSuccess: ApiSuccessHandler<SupplierResponse> = (result) => {
 const onError: ApiErrorHandler<SupplierResponse> = (result) => {
   console.error(result.error);
 };
+
+await getSuppliers(
+  { pageNumber: 1, pageSize: 25 },
+  {
+    onSuccess,
+    onError,
+  },
+);
 ```

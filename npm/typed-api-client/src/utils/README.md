@@ -4,19 +4,19 @@ This folder contains runtime helper functions used by generated wrapper methods 
 
 ## Exports
 
-| Export                                | Kind     | Description                                                                                                 |
-| ------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------- |
-| `buildQuery<TQuery, TSortModel>()`    | function | Builds a query object from filter values, pagination, and sorting.                                          |
-| `SortDirection`                       | type     | Sort direction value accepted by generated query objects. Supports string and numeric enum values.          |
-| `extractArgsCallbacksAndParams()`     | function | Splits wrapper arguments into original API arguments, success callback, error callback, and request params. |
-| `extractArgsToastsAndParams()`        | function | Backwards-compatible argument extractor with the same callback/request-param behavior.                      |
-| `handleApiResponse()`                 | function | Executes a generated HTTP call and returns `ApiResult<TResponse>`.                                          |
-| `HandleApiResponseOptions<TResponse>` | type     | Options object for `handleApiResponse`, containing optional success and error callbacks.                    |
-| `getSortTypeFromSortDirection()`      | function | Converts an API sort direction to a UI `SortType`.                                                          |
-| `getSortDirectionFromSortType()`      | function | Converts a UI `SortType` to an API sort direction.                                                          |
-| `ApiSortDirection`                    | type     | API sort direction union: `Default`, `Ascending`, or `Descending`.                                          |
-| `sortTypes`                           | const    | Constant list of supported UI sort states.                                                                  |
-| `toFormData()`                        | function | Converts an object payload into `FormData`.                                                                 |
+| Export                                | Kind     | Description                                                                                        |
+| ------------------------------------- | -------- | -------------------------------------------------------------------------------------------------- |
+| `buildQuery<TQuery, TSortModel>()`    | function | Builds a query object from filter values, pagination, and sorting.                                 |
+| `SortDirection`                       | type     | Sort direction value accepted by generated query objects. Supports string and numeric enum values. |
+| `extractArgsCallbacksAndParams()`     | function | Backwards-compatible helper for older generated files that used positional callbacks.              |
+| `extractArgsToastsAndParams()`        | function | Backwards-compatible argument extractor with the same callback/request-param behavior.             |
+| `handleApiResponse()`                 | function | Executes a generated HTTP call and returns `ApiResult<TResponse>`.                                 |
+| `HandleApiResponseOptions<TResponse>` | type     | Options object for `handleApiResponse`, containing optional success and error callbacks.           |
+| `getSortTypeFromSortDirection()`      | function | Converts an API sort direction to a UI `SortType`.                                                 |
+| `getSortDirectionFromSortType()`      | function | Converts a UI `SortType` to an API sort direction.                                                 |
+| `ApiSortDirection`                    | type     | API sort direction union: `Default`, `Ascending`, or `Descending`.                                 |
+| `sortTypes`                           | const    | Constant list of supported UI sort states.                                                         |
+| `toFormData()`                        | function | Converts an object payload into `FormData`.                                                        |
 
 ## `buildQuery`
 
@@ -34,9 +34,28 @@ const query = buildQuery(filters, 1, 25, "name", "Ascending");
 - adds `sortBy` and `sortDirection` when provided;
 - converts date, number, and boolean values to API-friendly values.
 
+## Method options in generated wrappers
+
+New generated wrapper methods use a final method options object instead of separate positional callback arguments.
+
+```ts
+await getSuppliers(
+  { pageNumber: 1, pageSize: 25 },
+  {
+    onSuccess,
+    onError,
+    params: { headers },
+  },
+);
+```
+
+The generated wrapper passes `onSuccess` and `onError` to `handleApiResponse`, and forwards `params` to the raw generated HTTP client.
+
 ## `extractArgsCallbacksAndParams`
 
-Generated non-query wrapper methods can accept their original API arguments followed by optional wrapper-only arguments:
+`extractArgsCallbacksAndParams` is kept for backwards compatibility with older generated files that used positional callback arguments.
+
+Older generated files could call methods like this:
 
 ```ts
 await updateSupplier(id, body, onSuccess, onError, { headers });
@@ -53,11 +72,11 @@ await updateSupplier(id, body, onSuccess, onError, { headers });
 }
 ```
 
-This keeps generated methods flexible without exposing the raw generated client's final `RequestParams` argument as a required positional value.
+New generated wrapper methods should use the method options object instead.
 
 ## `extractArgsToastsAndParams`
 
-`extractArgsToastsAndParams` is kept for backwards compatibility with older generated files. New generated code should prefer `extractArgsCallbacksAndParams`.
+`extractArgsToastsAndParams` is kept for backwards compatibility with older generated files. New generated code should use method options instead of positional callbacks.
 
 ## `handleApiResponse`
 
