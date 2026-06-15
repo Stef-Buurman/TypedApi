@@ -63,6 +63,39 @@ const useFilterFormValues =
   process.env.npm_config_typed_api_use_filter_form_values === "true" ||
   config.typedApiUseFilterFormValues === true;
 
+function getStringSetting(...values) {
+  for (const value of values) {
+    if (typeof value === "string" && value.trim() !== "") {
+      return value.trim();
+    }
+  }
+
+  return undefined;
+}
+
+const fallbackDefaultFunctionsPath = "../../defaultApiFunctions";
+
+const defaultFunctionsPath = getStringSetting(
+  process.env.TYPED_API_DEFAULT_FUNCTIONS_PATH,
+  process.env.npm_config_typed_api_default_functions_path,
+  config.typedApiDefaultFunctionsPath,
+  fallbackDefaultFunctionsPath,
+);
+
+const defaultSuccessHandlerName = getStringSetting(
+  process.env.TYPED_API_DEFAULT_SUCCESS_HANDLER,
+  process.env.npm_config_typed_api_default_success_handler,
+  config.typedApiDefaultSuccessHandler,
+  "handleGoodResult",
+);
+
+const defaultErrorHandlerName = getStringSetting(
+  process.env.TYPED_API_DEFAULT_ERROR_HANDLER,
+  process.env.npm_config_typed_api_default_error_handler,
+  config.typedApiDefaultErrorHandler,
+  "handleErrors",
+);
+
 function pascalCase(value) {
   return value
     .split(/[-_]/)
@@ -124,6 +157,178 @@ function createImportStatement({ names, from, typeOnly = false }) {
   return `${importKeyword} {
 ${names.map((name) => `  ${name},`).join("\n")}
 } from "${from}";`;
+}
+
+function createAliasedImportStatement({ imports, from }) {
+  if (!imports || imports.length === 0) {
+    return "";
+  }
+
+  return `import {
+${imports
+  .map(({ name, alias }) =>
+    alias && alias !== name ? `  ${name} as ${alias},` : `  ${name},`,
+  )
+  .join("\n")}
+} from "${from}";`;
+}
+
+function resolveImportFilePath(fromDirectory, importPath) {
+  if (!importPath.startsWith(".")) {
+    return undefined;
+  }
+
+  const basePath = path.resolve(fromDirectory, importPath);
+  const candidates = [
+    basePath,
+    `${basePath}.ts`,
+    `${basePath}.tsx`,
+    `${basePath}.js`,
+    `${basePath}.jsx`,
+    path.join(basePath, "index.ts"),
+    path.join(basePath, "index.tsx"),
+    path.join(basePath, "index.js"),
+    path.join(basePath, "index.jsx"),
+  ];
+
+  return candidates.find((candidate) => fs.existsSync(candidate));
+}
+
+function createDefaultFunctionsFileIfMissing(fromDirectory, importPath) {
+  if (!importPath.startsWith(".")) {
+    return undefined;
+  }
+
+  const basePath = path.resolve(fromDirectory, importPath);
+  const extension = path.extname(basePath);
+  const filePath = extension ? basePath : `${basePath}.ts`;
+
+  if (fs.existsSync(filePath)) {
+    return filePath;
+  }
+
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+
+  fs.writeFileSync(
+    filePath,
+    `export function ${defaultSuccessHandlerName}<TResponse>(
+  _response: TResponse,
+): void | Promise<void> {
+  // Add your default success handling here.
+}
+
+export function ${defaultErrorHandlerName}<TError>(
+  _error: TError,
+): void | Promise<void> {
+  // Add your default error handling here.
+}
+`,
+  );
+
+  console.log(
+    `Created default API handler file: ${path.relative(process.cwd(), filePath)}`,
+  );
+
+  return filePath;
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function fileExportsName(source, exportName) {
+  const escapedName = escapeRegExp(exportName);
+
+  const directExportPattern = new RegExp(
+    `export\\s+(?:async\\s+)?(?:function|const|let|var|class)\\s+${escapedName}\\b`,
+    "m",
+  );
+
+  if (directExportPattern.test(source)) {
+    return true;
+  }
+
+  const namedExportBlocks = source.matchAll(/export\s*\{([\s\S]*?)\}/g);
+
+  for (const match of namedExportBlocks) {
+    const exportedNames = match[1]
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    if (
+      exportedNames.some((part) => {
+        const [localName, aliasName] = part
+          .split(/\s+as\s+/)
+          .map((name) => name.trim());
+
+        return (
+          aliasName === exportName || (!aliasName && localName === exportName)
+        );
+      })
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function resolveDefaultHandlers(importFromDirectory) {
+  const defaultFunctionsFile =
+    resolveImportFilePath(importFromDirectory, defaultFunctionsPath) ??
+    createDefaultFunctionsFileIfMissing(
+      importFromDirectory,
+      defaultFunctionsPath,
+    );
+
+  if (!defaultFunctionsFile) {
+    console.warn(
+      `Default API handlers were not imported because "${defaultFunctionsPath}" is not a relative path and could not be created automatically.`,
+    );
+
+    return undefined;
+  }
+
+  const source = fs.readFileSync(defaultFunctionsFile, "utf8");
+  const hasSuccessHandler = fileExportsName(source, defaultSuccessHandlerName);
+  const hasErrorHandler = fileExportsName(source, defaultErrorHandlerName);
+
+  if (!hasSuccessHandler || !hasErrorHandler) {
+    const missingNames = [
+      ...(!hasSuccessHandler ? [defaultSuccessHandlerName] : []),
+      ...(!hasErrorHandler ? [defaultErrorHandlerName] : []),
+    ];
+
+    console.warn(
+      `Default API handlers were not imported because ${path.relative(
+        process.cwd(),
+        defaultFunctionsFile,
+      )} does not export: ${missingNames.join(", ")}.`,
+    );
+
+    return undefined;
+  }
+
+  return {
+    defaultFunctionsPath,
+    defaultSuccessHandlerName,
+    defaultErrorHandlerName,
+  };
+}
+
+function callbackOptionsExpression(defaultHandlers) {
+  if (defaultHandlers) {
+    return `{
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler
+    }`;
+  }
+
+  return `{
+      onSuccess,
+      onError
+    }`;
 }
 
 function getAllTsFiles(dir) {
@@ -248,6 +453,8 @@ function getGeneratedMethods(source) {
 }
 
 async function createMethodFiles() {
+  const defaultHandlers = resolveDefaultHandlers(methodsDir);
+
   const generatedFiles = fs
     .readdirSync(generatedDir)
     .filter(
@@ -354,7 +561,9 @@ export async function ${methodName}(
   onSuccess?: ApiSuccessHandler<
     ExtractResponse<ReturnType<${className}["${methodName}"]>>
   >,
-  onError?: ApiErrorHandler,
+  onError?: ApiErrorHandler<
+    ExtractError<ReturnType<${className}["${methodName}"]>>
+  >,
   params?: RequestParams
 ): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
   return handleApiResponse(
@@ -370,7 +579,7 @@ export async function ${methodName}(
         >(filters, page, pageSize, sortBy, sortDirection),
         params ?? {}
       ),
-    { onSuccess, onError }
+    ${callbackOptionsExpression(defaultHandlers)}
   );
 }
 `.trim();
@@ -382,12 +591,14 @@ export async function ${methodName}(
   onSuccess?: ApiSuccessHandler<
     ExtractResponse<ReturnType<${className}["${methodName}"]>>
   >,
-  onError?: ApiErrorHandler,
+  onError?: ApiErrorHandler<
+    ExtractError<ReturnType<${className}["${methodName}"]>>
+  >,
   params?: RequestParams
 ): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
   return handleApiResponse(
     () => ${instanceName}.${methodName}(query, params ?? {}),
-    { onSuccess, onError }
+    ${callbackOptionsExpression(defaultHandlers)}
   );
 }
 `.trim();
@@ -402,7 +613,9 @@ export async function ${methodName}(
   onSuccess?: ApiSuccessHandler<
     ExtractResponse<ReturnType<${className}["${methodName}"]>>
   >,
-  onError?: ApiErrorHandler,
+  onError?: ApiErrorHandler<
+    ExtractError<ReturnType<${className}["${methodName}"]>>
+  >,
   params?: RequestParams
 ): Promise<
   ApiResult<
@@ -416,7 +629,7 @@ export async function ${methodName}(
   return handleApiResponse(
     () =>
       ${instanceName}.${methodName}(query, params ?? {}),
-    { onSuccess, onError }
+    ${callbackOptionsExpression(defaultHandlers)}
   );
 }
 `.trim(),
@@ -434,7 +647,9 @@ export async function ${methodName}(
   onSuccess?: ApiSuccessHandler<
     ExtractResponse<ReturnType<${className}["${methodName}"]>>
   >,
-  onError?: ApiErrorHandler,
+  onError?: ApiErrorHandler<
+    ExtractError<ReturnType<${className}["${methodName}"]>>
+  >,
   params?: RequestParams
 ): Promise<
   ApiResult<
@@ -455,7 +670,7 @@ export async function ${methodName}(
         >[0],
         params ?? {}
       ),
-    { onSuccess, onError }
+    ${callbackOptionsExpression(defaultHandlers)}
   );
 }
 `.trim();
@@ -474,7 +689,13 @@ export async function ${methodName}(
         >
       >
     >?,
-    ApiErrorHandler?,
+    ApiErrorHandler<
+      ExtractError<
+        ReturnType<
+          ${className}["${methodName}"]
+        >
+      >
+    >?,
     RequestParams?
   ]
 ): Promise<
@@ -499,6 +720,11 @@ export async function ${methodName}(
       ReturnType<
         ${className}["${methodName}"]
       >
+    >,
+    ExtractError<
+      ReturnType<
+        ${className}["${methodName}"]
+      >
     >
   >(argsWithCallbacks);
 
@@ -514,10 +740,7 @@ export async function ${methodName}(
       ${instanceName}.${methodName}(
         ...requestArgs
       ),
-    {
-      onSuccess,
-      onError
-    }
+    ${callbackOptionsExpression(defaultHandlers)}
   );
 }
 `.trim();
@@ -535,6 +758,7 @@ export async function ${methodName}(
       "ApiSuccessHandler",
       "ApiErrorHandler",
       "ExtractResponse",
+      "ExtractError",
 
       ...(hasPaginatedMethods && useFilterFormValues
         ? [
@@ -551,6 +775,22 @@ export async function ${methodName}(
       names: runtimeValueImportNames,
       from: runtimePackageName,
     });
+
+    const defaultFunctionImports = defaultHandlers
+      ? createAliasedImportStatement({
+          imports: [
+            {
+              name: defaultHandlers.defaultSuccessHandlerName,
+              alias: "typedApiDefaultSuccessHandler",
+            },
+            {
+              name: defaultHandlers.defaultErrorHandlerName,
+              alias: "typedApiDefaultErrorHandler",
+            },
+          ],
+          from: defaultHandlers.defaultFunctionsPath,
+        })
+      : "";
 
     const runtimeTypeImports = createImportStatement({
       names: runtimeTypeImportNames,
@@ -588,6 +828,8 @@ export async function ${methodName}(
 
     const content = `
 ${runtimeValueImports}
+
+${defaultFunctionImports}
 
 ${runtimeTypeImports}
 
@@ -653,14 +895,6 @@ async function fixGeneratedMixedImports(apiDir) {
     const originalContent = fs.readFileSync(filePath, "utf8");
     let content = originalContent;
 
-    /*
-     * Converts:
-     *
-     * import { ContentType, HttpClient, RequestParams }
-     *   from "./http-client";
-     *
-     * into separate runtime and type imports.
-     */
     content = content.replace(
       /import\s*\{([\s\S]*?)\}\s*from\s*["']\.\/http-client["'];/g,
       (_match, importsText) => {
@@ -699,10 +933,6 @@ async function fixGeneratedMixedImports(apiDir) {
       },
     );
 
-    /*
-     * Everything imported from data-contracts by generated API classes
-     * is normally used as a TypeScript type.
-     */
     if (useTypeOnlyImports) {
       content = content.replace(
         /import\s*\{([\s\S]*?)\}\s*from\s*["']\.\/data-contracts["'];/g,

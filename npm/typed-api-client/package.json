@@ -13,7 +13,10 @@
   ],
   "config": {
     "swaggerFile": "swagger/TestSwagger.json",
-    "apiOutput": "src/api"
+    "apiOutput": "src/api",
+    "typedApiDefaultFunctionsPath": "../../defaultApiFunctions",
+    "typedApiDefaultSuccessHandler": "handleGoodResult",
+    "typedApiDefaultErrorHandler": "handleErrors"
   },
   "bin": {
     "typedapi-generate": "bin/typedapi-generate.js"
