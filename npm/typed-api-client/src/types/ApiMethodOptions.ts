@@ -1,12 +1,12 @@
 import { ApiErrorHandler, ApiSuccessHandler } from "./ApiCallOptions";
-import { ExtractError, ExtractResponse } from "./ApiMethodTypes";
 import { RuntimeRequestParams } from "./HttpResponse";
 
 export type ApiMethodOptions<
-  TMethodReturn,
+  TResponse,
+  TError = unknown,
   TRequestParams = RuntimeRequestParams,
 > = {
-  onSuccess?: ApiSuccessHandler<ExtractResponse<TMethodReturn>>;
-  onError?: ApiErrorHandler<ExtractError<TMethodReturn>>;
+  onSuccess?: ApiSuccessHandler<TResponse>;
+  onError?: ApiErrorHandler<TError>;
   params?: TRequestParams;
 };

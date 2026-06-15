@@ -575,7 +575,8 @@ export async function ${methodName}(
   > | null = null,
   sortDirection?: SortDirection,
   options: ApiMethodOptions<
-    ReturnType<${className}["${methodName}"]>,
+    ExtractResponse<ReturnType<${className}["${methodName}"]>>,
+    ExtractError<ReturnType<${className}["${methodName}"]>>,
     RequestParams
   > = {}
 ): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
@@ -604,7 +605,8 @@ export async function ${methodName}(
 export async function ${methodName}(
   query?: ${toQueryName(methodName)},
   options: ApiMethodOptions<
-    ReturnType<${className}["${methodName}"]>,
+    ExtractResponse<ReturnType<${className}["${methodName}"]>>,
+    ExtractError<ReturnType<${className}["${methodName}"]>>,
     RequestParams
   > = {}
 ): Promise<ApiResult<ExtractResponse<ReturnType<${className}["${methodName}"]>>>> {
@@ -629,7 +631,8 @@ export async function ${methodName}(
 export async function ${methodName}(
   query?: ${toQueryName(methodName)},
   options: ApiMethodOptions<
-    ReturnType<${className}["${methodName}"]>,
+    ExtractResponse<ReturnType<${className}["${methodName}"]>>,
+    ExtractError<ReturnType<${className}["${methodName}"]>>,
     RequestParams
   > = {}
 ): Promise<
@@ -665,7 +668,8 @@ export async function ${methodName}(
     ${className}["${methodName}"]
   >[0],
   options: ApiMethodOptions<
-    ReturnType<${className}["${methodName}"]>,
+    ExtractResponse<ReturnType<${className}["${methodName}"]>>,
+    ExtractError<ReturnType<${className}["${methodName}"]>>,
     RequestParams
   > = {}
 ): Promise<
@@ -702,7 +706,8 @@ export async function ${methodName}(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<${className}["${methodName}"]>,
+      ExtractResponse<ReturnType<${className}["${methodName}"]>>,
+      ExtractError<ReturnType<${className}["${methodName}"]>>,
       RequestParams
     >?
   ]
@@ -720,9 +725,10 @@ export async function ${methodName}(
   const options =
     args.length > ${methodArgumentCount}
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<${className}["${methodName}"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<${className}["${methodName}"]>>,
+            ExtractError<ReturnType<${className}["${methodName}"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};
@@ -757,6 +763,7 @@ export async function ${methodName}(
       "ApiMethodOptions",
       ...(hasRegularNonQueryMethods ? ["ApiMethodArguments"] : []),
       "ExtractResponse",
+      "ExtractError",
 
       ...(hasPaginatedMethods && useFilterFormValues
         ? [
