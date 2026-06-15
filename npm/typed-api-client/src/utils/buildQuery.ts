@@ -1,5 +1,10 @@
 import { FilterFormValues, OptionValue } from "../interfaces/Filter";
 
+/**
+ * Sort direction value accepted by generated query objects.
+ *
+ * APIs often expose sort direction as either a string enum or numeric enum, so both are supported.
+ */
 export type SortDirection = number | string;
 
 /**

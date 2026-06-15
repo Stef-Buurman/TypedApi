@@ -1,23 +1,8 @@
 # typedapi-client-helpers
 
-Generate a typed TypeScript API client from an OpenAPI/Swagger document and use reusable helpers for API responses, filtering, sorting, pagination, callbacks, and multipart form data.
+`typedapi-client-helpers` generates a typed TypeScript API client from an OpenAPI/Swagger document and adds reusable helper types and functions for API results, callbacks, filtering, sorting, request parameters, and multipart uploads.
 
-The generated client uses the native `fetch` API and is created inside your own project, so the generated models and methods remain available for inspection and customization.
-
-## Features
-
-* Generates TypeScript models and API methods from OpenAPI
-* Uses the native `fetch` API
-* Generates methods grouped by OpenAPI tags
-* Creates typed wrapper methods around generated requests
-* Returns a consistent `ApiResult<T>`
-* Supports success and error callbacks
-* Supports custom request parameters and headers
-* Supports query parameters, pagination, filtering, and sorting
-* Converts upload payloads to `FormData`
-* Supports local Swagger files and remote Swagger URLs
-* Supports type-only imports
-* Works with TypeScript frontend projects such as React, Angular, and Vue
+The package is meant for frontend projects that want a generated API client while still keeping the generated files inside their own source tree.
 
 ## Installation
 
@@ -25,9 +10,9 @@ The generated client uses the native `fetch` API and is created inside your own 
 npm install typedapi-client-helpers
 ```
 
-## Add the generator command
+## Basic usage
 
-Add the following script to your project's `package.json`:
+Add a generator script to your project:
 
 ```json
 {
@@ -37,71 +22,59 @@ Add the following script to your project's `package.json`:
 }
 ```
 
-You can then generate the API client with:
+Run the generator:
 
 ```bash
 npm run generate:api
 ```
 
+By default the generator reads the Swagger document from `https://localhost:7000/swagger/v1/swagger.json` and writes the generated API client to `src/api`.
+
 ## Configuration
 
-The generator can be configured through the `config` property in your project's `package.json`.
+Configuration can be supplied in the `config` section of your `package.json`, with environment variables, or with npm command-line arguments.
 
-### Generate from a Swagger URL
+### Package configuration
 
 ```json
 {
-  "scripts": {
-    "generate:api": "typedapi-generate"
-  },
   "config": {
     "swaggerUrl": "https://localhost:7000/swagger/v1/swagger.json",
-    "apiOutput": "src/api",
-    "typedApiUseTypeOnlyImports": true,
-    "typedApiUseFilterFormValues": false
-  }
-}
-```
-
-### Generate from a local Swagger file
-
-```json
-{
-  "scripts": {
-    "generate:api": "typedapi-generate"
-  },
-  "config": {
     "swaggerFile": "swagger/openapi.json",
     "apiOutput": "src/api",
     "typedApiUseTypeOnlyImports": true,
-    "typedApiUseFilterFormValues": false
+    "typedApiUseFilterFormValues": false,
+    "typedApiDefaultFunctionsPath": "../../defaultApiFunctions",
+    "typedApiDefaultSuccessHandler": "handleGoodResult",
+    "typedApiDefaultErrorHandler": "handleErrors"
   }
 }
 ```
 
-When `swaggerFile` is configured, it takes precedence over `swaggerUrl`.
+`swaggerFile` takes precedence over `swaggerUrl` when both are configured.
 
-## Configuration options
+### Configuration options
 
-| Option                        | Default                                          | Description                                              |
-| ----------------------------- | ------------------------------------------------ | -------------------------------------------------------- |
-| `swaggerUrl`                  | `https://localhost:7000/swagger/v1/swagger.json` | URL of the OpenAPI document                              |
-| `swaggerFile`                 | —                                                | Path to a local OpenAPI document                         |
-| `apiOutput`                   | `src/api`                                        | Directory where the generated API is written             |
-| `typedApiUseTypeOnlyImports`  | `false`                                          | Generates `import type` statements for type-only imports |
-| `typedApiUseFilterFormValues` | `false`                                          | Generates filter-form arguments for paginated methods    |
+| Option                          | Default                                          | Description                                                                                                                    |
+| ------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `swaggerUrl`                    | `https://localhost:7000/swagger/v1/swagger.json` | URL of the OpenAPI/Swagger document.                                                                                           |
+| `swaggerFile`                   | none                                             | Local path to an OpenAPI/Swagger document. When set, this is used instead of `swaggerUrl`.                                     |
+| `apiOutput`                     | `src/api`                                        | Directory where the generated API files are written.                                                                           |
+| `typedApiUseTypeOnlyImports`    | `false`                                          | Generates `import type` statements for imports that are only used as types.                                                    |
+| `typedApiUseFilterFormValues`   | `false`                                          | Generates paginated methods that accept `FilterFormValues[]`, page values, and sort values instead of a prebuilt query object. |
+| `typedApiDefaultFunctionsPath`  | `../../defaultApiFunctions`                      | Import path used by generated method files for shared success and error handlers.                                              |
+| `typedApiDefaultSuccessHandler` | `handleGoodResult`                               | Name of the default success handler function imported into generated methods.                                                  |
+| `typedApiDefaultErrorHandler`   | `handleErrors`                                   | Name of the default error handler function imported into generated methods.                                                    |
 
-## Environment variables
+### Environment variables
 
-Configuration can also be supplied through environment variables.
-
-| Environment variable               | Description                                              |
-| ---------------------------------- | -------------------------------------------------------- |
-| `SWAGGER_URL`                      | URL of the OpenAPI document                              |
-| `SWAGGER_FILE`                     | Path to a local OpenAPI document                         |
-| `API_OUTPUT`                       | Generated API output directory                           |
-| `TYPED_API_USE_TYPE_ONLY_IMPORTS`  | Enables type-only imports when set to `true`             |
-| `TYPED_API_USE_FILTER_FORM_VALUES` | Enables filter-form method generation when set to `true` |
+| Environment variable               | Description                                                     |
+| ---------------------------------- | --------------------------------------------------------------- |
+| `SWAGGER_URL`                      | URL of the OpenAPI/Swagger document.                            |
+| `SWAGGER_FILE`                     | Local path to an OpenAPI/Swagger document.                      |
+| `API_OUTPUT`                       | Directory where generated API files are written.                |
+| `TYPED_API_USE_TYPE_ONLY_IMPORTS`  | Enables type-only imports when set to `true`.                   |
+| `TYPED_API_USE_FILTER_FORM_VALUES` | Enables filter-form based paginated methods when set to `true`. |
 
 Example:
 
@@ -109,23 +82,17 @@ Example:
 SWAGGER_URL=https://localhost:7000/swagger/v1/swagger.json npm run generate:api
 ```
 
-Command-line npm configuration is also supported:
+### Command-line npm config
 
 ```bash
 npm run generate:api --swagger-url=https://localhost:7000/swagger/v1/swagger.json
-```
-
-```bash
 npm run generate:api --swagger-file=swagger/openapi.json
-```
-
-```bash
 npm run generate:api --api-output=src/api
 ```
 
 ## Generated structure
 
-Running the generator creates an API directory similar to:
+Running the generator creates a structure similar to this:
 
 ```text
 src/
@@ -134,42 +101,23 @@ src/
     │   ├── data-contracts.ts
     │   ├── http-client.ts
     │   ├── Product.ts
-    │   ├── ProductRoute.ts
-    │   ├── Supplier.ts
-    │   └── SupplierRoute.ts
+    │   └── Supplier.ts
     ├── methods/
     │   ├── Product.api.ts
     │   └── Supplier.api.ts
     └── index.ts
 ```
 
-The `generated` directory contains the client produced from the OpenAPI document.
-
-The `methods` directory contains typed wrapper functions that:
-
-* Handle successful and failed responses
-* Return `ApiResult<T>`
-* Support success and error callbacks
-* Accept custom request parameters
-* Convert multipart request objects to `FormData`
-
-## Export the generated API
-
-Create or update `src/api/index.ts` so consumers can import the generated types and methods from one location:
-
-```ts
-export * from "./generated/data-contracts";
-export * from "./generated/http-client";
-
-export * from "./methods/Product.api";
-export * from "./methods/Supplier.api";
-```
-
-The exact method files depend on the tags in your OpenAPI document.
+| Folder or file           | Description                                                                                                     |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `generated/`             | Raw client, models, route classes, and HTTP client generated by `swagger-typescript-api`.                       |
+| `methods/`               | Typed wrapper methods generated by this package. These call the raw generated client and return `ApiResult<T>`. |
+| `index.ts`               | Barrel file that exports generated contracts, HTTP client types, and wrapper methods.                           |
+| `defaultApiFunctions.ts` | Optional shared success and error handlers created when the configured default handler file does not exist.     |
 
 ## Calling generated methods
 
-Generated wrapper methods return a typed `ApiResult<T>`.
+Generated wrapper methods return `ApiResult<T>`.
 
 ```ts
 import { getSuppliers } from "./api";
@@ -186,104 +134,36 @@ if (result.ok) {
 }
 ```
 
-`ApiResult<T>` is a discriminated union:
-
-```ts
-type ApiResult<T> =
-  | {
-      ok: true;
-      status: number;
-      response: T;
-    }
-  | {
-      ok: false;
-      status: number;
-      response?: T;
-      error: unknown;
-    };
-```
-
-Checking `result.ok` automatically narrows the result to either the successful or failed response type.
+Checking `result.ok` narrows the result automatically.
 
 ## Success and error callbacks
 
-Generated methods support optional success and error callbacks.
+Callbacks receive the full result object, not just the raw response or error.
 
 ```ts
-import { getSuppliers } from "./api";
+import type { ApiErrorResult, ApiSuccessResult } from "typedapi-client-helpers";
+import { getSuppliers, type SupplierListResponse } from "./api";
 
-const result = await getSuppliers(
-  {
-    pageNumber: 1,
-    pageSize: 25,
-  },
-  async (response) => {
-    console.log("Suppliers loaded:", response);
-  },
-  async (error) => {
-    console.error("Unable to load suppliers:", error);
-  },
-);
-```
-
-The method still returns an `ApiResult<T>`, even when callbacks are provided.
-
-## Create and update requests
-
-Body-based API methods keep the argument types generated from the OpenAPI document.
-
-```ts
-import { createSupplier } from "./api";
-
-const result = await createSupplier({
-  id: "supplier-1",
-  name: "Example Supplier",
-  active: true,
-  countryCode: "NL",
-  email: "supplier@example.com",
-  rating: 4.5,
-});
-
-if (!result.ok) {
-  console.error("Supplier creation failed:", result.error);
+function onSuccess(result: ApiSuccessResult<SupplierListResponse>) {
+  console.log(result.status, result.response);
 }
+
+function onError(result: ApiErrorResult<SupplierListResponse>) {
+  console.error(result.status, result.error);
+}
+
+await getSuppliers({ pageNumber: 1, pageSize: 25 }, onSuccess, onError);
 ```
 
-Callbacks can be added after the generated API arguments:
-
-```ts
-await createSupplier(
-  {
-    id: "supplier-1",
-    name: "Example Supplier",
-    active: true,
-    countryCode: "NL",
-    email: "supplier@example.com",
-    rating: 4.5,
-  },
-  (supplier) => {
-    console.log("Created supplier:", supplier);
-  },
-  (error) => {
-    console.error("Creation failed:", error);
-  },
-);
-```
+The generated method still returns `ApiResult<T>` after callbacks run.
 
 ## Custom request parameters
 
-The final argument of a generated wrapper method can contain request configuration supported by the generated HTTP client.
-
-For example, custom headers can be supplied as follows:
+The final wrapper argument can contain request parameters supported by the generated HTTP client.
 
 ```ts
-import { getSuppliers } from "./api";
-
 const result = await getSuppliers(
-  {
-    pageNumber: 1,
-    pageSize: 25,
-  },
+  { pageNumber: 1, pageSize: 25 },
   undefined,
   undefined,
   {
@@ -296,26 +176,21 @@ const result = await getSuppliers(
 
 ## Filter-form generation
 
-Set `typedApiUseFilterFormValues` to `true` to generate paginated methods that accept filter-form values rather than a query object.
+Set `typedApiUseFilterFormValues` to `true` to generate paginated methods that accept filter form values.
 
 ```json
 {
   "config": {
-    "swaggerUrl": "https://localhost:7000/swagger/v1/swagger.json",
-    "apiOutput": "src/api",
     "typedApiUseFilterFormValues": true
   }
 }
 ```
 
-A generated paginated method can then be called with filters, pagination, and sorting:
+Example:
 
 ```ts
 import type { FilterFormValues } from "typedapi-client-helpers";
-import {
-  getSuppliers,
-  type GetSuppliersQuery,
-} from "./api";
+import { getSuppliers, type GetSuppliersQuery } from "./api";
 
 const filters: FilterFormValues<GetSuppliersQuery>[] = [
   {
@@ -325,352 +200,115 @@ const filters: FilterFormValues<GetSuppliersQuery>[] = [
     value: "Example",
     isAList: false,
   },
-  {
-    name: "Active",
-    filterName: "active",
-    type: "boolean",
-    value: true,
-    isAList: false,
-  },
 ];
 
-const result = await getSuppliers(
-  filters,
-  1,
-  25,
-  "name",
-  "Ascending",
-);
+const result = await getSuppliers(filters, 1, 25, "name", "Ascending");
 ```
 
-Empty filter values are ignored automatically.
+Empty filter values are ignored by `buildQuery`.
 
-## Supported filter types
+## Multipart uploads
 
-```ts
-type FilterType =
-  | "number"
-  | "date"
-  | "string"
-  | "timespan"
-  | "boolean"
-  | "boolean-button"
-  | "OptionValue";
-```
-
-A filter configuration uses the following structure:
-
-```ts
-interface FilterFormValues<TQuery> {
-  name: string;
-  filterName: keyof TQuery;
-  filterNameMax?: keyof TQuery;
-  type: FilterType;
-  value:
-    | number
-    | string
-    | Date
-    | boolean
-    | null
-    | OptionValue[]
-    | string[];
-  maxValue?: number | string | Date | null;
-  isAList: boolean;
-}
-```
-
-## Range filters
-
-Use `filterNameMax` and `maxValue` to create range filters:
-
-```ts
-const filters: FilterFormValues<GetSuppliersQuery>[] = [
-  {
-    name: "Minimum rating",
-    filterName: "minimumRating",
-    filterNameMax: "maximumRating",
-    type: "number",
-    value: 3,
-    maxValue: 5,
-    isAList: false,
-  },
-];
-```
-
-## Option filters
-
-Option-based filters display a name while sending a separate value to the API.
-
-```ts
-import type {
-  FilterFormValues,
-  OptionValue,
-} from "typedapi-client-helpers";
-
-const countries: OptionValue[] = [
-  {
-    name: "Netherlands",
-    value: "NL",
-  },
-  {
-    name: "Belgium",
-    value: "BE",
-  },
-];
-
-const filters: FilterFormValues<GetSuppliersQuery>[] = [
-  {
-    name: "Countries",
-    filterName: "countryCodes",
-    type: "OptionValue",
-    value: countries,
-    isAList: true,
-  },
-];
-```
-
-The generator sends the values `"NL"` and `"BE"` rather than the display names.
-
-## Using `buildQuery` directly
-
-The `buildQuery` helper can also be used without generated filter-form methods.
-
-```ts
-import {
-  buildQuery,
-  type FilterFormValues,
-} from "typedapi-client-helpers";
-
-interface ProductQuery {
-  name?: string;
-  minimumPrice?: number;
-  maximumPrice?: number;
-  pageNumber?: number;
-  pageSize?: number;
-  sortBy?: string;
-  sortDirection?: string;
-}
-
-const filters: FilterFormValues<ProductQuery>[] = [
-  {
-    name: "Name",
-    filterName: "name",
-    type: "string",
-    value: "Laptop",
-    isAList: false,
-  },
-  {
-    name: "Price",
-    filterName: "minimumPrice",
-    filterNameMax: "maximumPrice",
-    type: "number",
-    value: 500,
-    maxValue: 1500,
-    isAList: false,
-  },
-];
-
-const query = buildQuery<ProductQuery>(
-  filters,
-  1,
-  25,
-  "name",
-  "Ascending",
-);
-```
-
-The result is equivalent to:
-
-```ts
-{
-  name: "Laptop",
-  minimumPrice: 500,
-  maximumPrice: 1500,
-  pageNumber: 1,
-  pageSize: 25,
-  sortBy: "name",
-  sortDirection: "Ascending"
-}
-```
-
-## Sorting helpers
-
-The package includes helpers for converting between UI sort states and API sort directions.
-
-```ts
-import {
-  getSortDirectionFromSortType,
-  getSortTypeFromSortDirection,
-} from "typedapi-client-helpers";
-
-const apiDirection =
-  getSortDirectionFromSortType("Neutral");
-
-// "Default"
-
-const uiSortType =
-  getSortTypeFromSortDirection("Descending");
-
-// "Descending"
-```
-
-Supported UI sort states are:
-
-```ts
-type SortType =
-  | "Default"
-  | "Neutral"
-  | "Ascending"
-  | "Descending";
-```
-
-`Neutral` is a UI-only state and is converted to `Default` before it is sent to the API.
-
-## File uploads
-
-Multipart methods are detected during generation. Their payloads are converted to `FormData` automatically.
-
-```ts
-import { uploadDocument } from "./api";
-
-const result = await uploadDocument({
-  file: selectedFile,
-  description: "Supplier contract",
-});
-```
-
-The `toFormData` helper supports:
-
-* `File`
-* `Blob`
-* Arrays of files or values
-* Strings
-* Numbers
-* Booleans
-* Nested objects
-
-Nested objects are serialized as JSON strings.
-
-You can also use the helper directly:
+Generated methods that need multipart bodies can use `toFormData` internally. You can also use it directly:
 
 ```ts
 import { toFormData } from "typedapi-client-helpers";
 
-const formData = toFormData({
-  file: selectedFile,
-  tags: ["contract", "supplier"],
-  metadata: {
-    department: "Purchasing",
-  },
+const body = toFormData({
+  name: "Manual",
+  file,
+  tags: ["docs", "public"],
 });
 ```
 
-## Handling HTTP responses directly
+Arrays are appended as repeated fields, files keep their filename, primitives become strings, and nested objects are JSON-stringified.
 
-The `handleApiResponse` helper can wrap any compatible generated HTTP request:
+## Public API reference
 
-```ts
-import {
-  handleApiResponse,
-  type HttpResponse,
-} from "typedapi-client-helpers";
+### Result types
 
-interface Product {
-  id: string;
-  name: string;
-}
+| Export                | Description                                                                                                     |
+| --------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `ApiResult<T>`        | Discriminated union returned by generated wrapper methods. Contains either a success branch or an error branch. |
+| `ApiSuccessResult<T>` | Success-only branch of `ApiResult<T>`. Useful for success callbacks and helper functions.                       |
+| `ApiErrorResult<T>`   | Error-only branch of `ApiResult<T>`. Useful for error callbacks and helper functions.                           |
 
-async function requestProduct(): Promise<
-  HttpResponse<Product>
-> {
-  // Return a compatible generated HTTP response.
-  throw new Error("Implement request");
-}
+### Filter and sort types
 
-const result = await handleApiResponse(
-  () => requestProduct(),
-  {
-    onSuccess: (product) => {
-      console.log(product);
-    },
-    onError: (error) => {
-      console.error(error);
-    },
-  },
-);
+| Export                     | Description                                                                                                      |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `FilterType`               | Union of supported filter input types: number, date, string, timespan, boolean, boolean-button, and OptionValue. |
+| `OptionValue`              | Option object with a display `name` and submitted `value`.                                                       |
+| `FilterFormValues<TQuery>` | Configuration object for one filter field mapped to a query property.                                            |
+| `SortType`                 | UI sort state: Default, Neutral, Ascending, or Descending.                                                       |
+| `SortDirection`            | Sort direction value accepted by generated query objects. Supports string or number values.                      |
+| `ApiSortDirection`         | Sort direction values accepted by the generated API: Default, Ascending, or Descending.                          |
+| `sortTypes`                | Constant list of all supported UI sort states.                                                                   |
+
+### Callback and method types
+
+| Export                          | Description                                                                                  |
+| ------------------------------- | -------------------------------------------------------------------------------------------- |
+| `ApiSuccessHandler<TResponse>`  | Callback type for successful API results.                                                    |
+| `ApiErrorHandler<TResponse>`    | Callback type for failed API results.                                                        |
+| `ApiMethodCallbacks<TResponse>` | Object shape for optional success callback, error callback, and request params.              |
+| `ExtractResponse<T>`            | Extracts the response body type from a generated method promise.                             |
+| `ExtractError<T>`               | Extracts the error body type from a generated method promise.                                |
+| `UnwrapArray<T>`                | Extracts the item type from an array, otherwise keeps the original type.                     |
+| `ExtractDataIfPaginated<T>`     | Extracts the item type from a `{ data?: T[] }` paginated response.                           |
+| `SortableKeys<T>`               | Produces keys that can be used as sortable fields for a response type.                       |
+| `WithoutRequestParams<T>`       | Removes a trailing optional `RequestParams` argument from a generated method argument tuple. |
+
+### HTTP types
+
+| Export                 | Description                                                         |
+| ---------------------- | ------------------------------------------------------------------- |
+| `HttpResponse<D, E>`   | Extended fetch `Response` with typed `data` and `error` properties. |
+| `RuntimeRequestParams` | Runtime request options object forwarded to generated API methods.  |
+
+### Utility functions
+
+| Export                             | Description                                                                                                      |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `buildQuery<TQuery, TSortModel>()` | Builds a query object from filter form values, page values, and sort values.                                     |
+| `extractArgsCallbacksAndParams()`  | Splits wrapper arguments into original API arguments, success callback, error callback, and request params.      |
+| `extractArgsToastsAndParams()`     | Backwards-compatible alias-style extractor for wrapper arguments with success/error handlers and request params. |
+| `handleApiResponse()`              | Executes a generated API call and converts the response or thrown error into `ApiResult<T>`.                     |
+| `getSortTypeFromSortDirection()`   | Converts an API sort direction into a UI `SortType`.                                                             |
+| `getSortDirectionFromSortType()`   | Converts a UI `SortType` into an API sort direction.                                                             |
+| `toFormData()`                     | Converts an object payload into `FormData`.                                                                      |
+
+### Default callback functions
+
+| Export                  | Description                                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------------------------ |
+| `handleGoodResult<T>()` | Default success handler template created for generated projects. It can be customized by the consumer. |
+| `handleErrors<T>()`     | Default error handler template created for generated projects. It can be customized by the consumer.   |
+
+## Folder documentation
+
+Additional README files are included in these folders:
+
+| File                       | Description                                                 |
+| -------------------------- | ----------------------------------------------------------- |
+| `src/interfaces/README.md` | Documents exported interfaces and result/filter/sort types. |
+| `src/types/README.md`      | Documents helper types used by generated wrapper methods.   |
+| `src/utils/README.md`      | Documents runtime helper functions.                         |
+| `scripts/README.md`        | Documents the API generator script.                         |
+| `bin/README.md`            | Documents the command-line entry point.                     |
+
+## Build the package
+
+```bash
+npm run build
 ```
 
-The response body is parsed as JSON when the response content type contains `application/json`. Empty responses, including HTTP `204` responses, return `undefined`.
-
-## Regenerating the client
-
-Run the generator whenever the OpenAPI document changes:
+## Generate an API client while developing this package
 
 ```bash
 npm run generate:api
 ```
 
-The existing generated and method directories inside the configured API output are replaced during generation. Keep custom application code outside those generated directories.
+## Notes
 
-## Recommended workflow
-
-1. Start the backend API.
-2. Confirm that its OpenAPI document is available.
-3. Run the API generator.
-4. Build or start the frontend application.
-
-Example:
-
-```bash
-npm run generate:api
-npm run dev
-```
-
-## Package exports
-
-The package exports the following reusable types and helpers:
-
-```ts
-import {
-  buildQuery,
-  getSortDirectionFromSortType,
-  getSortTypeFromSortDirection,
-  handleApiResponse,
-  sortTypes,
-  toFormData,
-} from "typedapi-client-helpers";
-
-import type {
-  ApiErrorHandler,
-  ApiMethodCallbacks,
-  ApiResult,
-  ApiSuccessHandler,
-  FilterFormValues,
-  FilterType,
-  HttpResponse,
-  OptionValue,
-  SortType,
-} from "typedapi-client-helpers";
-```
-
-Generated API models and methods are written into your project and should be imported from your configured API output directory:
-
-```ts
-import {
-  createSupplier,
-  getSuppliers,
-  type SupplierModel,
-} from "./api";
-```
-
-## TypeScript
-
-The package includes generated declaration files and can be used directly in TypeScript projects.
-
-```ts
-import type {
-  ApiResult,
-  FilterFormValues,
-  SortType,
-} from "typedapi-client-helpers";
-```
+Generated files inside `src/api` and `dist/api` depend on the Swagger document used during generation. Their exact method names, model names, and route files will change when the OpenAPI document changes.
