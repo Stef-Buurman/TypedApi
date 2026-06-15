@@ -13,6 +13,7 @@ import type {
   ApiMethodOptions,
   ApiMethodArguments,
   ExtractResponse,
+  ExtractError,
   ExtractDataIfPaginated,
   FilterFormValues,
   SortableKeys,
@@ -53,7 +54,8 @@ export async function getWarehouses(
   > | null = null,
   sortDirection?: SortDirection,
   options: ApiMethodOptions<
-    ReturnType<Warehouse["getWarehouses"]>,
+    ExtractResponse<ReturnType<Warehouse["getWarehouses"]>>,
+    ExtractError<ReturnType<Warehouse["getWarehouses"]>>,
     RequestParams
   > = {}
 ): Promise<ApiResult<ExtractResponse<ReturnType<Warehouse["getWarehouses"]>>>> {
@@ -94,7 +96,8 @@ export async function createWarehouse(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<Warehouse["createWarehouse"]>,
+      ExtractResponse<ReturnType<Warehouse["createWarehouse"]>>,
+      ExtractError<ReturnType<Warehouse["createWarehouse"]>>,
       RequestParams
     >?
   ]
@@ -112,9 +115,10 @@ export async function createWarehouse(
   const options =
     args.length > 1
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<Warehouse["createWarehouse"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<Warehouse["createWarehouse"]>>,
+            ExtractError<ReturnType<Warehouse["createWarehouse"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};
@@ -145,7 +149,8 @@ export async function getWarehouseById(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<Warehouse["getWarehouseById"]>,
+      ExtractResponse<ReturnType<Warehouse["getWarehouseById"]>>,
+      ExtractError<ReturnType<Warehouse["getWarehouseById"]>>,
       RequestParams
     >?
   ]
@@ -163,9 +168,10 @@ export async function getWarehouseById(
   const options =
     args.length > 1
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<Warehouse["getWarehouseById"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<Warehouse["getWarehouseById"]>>,
+            ExtractError<ReturnType<Warehouse["getWarehouseById"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};
@@ -196,7 +202,8 @@ export async function updateWarehouse(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<Warehouse["updateWarehouse"]>,
+      ExtractResponse<ReturnType<Warehouse["updateWarehouse"]>>,
+      ExtractError<ReturnType<Warehouse["updateWarehouse"]>>,
       RequestParams
     >?
   ]
@@ -214,9 +221,10 @@ export async function updateWarehouse(
   const options =
     args.length > 2
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<Warehouse["updateWarehouse"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<Warehouse["updateWarehouse"]>>,
+            ExtractError<ReturnType<Warehouse["updateWarehouse"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};
@@ -247,7 +255,8 @@ export async function deleteWarehouse(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<Warehouse["deleteWarehouse"]>,
+      ExtractResponse<ReturnType<Warehouse["deleteWarehouse"]>>,
+      ExtractError<ReturnType<Warehouse["deleteWarehouse"]>>,
       RequestParams
     >?
   ]
@@ -265,9 +274,10 @@ export async function deleteWarehouse(
   const options =
     args.length > 1
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<Warehouse["deleteWarehouse"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<Warehouse["deleteWarehouse"]>>,
+            ExtractError<ReturnType<Warehouse["deleteWarehouse"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};

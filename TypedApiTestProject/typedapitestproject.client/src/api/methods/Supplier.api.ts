@@ -13,6 +13,7 @@ import type {
   ApiMethodOptions,
   ApiMethodArguments,
   ExtractResponse,
+  ExtractError,
   ExtractDataIfPaginated,
   FilterFormValues,
   SortableKeys,
@@ -53,7 +54,8 @@ export async function getSuppliers(
   > | null = null,
   sortDirection?: SortDirection,
   options: ApiMethodOptions<
-    ReturnType<Supplier["getSuppliers"]>,
+    ExtractResponse<ReturnType<Supplier["getSuppliers"]>>,
+    ExtractError<ReturnType<Supplier["getSuppliers"]>>,
     RequestParams
   > = {}
 ): Promise<ApiResult<ExtractResponse<ReturnType<Supplier["getSuppliers"]>>>> {
@@ -94,7 +96,8 @@ export async function createSupplier(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<Supplier["createSupplier"]>,
+      ExtractResponse<ReturnType<Supplier["createSupplier"]>>,
+      ExtractError<ReturnType<Supplier["createSupplier"]>>,
       RequestParams
     >?
   ]
@@ -112,9 +115,10 @@ export async function createSupplier(
   const options =
     args.length > 1
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<Supplier["createSupplier"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<Supplier["createSupplier"]>>,
+            ExtractError<ReturnType<Supplier["createSupplier"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};
@@ -145,7 +149,8 @@ export async function getSupplierById(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<Supplier["getSupplierById"]>,
+      ExtractResponse<ReturnType<Supplier["getSupplierById"]>>,
+      ExtractError<ReturnType<Supplier["getSupplierById"]>>,
       RequestParams
     >?
   ]
@@ -163,9 +168,10 @@ export async function getSupplierById(
   const options =
     args.length > 1
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<Supplier["getSupplierById"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<Supplier["getSupplierById"]>>,
+            ExtractError<ReturnType<Supplier["getSupplierById"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};
@@ -196,7 +202,8 @@ export async function updateSupplier(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<Supplier["updateSupplier"]>,
+      ExtractResponse<ReturnType<Supplier["updateSupplier"]>>,
+      ExtractError<ReturnType<Supplier["updateSupplier"]>>,
       RequestParams
     >?
   ]
@@ -214,9 +221,10 @@ export async function updateSupplier(
   const options =
     args.length > 2
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<Supplier["updateSupplier"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<Supplier["updateSupplier"]>>,
+            ExtractError<ReturnType<Supplier["updateSupplier"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};
@@ -247,7 +255,8 @@ export async function deleteSupplier(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<Supplier["deleteSupplier"]>,
+      ExtractResponse<ReturnType<Supplier["deleteSupplier"]>>,
+      ExtractError<ReturnType<Supplier["deleteSupplier"]>>,
       RequestParams
     >?
   ]
@@ -265,9 +274,10 @@ export async function deleteSupplier(
   const options =
     args.length > 1
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<Supplier["deleteSupplier"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<Supplier["deleteSupplier"]>>,
+            ExtractError<ReturnType<Supplier["deleteSupplier"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};
@@ -298,7 +308,8 @@ export async function verifySupplier(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<Supplier["verifySupplier"]>,
+      ExtractResponse<ReturnType<Supplier["verifySupplier"]>>,
+      ExtractError<ReturnType<Supplier["verifySupplier"]>>,
       RequestParams
     >?
   ]
@@ -316,9 +327,10 @@ export async function verifySupplier(
   const options =
     args.length > 1
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<Supplier["verifySupplier"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<Supplier["verifySupplier"]>>,
+            ExtractError<ReturnType<Supplier["verifySupplier"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};

@@ -12,6 +12,7 @@ import type {
   ApiResult,
   ApiMethodOptions,
   ExtractResponse,
+  ExtractError,
 } from "typedapi-client-helpers";
 
 import {
@@ -50,7 +51,8 @@ export async function uploadProductFiles(
     Import["uploadProductFiles"]
   >[0],
   options: ApiMethodOptions<
-    ReturnType<Import["uploadProductFiles"]>,
+    ExtractResponse<ReturnType<Import["uploadProductFiles"]>>,
+    ExtractError<ReturnType<Import["uploadProductFiles"]>>,
     RequestParams
   > = {}
 ): Promise<
@@ -85,7 +87,8 @@ export async function uploadSupplierFile(
     Import["uploadSupplierFile"]
   >[0],
   options: ApiMethodOptions<
-    ReturnType<Import["uploadSupplierFile"]>,
+    ExtractResponse<ReturnType<Import["uploadSupplierFile"]>>,
+    ExtractError<ReturnType<Import["uploadSupplierFile"]>>,
     RequestParams
   > = {}
 ): Promise<
@@ -120,7 +123,8 @@ export async function uploadMixedImport(
     Import["uploadMixedImport"]
   >[0],
   options: ApiMethodOptions<
-    ReturnType<Import["uploadMixedImport"]>,
+    ExtractResponse<ReturnType<Import["uploadMixedImport"]>>,
+    ExtractError<ReturnType<Import["uploadMixedImport"]>>,
     RequestParams
   > = {}
 ): Promise<

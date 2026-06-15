@@ -13,6 +13,7 @@ import type {
   ApiMethodOptions,
   ApiMethodArguments,
   ExtractResponse,
+  ExtractError,
   ExtractDataIfPaginated,
   FilterFormValues,
   SortableKeys,
@@ -58,7 +59,8 @@ export async function getProducts(
   > | null = null,
   sortDirection?: SortDirection,
   options: ApiMethodOptions<
-    ReturnType<Product["getProducts"]>,
+    ExtractResponse<ReturnType<Product["getProducts"]>>,
+    ExtractError<ReturnType<Product["getProducts"]>>,
     RequestParams
   > = {}
 ): Promise<ApiResult<ExtractResponse<ReturnType<Product["getProducts"]>>>> {
@@ -90,7 +92,8 @@ export async function getProducts(
 export async function exportProducts(
   query?: ExportProductsQuery,
   options: ApiMethodOptions<
-    ReturnType<Product["exportProducts"]>,
+    ExtractResponse<ReturnType<Product["exportProducts"]>>,
+    ExtractError<ReturnType<Product["exportProducts"]>>,
     RequestParams
   > = {}
 ): Promise<
@@ -127,7 +130,8 @@ export async function createProduct(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<Product["createProduct"]>,
+      ExtractResponse<ReturnType<Product["createProduct"]>>,
+      ExtractError<ReturnType<Product["createProduct"]>>,
       RequestParams
     >?
   ]
@@ -145,9 +149,10 @@ export async function createProduct(
   const options =
     args.length > 1
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<Product["createProduct"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<Product["createProduct"]>>,
+            ExtractError<ReturnType<Product["createProduct"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};
@@ -178,7 +183,8 @@ export async function getProductById(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<Product["getProductById"]>,
+      ExtractResponse<ReturnType<Product["getProductById"]>>,
+      ExtractError<ReturnType<Product["getProductById"]>>,
       RequestParams
     >?
   ]
@@ -196,9 +202,10 @@ export async function getProductById(
   const options =
     args.length > 1
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<Product["getProductById"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<Product["getProductById"]>>,
+            ExtractError<ReturnType<Product["getProductById"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};
@@ -229,7 +236,8 @@ export async function updateProduct(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<Product["updateProduct"]>,
+      ExtractResponse<ReturnType<Product["updateProduct"]>>,
+      ExtractError<ReturnType<Product["updateProduct"]>>,
       RequestParams
     >?
   ]
@@ -247,9 +255,10 @@ export async function updateProduct(
   const options =
     args.length > 2
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<Product["updateProduct"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<Product["updateProduct"]>>,
+            ExtractError<ReturnType<Product["updateProduct"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};
@@ -280,7 +289,8 @@ export async function deleteProduct(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<Product["deleteProduct"]>,
+      ExtractResponse<ReturnType<Product["deleteProduct"]>>,
+      ExtractError<ReturnType<Product["deleteProduct"]>>,
       RequestParams
     >?
   ]
@@ -298,9 +308,10 @@ export async function deleteProduct(
   const options =
     args.length > 1
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<Product["deleteProduct"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<Product["deleteProduct"]>>,
+            ExtractError<ReturnType<Product["deleteProduct"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};
@@ -331,7 +342,8 @@ export async function toggleProductActive(
       RequestParams
     >,
     ApiMethodOptions<
-      ReturnType<Product["toggleProductActive"]>,
+      ExtractResponse<ReturnType<Product["toggleProductActive"]>>,
+      ExtractError<ReturnType<Product["toggleProductActive"]>>,
       RequestParams
     >?
   ]
@@ -349,9 +361,10 @@ export async function toggleProductActive(
   const options =
     args.length > 1
       ? (args.pop() as ApiMethodOptions<
-          ReturnType<Product["toggleProductActive"]>,
-          RequestParams
-        >)
+            ExtractResponse<ReturnType<Product["toggleProductActive"]>>,
+            ExtractError<ReturnType<Product["toggleProductActive"]>>,
+            RequestParams
+          >)
       : {};
 
   const { onSuccess, onError, params } = options ?? {};
