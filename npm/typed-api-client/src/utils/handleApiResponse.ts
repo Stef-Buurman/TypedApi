@@ -22,7 +22,9 @@ export type HandleApiResponseOptions<TResponse> = {
  *
  * Empty bodies and HTTP 204 responses return `undefined`; JSON responses are parsed and other responses are returned as text.
  */
-async function readResponseBody<T>(response: Response): Promise<T | undefined> {
+async function readResponseBody<T>(
+  response: Response,
+): Promise<T | string | undefined> {
   if (response.status === 204) {
     return undefined;
   }
@@ -36,10 +38,14 @@ async function readResponseBody<T>(response: Response): Promise<T | undefined> {
   const contentType = response.headers.get("content-type");
 
   if (contentType?.includes("application/json")) {
-    return JSON.parse(text) as T;
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      return text;
+    }
   }
 
-  return text as T;
+  return text;
 }
 
 /**
@@ -47,7 +53,7 @@ async function readResponseBody<T>(response: Response): Promise<T | undefined> {
  *
  * Successful responses return `{ ok: true, status, response }`. Failed responses and thrown errors return `{ ok: false, status, error }`.
  */
-export async function handleApiResponse<TResponse, TError>(
+export async function handleApiResponse<TResponse, TError = unknown>(
   call: () => Promise<HttpResponse<TResponse, TError>>,
   options?: HandleApiResponseOptions<TResponse>,
 ): Promise<ApiResult<TResponse>> {
@@ -56,7 +62,7 @@ export async function handleApiResponse<TResponse, TError>(
   try {
     response = await call();
 
-    const data = await readResponseBody<TResponse>(response);
+    const data = await readResponseBody<TResponse | TError>(response);
 
     if (response.ok) {
       const result: ApiResult<TResponse> = {
@@ -70,23 +76,35 @@ export async function handleApiResponse<TResponse, TError>(
       return result;
     }
 
-    const errorData = data as unknown as TError;
-
     const result: ApiResult<TResponse> = {
       ok: false,
       status: response.status,
-      response: data,
-      error: errorData,
+      response: undefined,
+      error: data as TError,
     };
 
     await options?.onError?.(result);
 
     return result;
   } catch (error) {
+    if (error instanceof Response) {
+      const errorData = await readResponseBody<TError>(error.clone());
+
+      const result: ApiResult<TResponse> = {
+        ok: false,
+        status: error.status,
+        response: undefined,
+        error: errorData,
+      };
+
+      await options?.onError?.(result);
+
+      return result;
+    }
+
     const result: ApiResult<TResponse> = {
       ok: false,
-      status:
-        error instanceof Response ? error.status : (response?.status ?? 0),
+      status: response?.status ?? 0,
       response: undefined,
       error,
     };
