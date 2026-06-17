@@ -11,7 +11,7 @@ This folder contains public data shapes and unions that consumers use directly w
 | `ApiErrorResult<T>`        | type      | Error-only branch of `ApiResult<T>`. Use it for error handlers or helper methods that only accept failed responses.         |
 | `FilterType`               | type      | Union of supported filter input types used by generated filter-form methods.                                                |
 | `OptionValue`              | interface | Option item with a display `name` and submitted `value`.                                                                    |
-| `FilterFormValues<TQuery>` | interface | Describes one typed filter field and maps it to a key of the query object.                                                  |
+| `FilterFormValues<TQuery>` | interface | Describes one typed filter field and maps it to one or two keys of the query object.                                        |
 | `SortType`                 | type      | Sort state used by UI components: `Default`, `Neutral`, `Ascending`, or `Descending`.                                       |
 
 ## `ApiResult<T>`
@@ -44,9 +44,51 @@ function error<T>(result: ApiErrorResult<T>) {
 }
 ```
 
+## `FilterType`
+
+`FilterType` describes the kind of value a filter form item contains.
+
+Supported values are:
+
+```ts
+type FilterType =
+  | "number"
+  | "date"
+  | "string"
+  | "timespan"
+  | "boolean"
+  | "boolean-button"
+  | "OptionValue";
+```
+
+## `OptionValue`
+
+`OptionValue` is used for option-based filters where the UI displays a label but the API receives another value.
+
+```ts
+const status = {
+  name: "Active",
+  value: 1,
+};
+```
+
+When an option list is passed to `buildQuery`, each selected option is converted to its `value`.
+
 ## `FilterFormValues<TQuery>`
 
 `FilterFormValues<TQuery>` is used when `typedApiUseFilterFormValues` is enabled. Each item describes one UI filter and maps that filter to a property of the generated query type.
+
+| Property        | Description                                                                                   |
+| --------------- | --------------------------------------------------------------------------------------------- |
+| `name`          | Display name for the filter.                                                                  |
+| `filterName`    | Query property that receives `value`.                                                         |
+| `filterNameMax` | Optional query property that receives `maxValue`, useful for range filters.                   |
+| `type`          | Filter input type.                                                                            |
+| `value`         | Current filter value. Can be a primitive value, `Date`, `OptionValue[]`, `string[]`, or null. |
+| `maxValue`      | Optional upper-bound value for range filters.                                                  |
+| `isAList`       | Tells `buildQuery` to treat `value` as a list and map every item.                             |
+
+Basic string filter:
 
 ```ts
 const filters: FilterFormValues<GetSuppliersQuery>[] = [
@@ -59,3 +101,46 @@ const filters: FilterFormValues<GetSuppliersQuery>[] = [
   },
 ];
 ```
+
+Range filter using `filterNameMax` and `maxValue`:
+
+```ts
+const filters: FilterFormValues<GetOrdersQuery>[] = [
+  {
+    name: "Created date",
+    filterName: "createdFrom",
+    filterNameMax: "createdTo",
+    type: "date",
+    value: new Date("2026-01-01"),
+    maxValue: new Date("2026-01-31"),
+    isAList: false,
+  },
+];
+```
+
+Option list filter:
+
+```ts
+const filters: FilterFormValues<GetSuppliersQuery>[] = [
+  {
+    name: "Statuses",
+    filterName: "statusIds",
+    type: "OptionValue",
+    value: [
+      { name: "Active", value: 1 },
+      { name: "Pending", value: 2 },
+    ],
+    isAList: true,
+  },
+];
+```
+
+## `SortType`
+
+`SortType` is the UI sort state used by the sort conversion helpers.
+
+```ts
+type SortType = "Default" | "Neutral" | "Ascending" | "Descending";
+```
+
+`Neutral` is a UI-only state and is converted to `Default` before it is sent to the API.

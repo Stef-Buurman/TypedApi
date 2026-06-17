@@ -8,36 +8,66 @@ This folder contains public TypeScript helper types used by generated API wrappe
 | ------------------------------- | --------------------------------------------------------------------------------- |
 | `ApiSuccessHandler<TResponse>`  | Function type for success callbacks. Receives `ApiSuccessResult<TResponse>`.      |
 | `ApiErrorHandler<TResponse>`    | Function type for error callbacks. Receives `ApiErrorResult<TResponse>`.          |
-| `ApiMethodCallbacks<TResponse>` | Object shape containing optional `onSuccess`, `onError`, and `params` properties. |
-
-## Generated method option types
-
-Generated wrapper files create one options type per method.
-
-For example, a generated `getSuppliers` wrapper creates:
+| `ApiMethodCallbacks<TResponse>` | Backwards-compatible object shape containing optional `onSuccess`, `onError`, and `params` properties. |
 
 ```ts
-export type GetSuppliersOptions = {
-  onSuccess?: ApiSuccessHandler<
-    ExtractResponse<ReturnType<Supplier["getSuppliers"]>>
-  >;
-  onError?: ApiErrorHandler<ExtractError<ReturnType<Supplier["getSuppliers"]>>>;
-  params?: RequestParams;
+import type {
+  ApiErrorHandler,
+  ApiSuccessHandler,
+} from "typedapi-client-helpers";
+
+const onSuccess: ApiSuccessHandler<SupplierResponse> = (result) => {
+  console.log(result.status, result.response);
+};
+
+const onError: ApiErrorHandler<SupplierResponse> = (result) => {
+  console.error(result.status, result.error);
 };
 ```
 
-These generated options types are used as the final wrapper argument.
+## Generated method option and argument types
+
+Generated wrapper methods use a final options object instead of separate positional callback arguments.
+
+| Export                                                | Description                                                                                                     |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `ApiMethodOptions<TResponse, TError, TRequestParams>` | Final options object used by generated wrapper methods. Contains optional `onSuccess`, `onError`, and `params`. |
+| `ApiMethodArguments<TMethod, TRequestParams>`         | Extracts the generated method argument tuple without the trailing raw request-params argument.                  |
+| `WithoutRequestParams<T>`                             | Removes a trailing optional `RequestParams` from an argument tuple. Kept as a smaller tuple helper.             |
+
+The generated methods use `ApiMethodOptions` as their final argument.
 
 ```ts
 await getSuppliers(
   { pageNumber: 1, pageSize: 25 },
   {
-    onError: handleError,
+    onSuccess,
+    onError,
+    params: {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
   },
 );
 ```
 
-This allows you to pass only `onError`, only `onSuccess`, only `params`, or any combination of them.
+For non-query generated client methods, `ApiMethodArguments` keeps the original API arguments but removes the raw generated `RequestParams` parameter from the public wrapper signature.
+
+```ts
+type UpdateSupplierArguments = ApiMethodArguments<
+  Supplier["updateSupplier"],
+  RequestParams
+>;
+```
+
+This lets the wrapper expose:
+
+```ts
+await updateSupplier(id, body, options);
+```
+
+instead of requiring consumers to call the raw generated shape directly.
 
 ## API method helper types
 
@@ -48,7 +78,22 @@ This allows you to pass only `onError`, only `onSuccess`, only `params`, or any 
 | `UnwrapArray<T>`            | Returns the item type when `T` is an array, otherwise returns `T`.                  |
 | `ExtractDataIfPaginated<T>` | Returns the item type from a common paginated response shape with a `data` array.   |
 | `SortableKeys<T>`           | Produces valid sort field keys for a response type or paginated response type.      |
-| `WithoutRequestParams<T>`   | Removes a trailing optional `RequestParams` from a generated method argument tuple. |
+
+Example:
+
+```ts
+import type {
+  ExtractError,
+  ExtractResponse,
+  SortableKeys,
+} from "typedapi-client-helpers";
+
+import type { Supplier } from "./api/generated/Supplier";
+
+type SupplierResponse = ExtractResponse<ReturnType<Supplier["getSuppliers"]>>;
+type SupplierError = ExtractError<ReturnType<Supplier["getSuppliers"]>>;
+type SupplierSortKey = SortableKeys<SupplierResponse>;
+```
 
 ## HTTP types
 
@@ -57,18 +102,31 @@ This allows you to pass only `onError`, only `onSuccess`, only `params`, or any 
 | `HttpResponse<D, E>`   | Fetch `Response` extended with typed `data` and `error` properties. |
 | `RuntimeRequestParams` | Runtime request options object forwarded to generated API methods.  |
 
-## Example
+`RuntimeRequestParams` is the default request-params type used by `ApiMethodOptions` and `ApiMethodArguments` when a generated `RequestParams` type is not provided explicitly.
+
+## Complete example
 
 ```ts
 import type {
   ApiErrorHandler,
+  ApiMethodOptions,
   ApiSuccessHandler,
+  ExtractError,
   ExtractResponse,
 } from "typedapi-client-helpers";
 
 import { getSuppliers } from "./api";
+import type { Supplier } from "./api/generated/Supplier";
+import type { RequestParams } from "./api/generated/http-client";
 
-type SupplierResponse = ExtractResponse<ReturnType<typeof getSuppliers>>;
+type SupplierResponse = ExtractResponse<ReturnType<Supplier["getSuppliers"]>>;
+type SupplierError = ExtractError<ReturnType<Supplier["getSuppliers"]>>;
+
+type SupplierOptions = ApiMethodOptions<
+  SupplierResponse,
+  SupplierError,
+  RequestParams
+>;
 
 const onSuccess: ApiSuccessHandler<SupplierResponse> = (result) => {
   console.log(result.response);
@@ -78,11 +136,10 @@ const onError: ApiErrorHandler<SupplierResponse> = (result) => {
   console.error(result.error);
 };
 
-await getSuppliers(
-  { pageNumber: 1, pageSize: 25 },
-  {
-    onSuccess,
-    onError,
-  },
-);
+const options: SupplierOptions = {
+  onSuccess,
+  onError,
+};
+
+await getSuppliers({ pageNumber: 1, pageSize: 25 }, options);
 ```

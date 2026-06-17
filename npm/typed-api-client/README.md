@@ -28,7 +28,7 @@ Run the generator:
 npm run generate:api
 ```
 
-By default, the generator reads the Swagger document from `https://localhost:7000/swagger/v1/swagger.json` and writes the generated API client to `src/api`.
+By default, the generator first looks for a local `swagger/swagger.json` file in the project where the command is run. If that file is not available, it tries `https://localhost:7000/swagger/v1/swagger.json` and stores a validated backup copy for later runs.
 
 You can also run the command directly:
 
@@ -40,6 +40,14 @@ npx typedapi-generate
 
 Configuration can be supplied in the `config` section of your `package.json`, with environment variables, or with npm command-line arguments.
 
+Configuration is resolved in this order:
+
+1. environment variables;
+2. npm command-line config values;
+3. the consuming project's `package.json` config;
+4. this package's default config values;
+5. built-in fallbacks.
+
 ### Package configuration
 
 ```json
@@ -47,6 +55,7 @@ Configuration can be supplied in the `config` section of your `package.json`, wi
   "config": {
     "swaggerUrl": "https://localhost:7000/swagger/v1/swagger.json",
     "swaggerFile": "swagger/openapi.json",
+    "typedApiSwaggerBackupFile": "swagger/swagger.backup.json",
     "apiOutput": "src/api",
     "typedApiUseTypeOnlyImports": true,
     "typedApiUseFilterFormValues": false,
@@ -59,16 +68,32 @@ Configuration can be supplied in the `config` section of your `package.json`, wi
 
 `swaggerFile` takes precedence over `swaggerUrl` when both are configured.
 
+### OpenAPI input and backup behavior
+
+The generator resolves the OpenAPI/Swagger input as follows:
+
+1. If `swaggerFile` is configured and the file exists, that file is used and copied to the backup file.
+2. If `swaggerFile` is configured but missing, the generator uses the backup file when it exists. If no backup exists, generation fails.
+3. If `swaggerUrl` is configured, the generator downloads it, validates that the response is JSON, writes it to the backup file, and generates from that backup copy.
+4. If `swaggerUrl` is configured but unavailable, the generator uses the backup file when it exists. If no backup exists, generation fails.
+5. If neither `swaggerFile` nor `swaggerUrl` is configured, the generator tries `swagger/swagger.json` in the current project.
+6. If no local default file exists, the generator tries `https://localhost:7000/swagger/v1/swagger.json` and falls back to the backup file if the URL is unavailable.
+
+The backup prevents a temporary unavailable Swagger endpoint from breaking generation when a valid backup was created earlier.
+
+The backup path is resolved relative to this package root. In local package development, that is the `typed-api-client` folder. In an installed consumer project, it is the installed `typedapi-client-helpers` package folder.
+
 ### Configuration options
 
 | Option                          | Default                                          | Description                                                                                                                    |
 | ------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
-| `swaggerUrl`                    | `https://localhost:7000/swagger/v1/swagger.json` | URL of the OpenAPI/Swagger document.                                                                                           |
-| `swaggerFile`                   | none                                             | Local path to an OpenAPI/Swagger document. When set, this is used instead of `swaggerUrl`.                                     |
+| `swaggerUrl`                    | `https://localhost:7000/swagger/v1/swagger.json` | URL of the OpenAPI/Swagger document. Used when no configured or default local file is available.                               |
+| `swaggerFile`                   | none                                             | Local path to an OpenAPI/Swagger document. When set, this is used before `swaggerUrl`.                                         |
+| `typedApiSwaggerBackupFile`     | `swagger/swagger.backup.json`                    | Backup file used to store the last valid Swagger document and as a fallback when the configured input is unavailable.          |
 | `apiOutput`                     | `src/api`                                        | Directory where the generated API files are written.                                                                           |
 | `typedApiUseTypeOnlyImports`    | `false`                                          | Generates `import type` statements for imports that are only used as types.                                                    |
 | `typedApiUseFilterFormValues`   | `false`                                          | Generates paginated methods that accept `FilterFormValues[]`, page values, and sort values instead of a prebuilt query object. |
-| `typedApiDefaultFunctionsPath`  | `defaultApiFunctions`                            | Import path used by generated method files for shared success and error handlers.                                              |
+| `typedApiDefaultFunctionsPath`  | `defaultApiFunctions`                            | Import path used by generated method files for shared success and error handlers. Creates the file when it does not exist.     |
 | `typedApiDefaultSuccessHandler` | `handleGoodResult`                               | Name of the default success handler function imported into generated methods.                                                  |
 | `typedApiDefaultErrorHandler`   | `handleErrors`                                   | Name of the default error handler function imported into generated methods.                                                    |
 
@@ -78,6 +103,7 @@ Configuration can be supplied in the `config` section of your `package.json`, wi
 | ----------------------------------- | -------------------------------------------------- |
 | `SWAGGER_URL`                       | URL of the OpenAPI/Swagger document.               |
 | `SWAGGER_FILE`                      | Local path to an OpenAPI/Swagger document.         |
+| `TYPED_API_SWAGGER_BACKUP_FILE`     | Path of the Swagger backup file.                   |
 | `API_OUTPUT`                        | Directory where generated API files are written.   |
 | `TYPED_API_USE_TYPE_ONLY_IMPORTS`   | Enables type-only imports when set to `true`.      |
 | `TYPED_API_USE_FILTER_FORM_VALUES`  | Enables filter-form based paginated methods.       |
@@ -96,8 +122,10 @@ SWAGGER_URL=https://localhost:7000/swagger/v1/swagger.json npm run generate:api
 ```bash
 npm run generate:api --swagger-url=https://localhost:7000/swagger/v1/swagger.json
 npm run generate:api --swagger-file=swagger/openapi.json
+npm run generate:api --typed-api-swagger-backup-file=swagger/swagger.backup.json
 npm run generate:api --api-output=src/api
 npm run generate:api --typed-api-use-filter-form-values=true
+npm run generate:api --typed-api-use-type-only-imports=true
 ```
 
 ## Generated structure
@@ -125,6 +153,8 @@ src/
 | `index.ts`               | Barrel file that exports generated contracts, HTTP client types, and wrapper methods.                                     |
 | `defaultApiFunctions.ts` | Optional shared success and error handlers created when the configured default handler file does not exist.               |
 
+The `generated/` and `methods/` folders are cleaned and recreated each time the generator runs.
+
 ## Calling generated methods
 
 Generated wrapper methods return `ApiResult<T>`.
@@ -148,7 +178,7 @@ Checking `result.ok` narrows the result automatically.
 
 ## Generated method argument order
 
-Generated wrappers preserve the original generated API arguments and then add an optional method options object.
+Generated wrappers preserve the original generated API arguments, remove the raw generated `RequestParams` argument from the public wrapper call, and then add an optional final method options object.
 
 For query methods:
 
@@ -198,28 +228,19 @@ await getSuppliers(filters, page, pageSize, sortBy, sortDirection, {
 });
 ```
 
-The `params` property is forwarded to the generated HTTP client and can contain values such as headers or other request options.
-
-Every generated wrapper method gets its own options type. The type name is based on the method name.
+The final options argument uses the `ApiMethodOptions<TResponse, TError, TRequestParams>` shape.
 
 ```ts
-export type GetSuppliersOptions = {
-  onSuccess?: ApiSuccessHandler<GetSuppliersResponse>;
-  onError?: ApiErrorHandler<GetSuppliersError>;
-  params?: RequestParams;
-};
+import type { ApiMethodOptions } from "typedapi-client-helpers";
+
+type GetSuppliersOptions = ApiMethodOptions<
+  GetSuppliersResponse,
+  GetSuppliersError,
+  RequestParams
+>;
 ```
 
-Examples of generated option type names:
-
-```ts
-GetSuppliersOptions;
-CreateSupplierOptions;
-UpdateSupplierOptions;
-ExportPartnersOptions;
-```
-
-This makes it possible to pass only `onError` without also passing `onSuccess`.
+The `params` property is forwarded to the generated HTTP client and can contain values such as headers or other request options. This makes it possible to pass only `onError`, only `onSuccess`, only `params`, or any combination of them.
 
 ```ts
 await getSuppliers(undefined, {
@@ -277,6 +298,28 @@ await getSuppliers(
 ```
 
 In this example, the custom success handler is used for success results, and the configured default error handler is still used for error results.
+
+## Default callback handler file
+
+When `typedApiDefaultFunctionsPath` points to a file that does not exist, the generator creates it and adds the configured success and error handler exports.
+
+```ts
+import type { ApiErrorResult, ApiSuccessResult } from "typedapi-client-helpers";
+
+export function handleGoodResult<T>(
+  _response: ApiSuccessResult<T>,
+): void | Promise<void> {
+  // Add your default success handling here.
+}
+
+export function handleErrors<T>(
+  _error: ApiErrorResult<T>,
+): void | Promise<void> {
+  // Add your default error handling here.
+}
+```
+
+If the configured file exists but does not export the configured handler names, generated methods are created without default handler imports and a warning is printed.
 
 ## Custom request parameters
 
@@ -383,7 +426,7 @@ Empty filter values are ignored by `buildQuery`.
 
 ## Multipart uploads
 
-Generated methods that need multipart bodies can use `toFormData` internally. You can also use it directly:
+Generated methods that need multipart bodies use `toFormData` internally. You can also use it directly:
 
 ```ts
 import { toFormData } from "typedapi-client-helpers";
@@ -421,18 +464,19 @@ Arrays are appended as repeated fields, files keep their filename, primitives be
 
 ### Callback and method types
 
-| Export                                                  | Description                                                                                                      |
-| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `ApiSuccessHandler<TResponse>`                          | Callback type for successful API results.                                                                        |
-| `ApiErrorHandler<TResponse>`                            | Callback type for failed API results.                                                                            |
-| `ApiMethodCallbacks<TResponse>`                         | Object shape containing optional `onSuccess`, `onError`, and `params` properties.                                |
-| Generated method options, such as `GetSuppliersOptions` | Per-method options object generated for wrapper methods. Contains optional `onSuccess`, `onError`, and `params`. |
-| `ExtractResponse<T>`                                    | Extracts the response body type from a generated method promise.                                                 |
-| `ExtractError<T>`                                       | Extracts the error body type from a generated method promise.                                                    |
-| `UnwrapArray<T>`                                        | Extracts the item type from an array, otherwise keeps the original type.                                         |
-| `ExtractDataIfPaginated<T>`                             | Extracts the item type from a `{ data?: T[] }` paginated response.                                               |
-| `SortableKeys<T>`                                       | Produces keys that can be used as sortable fields for a response type.                                           |
-| `WithoutRequestParams<T>`                               | Removes a trailing optional `RequestParams` argument from a generated method argument tuple.                     |
+| Export                                                | Description                                                                                                     |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `ApiSuccessHandler<TResponse>`                        | Callback type for successful API results. Receives `ApiSuccessResult<TResponse>`.                               |
+| `ApiErrorHandler<TResponse>`                          | Callback type for failed API results. Receives `ApiErrorResult<TResponse>`.                                     |
+| `ApiMethodCallbacks<TResponse>`                       | Backwards-compatible object shape containing optional `onSuccess`, `onError`, and `params` properties.          |
+| `ApiMethodOptions<TResponse, TError, TRequestParams>` | Final options object used by generated wrapper methods. Contains optional `onSuccess`, `onError`, and `params`. |
+| `ApiMethodArguments<TMethod, TRequestParams>`         | Gets the original generated method argument tuple without the trailing raw `RequestParams` argument.            |
+| `ExtractResponse<T>`                                  | Extracts the response body type from a generated method promise.                                                |
+| `ExtractError<T>`                                     | Extracts the error body type from a generated method promise.                                                   |
+| `UnwrapArray<T>`                                      | Extracts the item type from an array, otherwise keeps the original type.                                        |
+| `ExtractDataIfPaginated<T>`                           | Extracts the item type from a `{ data?: T[] }` paginated response.                                              |
+| `SortableKeys<T>`                                     | Produces keys that can be used as sortable fields for a response type.                                          |
+| `WithoutRequestParams<T>`                             | Removes a trailing optional `RequestParams` argument from a generated method argument tuple.                    |
 
 ### HTTP types
 
@@ -454,9 +498,11 @@ Arrays are appended as repeated fields, files keep their filename, primitives be
 | `getSortDirectionFromSortType()`   | Converts a UI `SortType` into an API sort direction.                                                 |
 | `toFormData()`                     | Converts an object payload into `FormData`.                                                          |
 
-### Default callback functions
+### Default callback handler template
 
-| Export                  | Description                                                                                            |
+These functions are not exported from the package root by default. They are the names used in the generated default handler file when `typedApiDefaultFunctionsPath`, `typedApiDefaultSuccessHandler`, and `typedApiDefaultErrorHandler` are configured.
+
+| Generated export        | Description                                                                                            |
 | ----------------------- | ------------------------------------------------------------------------------------------------------ |
 | `handleGoodResult<T>()` | Default success handler template created for generated projects. It can be customized by the consumer. |
 | `handleErrors<T>()`     | Default error handler template created for generated projects. It can be customized by the consumer.   |
@@ -488,3 +534,5 @@ npm run generate:api
 Generated files inside `src/api` and `dist/api` depend on the Swagger document used during generation. Their exact method names and model names will change when the OpenAPI document changes.
 
 Generated route type files ending in `Route.ts` are removed from the generated output.
+
+The Swagger backup file is updated only after the generator has validated that the source content is JSON. This helps avoid replacing a valid backup with an HTML error page or another invalid response.
