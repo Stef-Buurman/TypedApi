@@ -1,4 +1,4 @@
-import type { HttpResponse, RequestParams } from "./HttpResponse";
+import type { HttpResponse, RequestParams } from "./httpClientTypes";
 
 /**
  * Extracts the successful response body type from a generated API method promise.

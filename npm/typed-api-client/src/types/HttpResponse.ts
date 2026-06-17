@@ -3,8 +3,10 @@
  *
  * `data` contains the successful response body and `error` contains the error body when available.
  */
-export interface HttpResponse<D extends unknown, E extends unknown = unknown>
-  extends Response {
+export interface HttpResponse<
+  D extends unknown,
+  E extends unknown = unknown,
+> extends Response {
   data: D;
   error: E;
 }
@@ -15,5 +17,3 @@ export interface HttpResponse<D extends unknown, E extends unknown = unknown>
  * Used for extra request configuration such as headers, query values, or fetch options.
  */
 export type RuntimeRequestParams = Record<string, unknown>;
-/** Runtime request options accepted by generated API methods. */
-export type RequestParams = RuntimeRequestParams;

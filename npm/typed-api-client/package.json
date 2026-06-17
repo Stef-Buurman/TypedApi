@@ -1,6 +1,6 @@
 {
   "name": "typedapi-client-helpers",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "Reusable typed OpenAPI client helpers.",
   "keywords": [
     "typescript",
@@ -20,7 +20,6 @@
     "frontend",
     "api-wrapper",
     "generated-client",
-    "swagger-typescript-api",
     "form-data",
     "multipart",
     "pagination",
@@ -34,29 +33,32 @@
     "dist",
     "scripts",
     "bin",
-    "README.md"
+    "README.md",
+    "swagger/swagger.backup.json"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Stef-Buurman/TypedApi.git",
-    "directory": "npm/typed-api-client"
+    "url": "git+https://github.com/Stef-Buurman/TypedApi.git/npm/typed-api-client"
   },
   "homepage": "https://github.com/Stef-Buurman/TypedApi/tree/main/npm/typed-api-client#readme",
   "config": {
     "apiOutput": "src/api",
+    "typedApiCleanOutput": true,
+    "typedApiModuleNameFirstTag": true,
+    "typedApiUseTypeOnlyImports": true,
     "typedApiDefaultFunctionsPath": "src/defaultApiFunctions",
     "typedApiDefaultSuccessHandler": "handleGoodResult",
-    "typedApiDefaultErrorHandler": "handleErrors"
+    "typedApiDefaultErrorHandler": "handleErrors",
+    "typedApiDefaultResponseAsSuccess": false,
+    "typedApiGenerateUnionEnums": false,
+    "typedApiEnumNamesAsValues": false
   },
   "bin": {
-    "typedapi-generate": "bin/typedapi-generate.js"
+    "typedapi-generate": "./scripts/generate-api-minimal.mjs"
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --dts",
     "generate:api": "node ./scripts/generate-api-minimal.mjs"
-  },
-  "dependencies": {
-    "swagger-typescript-api": "^13.2.16"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

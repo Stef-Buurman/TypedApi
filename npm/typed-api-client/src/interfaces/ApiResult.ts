@@ -9,6 +9,7 @@ export type ApiResult<T> =
       ok: true;
       status: number;
       response: T;
+      error?: never;
     }
   | {
       ok: false;

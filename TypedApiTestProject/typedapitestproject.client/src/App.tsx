@@ -1,46 +1,8 @@
 import { useMemo, useState } from "react";
 import "./App.css";
 
-import {
-  uploadMixedImport,
-  uploadProductFiles,
-  uploadSupplierFile,
-} from "./api/methods/Import.api";
-import {
-  approveOrder,
-  cancelOrder,
-  createOrder,
-  deleteOrder,
-  getOrderById,
-  getOrders,
-  updateOrder,
-} from "./api/methods/Order.api";
-import {
-  createProduct,
-  deleteProduct,
-  exportProducts,
-  getProductById,
-  getProducts,
-  toggleProductActive,
-  updateProduct,
-} from "./api/methods/Product.api";
-import {
-  createSupplier,
-  deleteSupplier,
-  getSupplierById,
-  getSuppliers,
-  updateSupplier,
-  verifySupplier,
-} from "./api/methods/Supplier.api";
-import {
-  createWarehouse,
-  deleteWarehouse,
-  getWarehouseById,
-  getWarehouses,
-  updateWarehouse,
-} from "./api/methods/Warehouse.api";
 import type { ApiResult } from "typedapi-client-helpers";
-import type { OrderRequest } from "./api/generated/data-contracts";
+import { type OrderRequest, uploadProductFiles, uploadSupplierFile, uploadMixedImport, getSuppliers, createSupplier, getSupplierById, updateSupplier, verifySupplier, getProducts, createProduct, getProductById, updateProduct, toggleProductActive, exportProducts, getWarehouses, createWarehouse, getWarehouseById, updateWarehouse, getOrders, createOrder, getOrderById, updateOrder, approveOrder, cancelOrder, deleteOrder, deleteProduct, deleteWarehouse, deleteSupplier } from "./api";
 
 type TestStatus = "idle" | "running" | "passed" | "failed";
 

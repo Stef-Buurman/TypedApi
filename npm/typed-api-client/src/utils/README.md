@@ -28,11 +28,38 @@ const query = buildQuery(filters, 1, 25, "name", "Ascending");
 
 `buildQuery`:
 
-- ignores empty `null`, `undefined`, and empty-string values;
-- maps option filters to their submitted `value` fields;
-- appends `pageNumber` and, when enabled, `pageSize`;
+- ignores `null`, `undefined`, empty-string, `"null"`, and `"undefined"` filter values;
+- maps `OptionValue` filters to their submitted `value` fields;
+- maps array filters item by item when `isAList` is true;
+- writes `maxValue` to `filterNameMax` when a range filter is configured;
+- appends `pageNumber`;
+- appends `pageSize` when the provided page size is greater than `0`;
 - adds `sortBy` and `sortDirection` when provided;
-- converts date, number, and boolean values to API-friendly values.
+- converts date values to ISO strings;
+- converts number values with `Number(value)`;
+- converts boolean values with `Boolean(value)`.
+
+Example with a range filter:
+
+```ts
+const query = buildQuery(
+  [
+    {
+      name: "Created date",
+      filterName: "createdFrom",
+      filterNameMax: "createdTo",
+      type: "date",
+      value: new Date("2026-01-01"),
+      maxValue: new Date("2026-01-31"),
+      isAList: false,
+    },
+  ],
+  1,
+  25,
+  "createdAt",
+  "Descending",
+);
+```
 
 ## Method options in generated wrappers
 
@@ -76,7 +103,18 @@ New generated wrapper methods should use the method options object instead.
 
 ## `extractArgsToastsAndParams`
 
-`extractArgsToastsAndParams` is kept for backwards compatibility with older generated files. New generated code should use method options instead of positional callbacks.
+`extractArgsToastsAndParams` is kept for backwards compatibility with older generated files that used toast-oriented naming. New generated code should use method options instead of positional callbacks.
+
+It returns the same shape as `extractArgsCallbacksAndParams`:
+
+```ts
+{
+  args,
+  onSuccess,
+  onError,
+  params,
+}
+```
 
 ## `handleApiResponse`
 
@@ -89,7 +127,29 @@ const result = await handleApiResponse(
 );
 ```
 
-It converts successful responses, failed HTTP responses, and thrown errors into the same `ApiResult<TResponse>` shape.
+It converts successful responses, failed HTTP responses, thrown `Response` objects, and other thrown errors into the same `ApiResult<TResponse>` shape.
+
+Successful responses return:
+
+```ts
+{
+  ok: true,
+  status,
+  response,
+}
+```
+
+Failed responses and thrown errors return:
+
+```ts
+{
+  ok: false,
+  status,
+  error,
+}
+```
+
+Empty response bodies and HTTP 204 responses are returned as `undefined`. JSON responses are parsed, and non-JSON responses are returned as text.
 
 ## Sort conversion helpers
 
@@ -101,6 +161,8 @@ const sortDirection = getSortDirectionFromSortType(sortType);
 ```
 
 `Neutral` is a UI-only state and is sent to the API as `Default`.
+
+Unknown, missing, or unsupported sort values safely fall back to `Default`.
 
 ## `toFormData`
 
@@ -114,4 +176,11 @@ const formData = toFormData({
 });
 ```
 
-Files keep their filename, arrays are appended as repeated fields, primitives become strings, and objects are JSON-stringified.
+`toFormData` behavior:
+
+- skips `null` and `undefined` values;
+- appends arrays as repeated fields with the same key;
+- keeps `File` names when appending files;
+- appends `Blob` values directly;
+- converts strings, numbers, and booleans to strings;
+- JSON-stringifies nested objects.

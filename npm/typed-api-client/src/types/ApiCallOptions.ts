@@ -1,4 +1,4 @@
-import type { RequestParams } from "./HttpResponse";
+import type { RequestParams } from "./httpClientTypes";
 
 import type { ApiErrorResult, ApiSuccessResult } from "../interfaces/ApiResult";
 
