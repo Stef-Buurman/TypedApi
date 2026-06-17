@@ -6,7 +6,8 @@ import { generateApi } from "swagger-typescript-api";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const runtimePackageJsonPath = path.resolve(__dirname, "../package.json");
+const packageRoot = path.resolve(__dirname, "..");
+const runtimePackageJsonPath = path.join(packageRoot, "package.json");
 const runtimePackageJson = JSON.parse(
   fs.readFileSync(runtimePackageJsonPath, "utf8"),
 );
@@ -40,9 +41,16 @@ const swaggerUrl =
   process.env.npm_config_swagger_url ??
   config.swaggerUrl;
 
-const swaggerInput = swaggerFile
-  ? path.resolve(cwd, swaggerFile)
-  : (swaggerUrl ?? path.resolve(cwd, "swagger/swagger.json"));
+const defaultSwaggerUrl = "https://localhost:7000/swagger/v1/swagger.json";
+
+const swaggerBackupFileSetting = getStringSetting(
+  process.env.TYPED_API_SWAGGER_BACKUP_FILE,
+  process.env.npm_config_typed_api_swagger_backup_file,
+  config.typedApiSwaggerBackupFile,
+  "swagger/swagger.backup.json",
+);
+
+const swaggerBackupPath = path.resolve(packageRoot, swaggerBackupFileSetting);
 
 const apiRoot = path.resolve(
   cwd,
@@ -120,6 +128,144 @@ function cleanDirectory(directory) {
   fs.mkdirSync(directory, { recursive: true });
 }
 
+
+function fileExists(filePath) {
+  try {
+    return fs.existsSync(filePath) && fs.statSync(filePath).isFile();
+  } catch {
+    return false;
+  }
+}
+
+function writeSwaggerBackup(content, sourceLabel) {
+  fs.mkdirSync(path.dirname(swaggerBackupPath), { recursive: true });
+  fs.writeFileSync(swaggerBackupPath, content);
+
+  console.log(
+    `Updated Swagger backup from ${sourceLabel}: ${path.relative(packageRoot, swaggerBackupPath)}`,
+  );
+}
+
+function copySwaggerBackupFromFile(filePath) {
+  const content = fs.readFileSync(filePath, "utf8");
+
+  // Validate that the backup is at least JSON. This prevents overwriting a good
+  // backup with an invalid or empty file by accident.
+  JSON.parse(content);
+
+  writeSwaggerBackup(content, path.relative(cwd, filePath));
+}
+
+async function downloadSwaggerBackupFromUrl(url) {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(
+      `Swagger URL returned ${response.status} ${response.statusText}: ${url}`,
+    );
+  }
+
+  const content = await response.text();
+
+  // Validate before saving, so a server error page is never stored as backup.
+  JSON.parse(content);
+
+  writeSwaggerBackup(content, url);
+}
+
+function useBackupSwaggerInput(reason) {
+  if (!fileExists(swaggerBackupPath)) {
+    return undefined;
+  }
+
+  console.warn(
+    `${reason} Using Swagger backup: ${path.relative(packageRoot, swaggerBackupPath)}`,
+  );
+
+  return {
+    input: swaggerBackupPath,
+    label: swaggerBackupPath,
+  };
+}
+
+async function resolveSwaggerInput() {
+  if (swaggerFile) {
+    const swaggerFilePath = path.resolve(cwd, swaggerFile);
+
+    if (fileExists(swaggerFilePath)) {
+      copySwaggerBackupFromFile(swaggerFilePath);
+
+      return {
+        input: swaggerFilePath,
+        label: swaggerFilePath,
+      };
+    }
+
+    const backupInput = useBackupSwaggerInput(
+      `Swagger file was not found: ${swaggerFilePath}.`,
+    );
+
+    if (backupInput) {
+      return backupInput;
+    }
+
+    throw new Error(
+      `Swagger file was not found and no backup exists: ${swaggerFilePath}`,
+    );
+  }
+
+  if (swaggerUrl) {
+    try {
+      await downloadSwaggerBackupFromUrl(swaggerUrl);
+
+      return {
+        input: swaggerBackupPath,
+        label: swaggerUrl,
+      };
+    } catch (error) {
+      const backupInput = useBackupSwaggerInput(
+        `Swagger URL is not available: ${swaggerUrl}.`,
+      );
+
+      if (backupInput) {
+        return backupInput;
+      }
+
+      throw error;
+    }
+  }
+
+  const defaultSwaggerFile = path.resolve(cwd, "swagger/swagger.json");
+
+  if (fileExists(defaultSwaggerFile)) {
+    copySwaggerBackupFromFile(defaultSwaggerFile);
+
+    return {
+      input: defaultSwaggerFile,
+      label: defaultSwaggerFile,
+    };
+  }
+
+  try {
+    await downloadSwaggerBackupFromUrl(defaultSwaggerUrl);
+
+    return {
+      input: swaggerBackupPath,
+      label: defaultSwaggerUrl,
+    };
+  } catch (error) {
+    const backupInput = useBackupSwaggerInput(
+      `Default Swagger file was not found and default Swagger URL is not available.`,
+    );
+
+    if (backupInput) {
+      return backupInput;
+    }
+
+    throw error;
+  }
+}
+
 async function writeFormattedFile(filePath, content) {
   fs.writeFileSync(filePath, content);
 }
@@ -134,7 +280,7 @@ function removeGeneratedRouteFiles() {
   }
 }
 
-async function generateOpenApiClient() {
+async function generateOpenApiClient(swaggerInput) {
   cleanDirectory(generatedDir);
   cleanDirectory(methodsDir);
   fs.mkdirSync(methodsDir, { recursive: true });
@@ -152,11 +298,7 @@ async function generateOpenApiClient() {
     moduleNameFirstTag: true,
   };
 
-  if (swaggerFile) {
-    generateOptions.input = swaggerInput;
-  } else {
-    generateOptions.url = swaggerInput;
-  }
+  generateOptions.input = swaggerInput;
 
   await generateApi(generateOptions);
 
@@ -941,10 +1083,12 @@ async function fixGeneratedMixedImports(apiDir) {
 }
 
 async function main() {
-  console.log(`Generating API from: ${swaggerInput}`);
+  const swaggerInput = await resolveSwaggerInput();
+
+  console.log(`Generating API from: ${swaggerInput.label}`);
   console.log(`Output folder: ${apiRoot}`);
 
-  await generateOpenApiClient();
+  await generateOpenApiClient(swaggerInput.input);
 
   await fixGeneratedMixedImports(generatedDir);
 
