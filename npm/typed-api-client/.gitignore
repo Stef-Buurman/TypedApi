@@ -17,9 +17,7 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Typed API generated files
-/src/api/generated/
-/src/api/methods/
-/src/api/index.ts
+src/api/*
 *.tgz
 */defaultApiFunctions.ts
 /defaultApiFunctions.ts
