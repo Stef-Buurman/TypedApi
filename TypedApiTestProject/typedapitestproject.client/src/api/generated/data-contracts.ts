@@ -19,9 +19,9 @@ export const OrderStatus = {
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus];
 
 export const SortDirection = {
-  Default: 0,
-  Ascending: 1,
-  Descending: 2,
+  Default: "Default",
+  Ascending: "Ascending",
+  Descending: "Descending",
 } as const;
 export type SortDirection = (typeof SortDirection)[keyof typeof SortDirection];
 
@@ -231,7 +231,6 @@ export interface GetOrdersParams {
    */
   pageSize?: number;
   sortBy?: string;
-  /** @format int32 */
   sortDirection?: SortDirection;
 }
 
@@ -291,7 +290,6 @@ export interface GetProductsParams {
    */
   pageSize?: number;
   sortBy?: string;
-  /** @format int32 */
   sortDirection?: SortDirection;
 }
 
@@ -341,7 +339,6 @@ export interface GetSuppliersParams {
    */
   pageSize?: number;
   sortBy?: string;
-  /** @format int32 */
   sortDirection?: SortDirection;
 }
 
@@ -384,7 +381,6 @@ export interface GetWarehousesParams {
    */
   pageSize?: number;
   sortBy?: string;
-  /** @format int32 */
   sortDirection?: SortDirection;
 }
 

@@ -1,8 +1,12 @@
 import { useMemo, useState } from "react";
 import "./App.css";
-
 import type { ApiResult } from "typedapi-client-helpers";
-import { type OrderRequest, uploadProductFiles, uploadSupplierFile, uploadMixedImport, getSuppliers, createSupplier, getSupplierById, updateSupplier, verifySupplier, getProducts, createProduct, getProductById, updateProduct, toggleProductActive, exportProducts, getWarehouses, createWarehouse, getWarehouseById, updateWarehouse, getOrders, createOrder, getOrderById, updateOrder, approveOrder, cancelOrder, deleteOrder, deleteProduct, deleteWarehouse, deleteSupplier } from "./api";
+import type { OrderRequest } from "./api/generated/data-contracts";
+import { uploadProductFiles, uploadSupplierFile, uploadMixedImport } from "./api/methods/Import.api";
+import { getOrders, createOrder, getOrderById, updateOrder, approveOrder, cancelOrder, deleteOrder } from "./api/methods/Order.api";
+import { getProducts, createProduct, getProductById, updateProduct, toggleProductActive, exportProducts, deleteProduct } from "./api/methods/Product.api";
+import { getSuppliers, createSupplier, getSupplierById, updateSupplier, verifySupplier, deleteSupplier } from "./api/methods/Supplier.api";
+import { getWarehouses, createWarehouse, getWarehouseById, updateWarehouse, deleteWarehouse } from "./api/methods/Warehouse.api";
 
 type TestStatus = "idle" | "running" | "passed" | "failed";
 
