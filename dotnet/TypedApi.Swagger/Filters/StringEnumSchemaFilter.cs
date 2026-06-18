@@ -10,60 +10,61 @@ using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 #endif
 
-namespace TypedApi.Swagger.Filters;
-
-public sealed class StringEnumSchemaFilter : ISchemaFilter
+namespace TypedApi.Swagger.Filters
 {
+    public sealed class StringEnumSchemaFilter : ISchemaFilter
+    {
 #if NET10_0_OR_GREATER
-    public void Apply(
-        IOpenApiSchema schema,
-        SchemaFilterContext context)
-    {
-        var enumType =
-            Nullable.GetUnderlyingType(context.Type)
-            ?? context.Type;
-
-        if (!enumType.IsEnum)
+        public void Apply(
+            IOpenApiSchema schema,
+            SchemaFilterContext context)
         {
-            return;
-        }
+            var enumType =
+                Nullable.GetUnderlyingType(context.Type)
+                ?? context.Type;
 
-        if (schema is not OpenApiSchema openApiSchema)
-        {
-            return;
-        }
+            if (!enumType.IsEnum)
+            {
+                return;
+            }
 
-        openApiSchema.Type = JsonSchemaType.String;
-        openApiSchema.Format = null;
-        openApiSchema.Enum = new List<JsonNode>();
+            if (schema is not OpenApiSchema openApiSchema)
+            {
+                return;
+            }
 
-        foreach (var name in Enum.GetNames(enumType))
-        {
-            openApiSchema.Enum.Add(name);
+            openApiSchema.Type = JsonSchemaType.String;
+            openApiSchema.Format = null;
+            openApiSchema.Enum = new List<JsonNode>();
+
+            foreach (var name in Enum.GetNames(enumType))
+            {
+                openApiSchema.Enum.Add(name);
+            }
         }
-    }
 #else
-    public void Apply(
-        OpenApiSchema schema,
-        SchemaFilterContext context)
-    {
-        var enumType =
-            Nullable.GetUnderlyingType(context.Type)
-            ?? context.Type;
-
-        if (!enumType.IsEnum)
+        public void Apply(
+            OpenApiSchema schema,
+            SchemaFilterContext context)
         {
-            return;
-        }
+            var enumType =
+                Nullable.GetUnderlyingType(context.Type)
+                ?? context.Type;
 
-        schema.Type = "string";
-        schema.Format = null;
-        schema.Enum.Clear();
+            if (!enumType.IsEnum)
+            {
+                return;
+            }
 
-        foreach (var name in Enum.GetNames(enumType))
-        {
-            schema.Enum.Add(new OpenApiString(name));
+            schema.Type = "string";
+            schema.Format = null;
+            schema.Enum.Clear();
+
+            foreach (var name in Enum.GetNames(enumType))
+            {
+                schema.Enum.Add(new OpenApiString(name));
+            }
         }
-    }
 #endif
+    }
 }
