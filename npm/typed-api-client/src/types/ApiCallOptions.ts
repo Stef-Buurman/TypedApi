@@ -16,8 +16,8 @@ export type ApiSuccessHandler<TResponse> = (
  *
  * The callback receives the error-only branch of `ApiResult<TResponse>`.
  */
-export type ApiErrorHandler<TResponse> = (
-  result: ApiErrorResult<TResponse>,
+export type ApiErrorHandler<TResponse, TError = unknown> = (
+  result: ApiErrorResult<TResponse, TError>,
 ) => void | Promise<void>;
 
 /**
@@ -26,8 +26,12 @@ export type ApiErrorHandler<TResponse> = (
  * `onSuccess` runs for successful responses, `onError` runs for failed responses,
  * and `params` is forwarded to the generated HTTP client.
  */
-export type ApiMethodCallbacks<TResponse> = {
+export type ApiMethodCallbacks<
+  TResponse,
+  TError = unknown,
+  TRequestParams = RequestParams,
+> = {
   onSuccess?: ApiSuccessHandler<TResponse>;
-  onError?: ApiErrorHandler<TResponse>;
-  params?: RequestParams;
+  onError?: ApiErrorHandler<TResponse, TError>;
+  params?: TRequestParams;
 };

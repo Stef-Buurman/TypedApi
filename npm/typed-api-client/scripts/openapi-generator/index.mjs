@@ -83,15 +83,6 @@ export async function generateApi(options) {
     );
   }
 
-  const indexContent = [
-    `export * from "./generated/data-contracts";`,
-    `export * from "./generated/http-client";`,
-    ...controllerNames.map(
-      (controllerName) => `export * from "./methods/${controllerName}.api";`,
-    ),
-  ].join("\n");
-
-  fs.writeFileSync(path.join(output, "index.ts"), `${indexContent}\n`);
 
   return {
     files: [
@@ -100,7 +91,6 @@ export async function generateApi(options) {
       ...controllerNames.map((controllerName) =>
         path.join(methodsDir, methodFileNameForController(controllerName)),
       ),
-      path.join(output, "index.ts"),
     ],
   };
 }

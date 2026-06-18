@@ -27,18 +27,32 @@
     "sorting"
   ],
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist",
     "scripts",
-    "bin",
-    "README.md",
-    "swagger/swagger.backup.json"
+    "README.md"
   ],
+  "bin": {
+    "typedapi-generate": "./scripts/generate-api-minimal.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Stef-Buurman/TypedApi.git/npm/typed-api-client"
+    "url": "git+https://github.com/Stef-Buurman/TypedApi.git",
+    "directory": "npm/typed-api-client"
   },
   "homepage": "https://github.com/Stef-Buurman/TypedApi/tree/main/npm/typed-api-client#readme",
   "config": {
@@ -51,13 +65,14 @@
     "typedApiDefaultErrorHandler": "handleErrors",
     "typedApiDefaultResponseAsSuccess": false,
     "typedApiGenerateUnionEnums": false,
-    "typedApiEnumNamesAsValues": false
-  },
-  "bin": {
-    "typedapi-generate": "./scripts/generate-api-minimal.mjs"
+    "typedApiEnumNamesAsValues": false,
+    "typedApiSwaggerBackupFile": "swagger/swagger.backup.json"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run clean && tsup src/index.ts --format esm,cjs --dts",
+    "prepack": "npm run typecheck && npm run build",
     "generate:api": "node ./scripts/generate-api-minimal.mjs"
   },
   "devDependencies": {

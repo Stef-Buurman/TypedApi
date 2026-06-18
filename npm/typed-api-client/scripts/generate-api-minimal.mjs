@@ -46,10 +46,14 @@ const defaultSwaggerUrl = getStringSetting(
   "https://localhost:7000/swagger/v1/swagger.json",
 );
 
-const swaggerBackupPath = path.join(
-  packageRoot,
-  "swagger",
-  "swagger.backup.json",
+const swaggerBackupPath = path.resolve(
+  cwd,
+  getStringSetting(
+    process.env.TYPED_API_SWAGGER_BACKUP_FILE,
+    process.env.npm_config_typed_api_swagger_backup_file,
+    config.typedApiSwaggerBackupFile,
+    "swagger/swagger.backup.json",
+  ),
 );
 
 const apiRoot = path.resolve(
@@ -184,12 +188,16 @@ function fileExists(filePath) {
   }
 }
 
+function displayPath(filePath) {
+  return path.relative(cwd, filePath) || ".";
+}
+
 function writeSwaggerBackup(content, sourceLabel) {
   fs.mkdirSync(path.dirname(swaggerBackupPath), { recursive: true });
   fs.writeFileSync(swaggerBackupPath, content);
 
   console.log(
-    `Updated Swagger backup from ${sourceLabel}: ${path.relative(packageRoot, swaggerBackupPath)}`,
+    `Updated Swagger backup from ${sourceLabel}: ${displayPath(swaggerBackupPath)}`,
   );
 }
 
@@ -219,7 +227,7 @@ function useBackupSwaggerInput(reason) {
   }
 
   console.warn(
-    `${reason} Using Swagger backup: ${path.relative(packageRoot, swaggerBackupPath)}`,
+    `${reason} Using Swagger backup: ${displayPath(swaggerBackupPath)}`,
   );
 
   return {

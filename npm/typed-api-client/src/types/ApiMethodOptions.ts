@@ -7,6 +7,6 @@ export type ApiMethodOptions<
   TRequestParams = RuntimeRequestParams,
 > = {
   onSuccess?: ApiSuccessHandler<TResponse>;
-  onError?: ApiErrorHandler<TError>;
+  onError?: ApiErrorHandler<TResponse, TError>;
   params?: TRequestParams;
 };

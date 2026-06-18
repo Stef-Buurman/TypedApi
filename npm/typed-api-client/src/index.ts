@@ -1,9 +1,10 @@
+export * from "./httpClient";
+
 export * from "./interfaces/ApiResult";
 export * from "./interfaces/Filter";
 export * from "./interfaces/SortType";
 
 export * from "./types/ApiMethodTypes";
-export * from "./types/HttpResponse";
 export * from "./types/ApiCallOptions";
 export * from "./types/ApiMethodOptions";
 export * from "./types/ApiMethodArguments";

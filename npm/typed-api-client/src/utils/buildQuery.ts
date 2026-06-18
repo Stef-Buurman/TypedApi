@@ -14,62 +14,43 @@ export type SortDirection = number | string;
  * List filters are converted item by item.
  * `OptionValue` lists send their `value` fields instead of the display names.
  */
-export function buildQuery<TQuery, TSortModel = keyof TQuery>(
+export function buildQuery<TQuery, TSortModel = TQuery>(
   filters: FilterFormValues<TQuery>[],
   page = 1,
   pageSize = 100,
   sortBy: keyof TSortModel | null = null,
   sortDirection?: SortDirection,
 ): Partial<TQuery> {
-  let isPageSizeSet = pageSize > 0;
-
   const query = filters.reduce<Partial<TQuery>>((queryResult, filter) => {
     const { filterName, filterNameMax, type, value, maxValue, isAList } =
       filter;
 
-    if (
-      (value === null || value === undefined || value === "") &&
-      (maxValue === null || maxValue === undefined || maxValue === "")
-    ) {
+    if (isEmptyValue(value) && isEmptyValue(maxValue)) {
       return queryResult;
     }
 
     if (isAList && Array.isArray(value)) {
-      if (isOptionValueArray(value)) {
-        queryResult[filterName] = value.map((item) =>
-          convertType(type, item.value),
-        ) as TQuery[keyof TQuery];
+      const convertedValues = value
+        .map((item) =>
+          convertType(type, isOptionValue(item) ? item.value : item),
+        )
+        .filter((item) => item !== null);
 
-        return queryResult;
+      if (convertedValues.length > 0) {
+        queryResult[filterName] = convertedValues as TQuery[keyof TQuery];
       }
-
-      queryResult[filterName] = value.map((item) =>
-        convertType(type, item),
-      ) as TQuery[keyof TQuery];
 
       return queryResult;
     }
 
-    if (
-      value !== "null" &&
-      value !== "undefined" &&
-      value !== null &&
-      value !== undefined &&
-      value !== ""
-    ) {
-      const convertedValue = convertType(type, value);
+    const rawValue = isOptionValue(value) ? value.value : value;
+    const convertedValue = convertType(type, rawValue);
 
-      if (convertedValue !== null) {
-        queryResult[filterName] = convertedValue as TQuery[keyof TQuery];
-      }
+    if (convertedValue !== null) {
+      queryResult[filterName] = convertedValue as TQuery[keyof TQuery];
     }
 
-    if (
-      filterNameMax &&
-      maxValue !== null &&
-      maxValue !== undefined &&
-      maxValue !== ""
-    ) {
+    if (filterNameMax && !isEmptyValue(maxValue)) {
       const convertedMaxValue = convertType(type, maxValue);
 
       if (convertedMaxValue !== null) {
@@ -77,16 +58,12 @@ export function buildQuery<TQuery, TSortModel = keyof TQuery>(
       }
     }
 
-    if (String(filterName) === "pageSize" && !isPageSizeSet) {
-      isPageSizeSet = true;
-    }
-
     return queryResult;
   }, {});
 
   (query as Record<string, unknown>).pageNumber = page;
 
-  if (isPageSizeSet) {
+  if (pageSize > 0) {
     (query as Record<string, unknown>).pageSize = pageSize;
   }
 
@@ -101,40 +78,59 @@ export function buildQuery<TQuery, TSortModel = keyof TQuery>(
   return query;
 }
 
-/**
- * Checks whether a value is an option object used by option-based filters.
- *
- * Used to safely read the real filter value from `OptionValue.value`.
- */
+function isEmptyValue(value: unknown): boolean {
+  return (
+    value === null ||
+    value === undefined ||
+    value === "" ||
+    value === "null" ||
+    value === "undefined"
+  );
+}
+
 function isOptionValue(value: unknown): value is OptionValue {
   return typeof value === "object" && value !== null && "value" in value;
 }
 
-/**
- * Checks whether all items in an array are `OptionValue` objects.
- *
- * This is used for list filters where the UI stores selected options.
- */
-function isOptionValueArray(value: unknown[]): value is OptionValue[] {
-  return value.every(isOptionValue);
-}
-
-/**
- * Converts a filter value to the type expected by the query.
- *
- * Dates are converted to ISO strings, numbers to `number`,
- * and booleans to `boolean`.
- */
 function convertType(type: string, value: unknown): unknown {
-  switch (type) {
-    case "date":
-      return value instanceof Date ? value.toISOString() : value;
+  if (isEmptyValue(value)) {
+    return null;
+  }
 
-    case "number":
-      return Number(value);
+  switch (type) {
+    case "date": {
+      if (value instanceof Date) {
+        return Number.isNaN(value.getTime()) ? null : value.toISOString();
+      }
+
+      return value;
+    }
+
+    case "number": {
+      const numberValue = Number(value);
+      return Number.isNaN(numberValue) ? null : numberValue;
+    }
 
     case "boolean":
+    case "boolean-button": {
+      if (typeof value === "boolean") {
+        return value;
+      }
+
+      if (typeof value === "string") {
+        const normalized = value.trim().toLowerCase();
+
+        if (["true", "1", "yes", "on"].includes(normalized)) {
+          return true;
+        }
+
+        if (["false", "0", "no", "off"].includes(normalized)) {
+          return false;
+        }
+      }
+
       return Boolean(value);
+    }
 
     default:
       return value;
