@@ -55,6 +55,7 @@ Configuration is resolved in this order:
   "config": {
     "swaggerUrl": "https://localhost:7000/swagger/v1/swagger.json",
     "swaggerFile": "swagger/openapi.json",
+    "typedApiSwaggerBackupFile": "swagger/swagger.backup.json",
     "apiOutput": "src/api",
     "typedApiCleanOutput": true,
     "typedApiModuleNameFirstTag": true,
@@ -134,6 +135,7 @@ SWAGGER_URL=https://localhost:7000/swagger/v1/swagger.json npm run generate:api
 ```bash
 npm run generate:api --swagger-url=https://localhost:7000/swagger/v1/swagger.json
 npm run generate:api --swagger-file=swagger/openapi.json
+npm run generate:api --typed-api-swagger-backup-file=swagger/swagger.backup.json
 npm run generate:api --api-output=src/api
 npm run generate:api --typed-api-use-type-only-imports=true
 npm run generate:api --typed-api-module-name-first-tag=true
@@ -164,6 +166,8 @@ src/
 | `index.ts`                    | Barrel file that exports contracts, HTTP client utilities, and callable methods.                                                                                                       |
 
 The generated `generated/` folder, `methods/` folder, old `controllers/` folder, and `index.ts` are cleaned each time the generator runs.
+
+The `generated/` and `methods/` folders are cleaned and recreated each time the generator runs.
 
 ## Calling generated methods
 

@@ -1,15 +1,17 @@
 # TypedApi.Swagger
 
-A reusable Swagger configuration package for ASP.NET Core APIs that work seamlessly with TypedApi client generation.
+Reusable Swagger/OpenAPI configuration for ASP.NET Core APIs that are consumed by TypedApi client generation.
 
 ## What this package includes
 
 * `AddTypedApiSwagger()`
+* `AddTypedApiSwagger(options => { ... })` for custom Swagger configuration
 * `AddTypedApiJsonOptions()`
 * Required-property schema support
 * Enum-as-string schema support
 * Automatic operation IDs
 * Controller and group-based Swagger tags
+* Swagger UI support through the package dependency
 * OpenAPI generation improvements for TypedApi client generation
 
 ## Installation
@@ -18,13 +20,12 @@ A reusable Swagger configuration package for ASP.NET Core APIs that work seamles
 dotnet add package TypedApi.Swagger
 ```
 
-## Supported Frameworks
+## Supported frameworks
 
-* .NET Standard 2.0
 * .NET 8
 * .NET 10
 
-## Quick Start
+## Quick start
 
 ### Program.cs
 
@@ -50,7 +51,7 @@ app.MapControllers();
 app.Run();
 ```
 
-## What AddTypedApiSwagger() Configures
+## What AddTypedApiSwagger() configures
 
 ```csharp
 builder.Services.AddTypedApiSwagger();
@@ -64,7 +65,26 @@ Features:
 * Exposes enums as strings in Swagger schemas
 * Generates cleaner OpenAPI specifications
 
-## What AddTypedApiJsonOptions() Configures
+## Custom Swagger configuration
+
+Use the optional callback when you want to add normal Swashbuckle options without registering `AddSwaggerGen()` separately.
+
+```csharp
+using Microsoft.OpenApi.Models;
+using TypedApi.Swagger;
+
+builder.Services.AddTypedApiSwagger(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "My API",
+        Version = "v1",
+        Description = "My API documentation"
+    });
+});
+```
+
+## What AddTypedApiJsonOptions() configures
 
 ```csharp
 builder.Services
@@ -72,7 +92,7 @@ builder.Services
     .AddTypedApiJsonOptions();
 ```
 
-Configures:
+Configures enums to be serialized as strings:
 
 ```json
 {
@@ -90,9 +110,9 @@ instead of:
 
 This ensures generated clients use readable enum values.
 
-## Configuration Options
+## Configuration options
 
-### Enable Swagger Only During Development
+### Enable Swagger only during development
 
 ```csharp
 if (app.Environment.IsDevelopment())
@@ -102,7 +122,7 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-### Custom Swagger Route
+### Custom Swagger route
 
 ```csharp
 app.UseSwagger(options =>
@@ -117,23 +137,7 @@ app.UseSwaggerUI(options =>
 });
 ```
 
-### Custom API Information
-
-```csharp
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "My API",
-        Version = "v1",
-        Description = "My API documentation"
-    });
-});
-
-builder.Services.AddTypedApiSwagger();
-```
-
-### Group Controllers
+### Group controllers
 
 ```csharp
 [ApiExplorerSettings(GroupName = "Products")]
@@ -144,9 +148,9 @@ public class ProductsController : ControllerBase
 
 Swagger will display all endpoints under the `Products` section.
 
-### Nullable Reference Types
+### Nullable reference types
 
-Enable nullable reference types:
+Enable nullable reference types in your API project:
 
 ```xml
 <PropertyGroup>
@@ -156,7 +160,7 @@ Enable nullable reference types:
 
 This improves required-property detection in Swagger schemas.
 
-## Example Controller
+## Example controller
 
 ```csharp
 [ApiController]
@@ -171,31 +175,7 @@ public class ProductsController : ControllerBase
 }
 ```
 
-## Recommended Setup
-
-```text
-MyApi
-├── Controllers
-├── Models
-├── Services
-├── Program.cs
-└── appsettings.json
-```
-
-## appsettings.json Example
-
-```json
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information"
-    }
-  },
-  "AllowedHosts": "*"
-}
-```
-
-## Usage with TypedApi Client Generation
+## Usage with TypedApi client generation
 
 Once Swagger is configured and exposed:
 
