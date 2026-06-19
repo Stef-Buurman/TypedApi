@@ -143,4 +143,4 @@ const filters: FilterFormValues<GetSuppliersQuery>[] = [
 type SortType = "Default" | "Neutral" | "Ascending" | "Descending";
 ```
 
-`Neutral` is a UI-only state and is converted to `Default` before it is sent to the API.
+`Neutral` represents an explicit neutral sorting state and is sent as `Neutral`.

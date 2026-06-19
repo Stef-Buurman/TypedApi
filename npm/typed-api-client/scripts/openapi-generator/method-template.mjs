@@ -166,7 +166,7 @@ function promiseType(operationTypes) {
 }
 
 function isPaginated(operationTypes) {
-  return /(?:Api)?PaginationResponse\b|Paged(?:Response|Result)?\b|Paginated(?:Response|Result)?\b/.test(
+  return /(?:Api)?Pagination(?:Sort)?Response\b|Paged(?:Response|Result)?\b|Paginated(?:Response|Result)?\b/.test(
     operationTypes.responseType,
   );
 }
@@ -348,10 +348,11 @@ export function generateMethodFile(
       dataContractImports.push(operationTypes.paramsTypeName);
     if (
       operationTypes.bodyType &&
-      operationTypes.bodyType !== "Blob" &&
-      operationTypes.bodyType !== "File"
+      !isPrimitiveType(operationTypes.bodyType)
     ) {
-      dataContractImports.push(operationTypes.bodyType);
+      dataContractImports.push(
+        ...extractTopLevelTypeNames(operationTypes.bodyType),
+      );
     }
     if (!isPrimitiveType(operationTypes.responseType)) {
       dataContractImports.push(

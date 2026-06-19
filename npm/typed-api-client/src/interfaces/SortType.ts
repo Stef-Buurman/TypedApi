@@ -1,6 +1,6 @@
 /**
  * Sort state used by UI components.
  *
- * `Neutral` represents a UI-only state and is sent to the API as `Default`.
+ * `Neutral` represents an explicit neutral sorting state.
  */
 export type SortType = "Default" | "Neutral" | "Ascending" | "Descending";

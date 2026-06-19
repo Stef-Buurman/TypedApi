@@ -1,13 +1,18 @@
 import type { SortType } from "../interfaces/SortType";
 
-/** Values supported by the generated API SortDirection enum. */
-export type ApiSortDirection = "Default" | "Ascending" | "Descending";
-
 /**
- * Sort states supported by TypedApi UI components.
- *
- * Includes `Neutral`, which is a UI-only state and is sent to the API as `Default`.
+ * Values supported by the current TypedApi .NET SortDirection enum.
+ * The legacy long names remain accepted when reading older APIs.
  */
+export type ApiSortDirection =
+  | "Default"
+  | "Neutral"
+  | "Asc"
+  | "Desc"
+  | "Ascending"
+  | "Descending";
+
+/** Sort states supported by TypedApi UI components. */
 export const sortTypes = [
   "Default",
   "Neutral",
@@ -15,39 +20,36 @@ export const sortTypes = [
   "Descending",
 ] as const satisfies readonly SortType[];
 
-/**
- * Converts an API sort direction to the sort state used by UI components.
- *
- * Unknown or missing values safely fall back to `Default`.
- */
+/** Converts API sort direction values to the sort state used by UI components. */
 export function getSortTypeFromSortDirection(
   sortDirection: ApiSortDirection | null | undefined,
 ): SortType {
   switch (sortDirection) {
+    case "Asc":
     case "Ascending":
       return "Ascending";
+    case "Desc":
     case "Descending":
       return "Descending";
+    case "Neutral":
+      return "Neutral";
     case "Default":
     default:
       return "Default";
   }
 }
 
-/**
- * Converts a UI sort state to a value accepted by the generated API.
- *
- * `Neutral` means no explicit sorting is active, so it maps to `Default`.
- */
+/** Converts a UI sort state to a value accepted by the current .NET API. */
 export function getSortDirectionFromSortType(
   sortType: SortType | null | undefined,
-): ApiSortDirection {
+): Extract<ApiSortDirection, "Default" | "Neutral" | "Asc" | "Desc"> {
   switch (sortType) {
     case "Ascending":
-      return "Ascending";
+      return "Asc";
     case "Descending":
-      return "Descending";
+      return "Desc";
     case "Neutral":
+      return "Neutral";
     case "Default":
     default:
       return "Default";

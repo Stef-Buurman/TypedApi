@@ -4,7 +4,7 @@ import {
   getResponseContent,
   getSuccessResponse,
 } from "./openapi-utils.mjs";
-import { pascalCase, propertyKey, refName } from "./names.mjs";
+import { camelCase, pascalCase, propertyKey, refName } from "./names.mjs";
 
 function jsDocFromSchema(schema, indent = "") {
   const lines = [];
@@ -167,17 +167,22 @@ export class TypeResolver {
     for (const [propertyName, propertySchema] of Object.entries(
       schema.properties ?? {},
     )) {
+      // Required names must still be checked against the original OpenAPI name.
       const propertyRequired = required.has(propertyName);
       const optionalToken = propertyRequired ? "" : "?";
+
       const propertyType = this.resolve(
         propertySchema,
         `${name}${pascalCase(propertyName)}`,
         { inlineEnumAsUnion: true },
       );
+
       const resolvedSchema = dereference(this.openApi, propertySchema);
+      const typescriptPropertyName = camelCase(propertyName);
+
       lines.push(
         jsDocFromSchema(resolvedSchema, "  ") +
-          `  ${propertyKey(propertyName)}${optionalToken}: ${propertyType};`,
+          `  ${propertyKey(typescriptPropertyName)}${optionalToken}: ${propertyType};`,
       );
     }
 
@@ -188,6 +193,7 @@ export class TypeResolver {
           : this.resolve(schema.additionalProperties, `${name}Value`, {
               inlineEnumAsUnion: true,
             });
+
       lines.push(`  [key: string]: ${valueType};`);
     }
 
@@ -396,9 +402,18 @@ export function getOperationTypes(openApi, operationInfo, options = {}) {
 
   let bodyType;
   if (requestBodySchema) {
-    bodyType = requestBodySchema.$ref
-      ? resolver.resolve(requestBodySchema, `${operationId}Payload`)
-      : `${operationId}Payload`;
+    if (requestBodySchema.$ref) {
+      bodyType = resolver.resolve(requestBodySchema, `${operationId}Payload`);
+    } else if (
+      requestBodyContent?.contentType === "multipart/form-data" ||
+      shouldUseInterface(requestBodySchema)
+    ) {
+      bodyType = `${operationId}Payload`;
+    } else {
+      bodyType = resolver.resolve(requestBodySchema, `${operationId}Payload`, {
+        inlineEnumAsUnion: true,
+      });
+    }
   }
 
   let responseType = "void";

@@ -14,7 +14,7 @@ This folder contains runtime helper functions used by generated wrapper methods 
 | `HandleApiResponseOptions<TResponse>` | type     | Options object for `handleApiResponse`, containing optional success and error callbacks.           |
 | `getSortTypeFromSortDirection()`      | function | Converts an API sort direction to a UI `SortType`.                                                 |
 | `getSortDirectionFromSortType()`      | function | Converts a UI `SortType` to an API sort direction.                                                 |
-| `ApiSortDirection`                    | type     | API sort direction union: `Default`, `Ascending`, or `Descending`.                                 |
+| `ApiSortDirection`                    | type     | API sort direction union aligned with .NET: `Default`, `Neutral`, `Asc`, or `Desc` (legacy long names are accepted when reading).                                 |
 | `sortTypes`                           | const    | Constant list of supported UI sort states.                                                         |
 | `toFormData()`                        | function | Converts an object payload into `FormData`.                                                        |
 
@@ -23,7 +23,7 @@ This folder contains runtime helper functions used by generated wrapper methods 
 Use `buildQuery` to turn typed filter form values into a generated API query object.
 
 ```ts
-const query = buildQuery(filters, 1, 25, "name", "Ascending");
+const query = buildQuery(filters, 1, 25, "name", "Asc");
 ```
 
 `buildQuery`:
@@ -57,7 +57,7 @@ const query = buildQuery(
   1,
   25,
   "createdAt",
-  "Descending",
+  "Desc",
 );
 ```
 
@@ -156,11 +156,11 @@ Empty response bodies and HTTP 204 responses are returned as `undefined`. JSON r
 Use `getSortTypeFromSortDirection` and `getSortDirectionFromSortType` when mapping between UI state and API sort direction values.
 
 ```ts
-const sortType = getSortTypeFromSortDirection("Ascending");
+const sortType = getSortTypeFromSortDirection("Asc");
 const sortDirection = getSortDirectionFromSortType(sortType);
 ```
 
-`Neutral` is a UI-only state and is sent to the API as `Default`.
+`Neutral` is preserved for APIs that expose a neutral sort state.
 
 Unknown, missing, or unsupported sort values safely fall back to `Default`.
 

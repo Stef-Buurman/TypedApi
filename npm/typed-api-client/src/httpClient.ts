@@ -139,20 +139,15 @@ export function createApiClient<SecurityDataType = unknown>(
       return null;
     }
 
-    if (
-      input instanceof FormData ||
-      input instanceof Blob ||
-      typeof input === "string"
-    ) {
+    // Do not return strings here because JSON strings must be serialized.
+    if (input instanceof FormData || input instanceof Blob) {
       return input;
     }
 
     switch (type ?? ContentType.Json) {
       case ContentType.Json:
       case ContentType.JsonApi:
-        return typeof input === "object" || typeof input === "string"
-          ? JSON.stringify(input)
-          : String(input);
+        return JSON.stringify(input);
 
       case ContentType.Text:
         return typeof input === "string" ? input : JSON.stringify(input);
