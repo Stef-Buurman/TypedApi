@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 
     <PackageId>TypedApi.Swagger</PackageId>
-    <Version>0.2.1</Version>
+    <Version>0.2.2</Version>
     <Authors>Stef Buurman</Authors>
     <Description>Reusable Swagger configuration for typed API clients.</Description>
     <PackageTags>swagger;openapi;aspnetcore;typedapi</PackageTags>

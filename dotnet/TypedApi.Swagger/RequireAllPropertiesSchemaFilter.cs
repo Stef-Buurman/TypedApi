@@ -16,15 +16,15 @@ namespace TypedApi.Swagger
 #if NET10_0_OR_GREATER
         public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
 #else
-public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
 #endif
         {
             if (schema.Properties == null || context.Type == null)
                 return;
 
 #if !NET10_0_OR_GREATER
-    if (schema.Required == null)
-        schema.Required = new HashSet<string>();
+            if (schema.Required == null)
+                schema.Required = new HashSet<string>();
 #endif
 
             foreach (PropertyInfo property in context.Type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
@@ -39,8 +39,16 @@ public void Apply(OpenApiSchema schema, SchemaFilterContext context)
 
                 schema.Required?.Add(schemaPropertyName);
 
-#if !NET10_0_OR_GREATER
-        propertySchema.Nullable = false;
+#if NET10_0_OR_GREATER
+                if (propertySchema is OpenApiSchema openApiPropertySchema
+                    && openApiPropertySchema.Type.HasValue)
+                {
+                    openApiPropertySchema.Type =
+                        openApiPropertySchema.Type.GetValueOrDefault()
+                        & ~JsonSchemaType.Null;
+                }
+#else
+                propertySchema.Nullable = false;
 #endif
             }
         }
