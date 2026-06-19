@@ -4,15 +4,15 @@ Reusable Swagger/OpenAPI configuration for ASP.NET Core APIs that are consumed b
 
 ## What this package includes
 
-* `AddTypedApiSwagger()`
-* `AddTypedApiSwagger(options => { ... })` for custom Swagger configuration
-* `AddTypedApiJsonOptions()`
-* Required-property schema support
-* Enum-as-string schema support
-* Automatic operation IDs
-* Controller and group-based Swagger tags
-* Swagger UI support through the package dependency
-* OpenAPI generation improvements for TypedApi client generation
+- `AddTypedApiSwagger()`
+- `AddTypedApiSwagger(options => { ... })` for custom Swagger configuration
+- `AddTypedApiJsonOptions()`
+- Required-property schema support
+- Enum-as-string schema support
+- Automatic operation IDs
+- Controller and group-based Swagger tags
+- Swagger UI support through the package dependency
+- OpenAPI generation improvements for TypedApi client generation
 
 ## Installation
 
@@ -22,8 +22,8 @@ dotnet add package TypedApi.Swagger
 
 ## Supported frameworks
 
-* .NET 8
-* .NET 10
+- .NET 8
+- .NET 10
 
 ## Quick start
 
@@ -59,11 +59,11 @@ builder.Services.AddTypedApiSwagger();
 
 Features:
 
-* Uses action names as operation IDs
-* Uses controller names or group names as Swagger tags
-* Detects required properties automatically
-* Exposes enums as strings in Swagger schemas
-* Generates cleaner OpenAPI specifications
+- Uses action names as operation IDs
+- Uses controller names or group names as Swagger tags
+- Detects required properties automatically
+- Exposes enums as strings in Swagger schemas
+- Generates cleaner OpenAPI specifications
 
 ## Custom Swagger configuration
 
@@ -190,3 +190,37 @@ The frontend TypedApi generator can use this endpoint to generate a fully typed 
 This package should be installed in the ASP.NET Core backend project that exposes the OpenAPI specification.
 
 The generated Swagger document is intended to be consumed by the TypedApi TypeScript client generator.
+
+## Pagination and sorting contracts
+
+The package also contains reusable query and response contracts:
+
+```csharp
+using TypedApi.Swagger.Models;
+using TypedApi.Swagger.Models.Filters;
+
+[HttpGet]
+public ActionResult<ApiPaginationSortResponse<ProductModel>> GetProducts(
+    [FromQuery] PaginationFilter filter)
+{
+    return Ok(new ApiPaginationSortResponse<ProductModel>
+    {
+        Data = [],
+        PageNumber = filter.PageNumber,
+        PageSize = filter.PageSize,
+        TotalCount = 0,
+        TotalPages = 0,
+        TotalRecords = 0,
+        SortBy = filter.SortBy,
+        SortDirection = filter.SortDirection
+    });
+}
+```
+
+Available response models:
+
+- `ApiPaginationResponse<T>` for paging metadata and a `Data` collection.
+- `ApiPaginationSortResponse<T>` for paging plus the applied sort field and direction.
+- `ApiSortResponse` for sort metadata without a data collection.
+
+`PaginationFilter` can be used directly or inherited by an endpoint-specific filter model. Its default page number is `1`, default page size is `100`, and sort direction uses `SortDirection.Default`.
