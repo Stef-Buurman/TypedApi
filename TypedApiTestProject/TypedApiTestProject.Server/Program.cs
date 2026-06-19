@@ -1,8 +1,31 @@
+using Microsoft.AspNetCore.Http.Features;
 using TypedApi.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddTypedApiJsonOptions();
+
+builder.Services.Configure<IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 419_430_400; // 400MB
+});
+
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MaxRequestBodySize = 419_430_400; // 400MB
+    serverOptions.Limits.RequestHeadersTimeout = TimeSpan.FromMinutes(10);
+    serverOptions.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(10);
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.ValueLengthLimit = int.MaxValue;
+    options.MultipartBodyLengthLimit = 419_430_400; // 400MB
+    options.MultipartHeadersLengthLimit = int.MaxValue;
+});
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddTypedApiSwagger();

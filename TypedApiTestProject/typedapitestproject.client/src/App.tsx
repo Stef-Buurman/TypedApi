@@ -1,12 +1,27 @@
 import { useMemo, useState } from "react";
 import "./App.css";
 import type { ApiResult } from "typedapi-client-helpers";
-import type { OrderRequest } from "./api/generated/data-contracts";
+import { OrderStatus } from "./api/generated/data-contracts";
 import { uploadProductFiles, uploadSupplierFile, uploadMixedImport } from "./api/methods/Import.api";
 import { getOrders, createOrder, getOrderById, updateOrder, approveOrder, cancelOrder, deleteOrder } from "./api/methods/Order.api";
-import { getProducts, createProduct, getProductById, updateProduct, toggleProductActive, exportProducts, deleteProduct } from "./api/methods/Product.api";
+import { getProducts, createProduct, getProductById, updateProduct, toggleProductActive, exportProducts, deleteProduct, getProductSortState } from "./api/methods/Product.api";
 import { getSuppliers, createSupplier, getSupplierById, updateSupplier, verifySupplier, deleteSupplier } from "./api/methods/Supplier.api";
 import { getWarehouses, createWarehouse, getWarehouseById, updateWarehouse, deleteWarehouse } from "./api/methods/Warehouse.api";
+import {
+  deleteNoContent,
+  downloadFile,
+  getArray,
+  getDictionary,
+  getObject,
+  getPathAndQuery,
+  getPrimitive,
+  getText,
+  patchJson,
+  postAccepted,
+  postJson,
+  postPrimitiveBody,
+  postUrlEncoded,
+} from "./api/methods/EndpointCoverage.api";
 
 type TestStatus = "idle" | "running" | "passed" | "failed";
 
@@ -28,6 +43,7 @@ type TestContext = {
   supplierId?: string;
   warehouseId?: string;
   orderId?: string;
+  coverageId?: string;
 };
 
 type GeneratedResult = ApiResult<unknown>;
@@ -69,7 +85,7 @@ const orderBody = (productId: string, supplierId: string) => ({
   quantity: 3,
   totalPrice: 59.85,
   orderedAt: new Date().toISOString(),
-  status: 0 as unknown as OrderRequest["status"],
+  status: OrderStatus.Draft,
 });
 
 function testFiles(count = 1) {
@@ -106,7 +122,7 @@ const tests: TestDefinition[] = [
     name: "Upload product files",
     method: "POST",
     path: "/api/imports/products",
-    run: () => uploadProductFiles({ Files: testFiles(2) }),
+    run: () => uploadProductFiles({ files: testFiles(2) }),
   },
   {
     id: "import-supplier",
@@ -114,7 +130,7 @@ const tests: TestDefinition[] = [
     name: "Upload supplier file",
     method: "POST",
     path: "/api/imports/supplier",
-    run: () => uploadSupplierFile({ File: testFiles(1)[0] }),
+    run: () => uploadSupplierFile({ file: testFiles(1)[0] }),
   },
   {
     id: "import-mixed",
@@ -124,11 +140,144 @@ const tests: TestDefinition[] = [
     path: "/api/imports/mixed",
     run: () =>
       uploadMixedImport({
-        Files: testFiles(2),
-        ImportName: "Frontend suite",
-        ValidateOnly: true,
+        files: testFiles(2),
+        importName: "Frontend suite",
+        validateOnly: true,
       }),
   },
+
+  {
+    id: "coverage-object",
+    group: "Endpoint coverage",
+    name: "JSON object response",
+    method: "GET",
+    path: "/api/endpoint-coverage/object",
+    run: () => getObject(),
+  },
+  {
+    id: "coverage-array",
+    group: "Endpoint coverage",
+    name: "JSON array response",
+    method: "GET",
+    path: "/api/endpoint-coverage/array",
+    run: () => getArray(),
+  },
+  {
+    id: "coverage-primitive",
+    group: "Endpoint coverage",
+    name: "Primitive response",
+    method: "GET",
+    path: "/api/endpoint-coverage/primitive",
+    run: () => getPrimitive(),
+  },
+  {
+    id: "coverage-dictionary",
+    group: "Endpoint coverage",
+    name: "Dictionary response",
+    method: "GET",
+    path: "/api/endpoint-coverage/dictionary",
+    run: () => getDictionary(),
+  },
+  {
+    id: "coverage-text",
+    group: "Endpoint coverage",
+    name: "Text response",
+    method: "GET",
+    path: "/api/endpoint-coverage/text",
+    run: () => getText(),
+  },
+  {
+    id: "coverage-download",
+    group: "Endpoint coverage",
+    name: "Blob response",
+    method: "GET",
+    path: "/api/endpoint-coverage/download",
+    run: () => downloadFile(),
+  },
+  {
+    id: "coverage-path-query",
+    group: "Endpoint coverage",
+    name: "Path and query parameters",
+    method: "GET",
+    path: "/api/endpoint-coverage/{id}/details",
+    run: () =>
+      getPathAndQuery({
+        id: "33333333-3333-3333-3333-333333333333",
+        includeMetadata: true,
+        culture: "nl-NL",
+      }),
+  },
+  {
+    id: "coverage-json-body",
+    group: "Endpoint coverage",
+    name: "JSON request body with 201",
+    method: "POST",
+    path: "/api/endpoint-coverage/json",
+    run: () =>
+      postJson({
+        name: "Created by coverage suite",
+        optionalDescription: null,
+        count: 5,
+        enabled: true,
+        tags: ["json", "created"],
+      }),
+    capture: (data, context) => {
+      context.coverageId = extractId(data);
+    },
+  },
+  {
+    id: "coverage-primitive-body",
+    group: "Endpoint coverage",
+    name: "Primitive JSON body",
+    method: "POST",
+    path: "/api/endpoint-coverage/primitive-body",
+    run: () => postPrimitiveBody("primitive request body"),
+  },
+  {
+    id: "coverage-url-encoded",
+    group: "Endpoint coverage",
+    name: "URL-encoded body",
+    method: "POST",
+    path: "/api/endpoint-coverage/url-encoded",
+    run: () => postUrlEncoded({ name: "Form body", count: 2, enabled: true }),
+  },
+  {
+    id: "coverage-accepted",
+    group: "Endpoint coverage",
+    name: "202 Accepted response",
+    method: "POST",
+    path: "/api/endpoint-coverage/accepted",
+    run: () =>
+      postAccepted({
+        name: "Accepted request",
+        optionalDescription: "queued",
+        count: 1,
+        enabled: true,
+        tags: ["accepted"],
+      }),
+  },
+  {
+    id: "coverage-patch",
+    group: "Endpoint coverage",
+    name: "PATCH request",
+    method: "PATCH",
+    path: "/api/endpoint-coverage/{id}",
+    run: (context) =>
+      patchJson(
+        { id: requireId(context.coverageId, "Coverage ID") },
+        { name: "Patched coverage item", enabled: false },
+      ),
+  },
+  {
+    id: "coverage-no-content",
+    group: "Endpoint coverage",
+    name: "204 No Content response",
+    method: "DELETE",
+    path: "/api/endpoint-coverage/{id}/no-content",
+    run: (context) =>
+      deleteNoContent({ id: requireId(context.coverageId, "Coverage ID") }),
+  },
+
 
   {
     id: "suppliers-list",
@@ -136,7 +285,7 @@ const tests: TestDefinition[] = [
     name: "List suppliers",
     method: "GET",
     path: "/api/suppliers",
-    run: () => getSuppliers([], 1, 10),
+    run: () => getSuppliers([], 1, 10, "companyName", "Asc"),
   },
   {
     id: "suppliers-create",
@@ -189,8 +338,17 @@ const tests: TestDefinition[] = [
     name: "List products",
     method: "GET",
     path: "/api/products",
-    run: () => getProducts([], 1, 10),
+    run: () => getProducts([], 1, 10, "name", "Asc"),
   },
+  {
+    id: "products-sort-state",
+    group: "Products",
+    name: "Get ApiSortResponse",
+    method: "GET",
+    path: "/api/products/sort-state",
+    run: () => getProductSortState({ sortBy: "price", sortDirection: "Desc" }),
+  },
+
   {
     id: "products-create",
     group: "Products",
@@ -251,7 +409,7 @@ const tests: TestDefinition[] = [
     name: "List warehouses",
     method: "GET",
     path: "/api/warehouses",
-    run: () => getWarehouses([], 1, 10),
+    run: () => getWarehouses([], 1, 10, "capacity", "Desc"),
   },
   {
     id: "warehouses-create",
@@ -297,7 +455,7 @@ const tests: TestDefinition[] = [
     name: "List orders",
     method: "GET",
     path: "/api/orders",
-    run: () => getOrders([], 1, 10),
+    run: () => getOrders([], 1, 10, "orderedAt", "Desc"),
   },
   {
     id: "orders-create",
@@ -306,12 +464,12 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/orders",
     run: (context) =>
-      createOrder({
-        request: orderBody(
+      createOrder(
+        orderBody(
           requireId(context.productId, "Product ID"),
           requireId(context.supplierId, "Supplier ID"),
         ),
-      } as unknown as ReturnType<typeof orderBody>),
+      ),
     capture: (data, context) => {
       context.orderId = extractId(data);
     },
@@ -332,8 +490,9 @@ const tests: TestDefinition[] = [
     method: "PUT",
     path: "/api/orders/{id}",
     run: (context) =>
-      updateOrder({ id: requireId(context.orderId, "Order ID") }, {
-        request: {
+      updateOrder(
+        { id: requireId(context.orderId, "Order ID") },
+        {
           ...orderBody(
             requireId(context.productId, "Product ID"),
             requireId(context.supplierId, "Supplier ID"),
@@ -341,7 +500,7 @@ const tests: TestDefinition[] = [
           quantity: 4,
           totalPrice: 79.8,
         },
-      } as unknown as ReturnType<typeof orderBody>),
+      ),
   },
   {
     id: "orders-approve",
@@ -440,7 +599,7 @@ function App() {
       const result = await test.run(context);
       const duration = Math.round(performance.now() - start);
 
-      if (!result.ok) {
+      if (result.ok === false) {
         setResult(test.id, {
           status: "failed",
           statusCode: result.status,
@@ -505,14 +664,14 @@ function App() {
       let result: ApiResult<unknown>;
 
       if (manualUploadEndpoint === "products") {
-        result = await uploadProductFiles({ Files: selectedFiles });
+        result = await uploadProductFiles({ files: selectedFiles });
       } else if (manualUploadEndpoint === "supplier") {
-        result = await uploadSupplierFile({ File: selectedFiles[0] });
+        result = await uploadSupplierFile({ file: selectedFiles[0] });
       } else {
         result = await uploadMixedImport({
-          Files: selectedFiles,
-          ImportName: "Manual frontend upload",
-          ValidateOnly: false,
+          files: selectedFiles,
+          importName: "Manual frontend upload",
+          validateOnly: false,
         });
       }
 

@@ -8,6 +8,7 @@ namespace TypedApiTestProject.Server.Controllers
     public class ImportController : ControllerBase
     {
         [HttpPost("products")]
+        [RequestSizeLimit(419_430_400)]
         public ActionResult<UploadResult> UploadProductFiles([FromForm] List<IFormFile> Files)
         {
             return Ok(new UploadResult
@@ -19,6 +20,7 @@ namespace TypedApiTestProject.Server.Controllers
         }
 
         [HttpPost("supplier")]
+        [RequestSizeLimit(419_430_400)]
         public ActionResult<UploadResult> UploadSupplierFile([FromForm] SingleFileUploadRequest request)
         {
             return Ok(new UploadResult
@@ -30,6 +32,7 @@ namespace TypedApiTestProject.Server.Controllers
         }
 
         [HttpPost("mixed")]
+        [RequestSizeLimit(419_430_400)]
         public ActionResult<UploadResult> UploadMixedImport([FromForm] MixedImportUploadRequest request)
         {
             return Ok(new UploadResult

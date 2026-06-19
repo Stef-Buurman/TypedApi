@@ -11,13 +11,15 @@
 import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
 import type {
+  ApiSortResponse,
   DeleteProductParams,
   ExportProductsParams,
   GetProductByIdParams,
+  GetProductSortStateParams,
   GetProductsParams,
   ProductModel,
   ProductRequest,
-  ProductTableRowApiPaginationResponse,
+  ProductTableRowApiPaginationSortResponse,
   ToggleProductActiveParams,
   UpdateProductParams,
 } from "../generated/data-contracts";
@@ -34,6 +36,7 @@ import type {
 import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler } from "../../utils/defaultApiFunctions";
 
 export type GetProductsQuery = NonNullable<GetProductsParams>;
+export type GetProductSortStateQuery = NonNullable<GetProductSortStateParams>;
 export type ExportProductsQuery = NonNullable<ExportProductsParams>;
 
 /**
@@ -47,18 +50,18 @@ export async function getProducts(
   filters: FilterFormValues<GetProductsQuery>[] = [],
   page = 1,
   pageSize = 100,
-  sortBy: SortableKeys<ProductTableRowApiPaginationResponse> | null = null,
+  sortBy: SortableKeys<ProductTableRowApiPaginationSortResponse> | null = null,
   sortDirection?: SortDirection,
-  options: ApiMethodOptions<ProductTableRowApiPaginationResponse, any, RequestParams> = {},
-): Promise<ApiResult<ProductTableRowApiPaginationResponse>> {
+  options: ApiMethodOptions<ProductTableRowApiPaginationSortResponse, any, RequestParams> = {},
+): Promise<ApiResult<ProductTableRowApiPaginationSortResponse>> {
   const { onSuccess, onError, params } = options;
   const builtQuery = buildQuery<
     GetProductsQuery,
-    UnwrapArray<ExtractDataIfPaginated<ProductTableRowApiPaginationResponse>>
+    UnwrapArray<ExtractDataIfPaginated<ProductTableRowApiPaginationSortResponse>>
   >(filters, page, pageSize, sortBy, sortDirection);
 
-  return handleApiResponse<ProductTableRowApiPaginationResponse, any>(
-    () => request<ProductTableRowApiPaginationResponse, any>({
+  return handleApiResponse<ProductTableRowApiPaginationSortResponse, any>(
+    () => request<ProductTableRowApiPaginationSortResponse, any>({
       path: `/api/products`,
       method: "GET",
       query: builtQuery ?? {},
@@ -87,6 +90,31 @@ export async function createProduct(
       method: "POST",
       body: data,
       type: ContentType.Json,
+      format: "json",
+      ...params,
+    }),
+    { onSuccess: onSuccess ?? typedApiDefaultSuccessHandler, onError: onError ?? typedApiDefaultErrorHandler },
+  );
+}
+
+/**
+ * No description
+ *
+ * @tags Product
+ * @name GetProductSortState
+ * @request GET:/api/products/sort-state
+ */
+export async function getProductSortState(
+  query?: GetProductSortStateQuery,
+  options: ApiMethodOptions<ApiSortResponse, any, RequestParams> = {},
+): Promise<ApiResult<ApiSortResponse>> {
+  const { onSuccess, onError, params } = options;
+
+  return handleApiResponse<ApiSortResponse, any>(
+    () => request<ApiSortResponse, any>({
+      path: `/api/products/sort-state`,
+      method: "GET",
+      query: query ?? {},
       format: "json",
       ...params,
     }),

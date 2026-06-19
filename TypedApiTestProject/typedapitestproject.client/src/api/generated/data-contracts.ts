@@ -20,15 +20,51 @@ export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus];
 
 export const SortDirection = {
   Default: "Default",
-  Ascending: "Ascending",
-  Descending: "Descending",
+  Neutral: "Neutral",
+  Asc: "Asc",
+  Desc: "Desc",
 } as const;
 export type SortDirection = (typeof SortDirection)[keyof typeof SortDirection];
+
+export interface ApiSortResponse {
+  sortBy?: string | null;
+  sortDirection: SortDirection;
+}
+
+export interface EndpointCoverageModel {
+  /** @format uuid */
+  id: string;
+  name: string;
+  optionalDescription?: string | null;
+  /** @format int32 */
+  count: number;
+  enabled: boolean;
+  /** @format date-time */
+  createdAt: string;
+  tags: string[];
+  metadata: Record<string, string>;
+}
+
+export interface EndpointCoveragePatchRequest {
+  name?: string | null;
+  /** @format int32 */
+  count?: number | null;
+  enabled?: boolean | null;
+}
+
+export interface EndpointCoverageRequest {
+  name: string;
+  optionalDescription?: string | null;
+  /** @format int32 */
+  count: number;
+  enabled: boolean;
+  tags: string[];
+}
 
 export interface OrderModel {
   /** @format uuid */
   id: string;
-  orderNumber: string | null;
+  orderNumber: string;
   /** @format uuid */
   productId: string;
   /** @format uuid */
@@ -42,18 +78,24 @@ export interface OrderModel {
   status: OrderStatus;
 }
 
-export interface OrderModelApiPaginationResponse {
-  data: OrderModel[] | null;
+export interface OrderModelApiPaginationSortResponse {
+  data: OrderModel[];
   /** @format int32 */
   pageNumber: number;
   /** @format int32 */
   pageSize: number;
   /** @format int32 */
   totalCount: number;
+  /** @format int32 */
+  totalPages: number;
+  /** @format int32 */
+  totalRecords: number;
+  sortBy?: string | null;
+  sortDirection: SortDirection;
 }
 
 export interface OrderRequest {
-  orderNumber: string | null;
+  orderNumber: string;
   /** @format uuid */
   productId: string;
   /** @format uuid */
@@ -70,8 +112,8 @@ export interface OrderRequest {
 export interface ProductModel {
   /** @format uuid */
   id: string;
-  name: string | null;
-  sku: string | null;
+  name: string;
+  sku: string;
   /** @format double */
   price: number;
   /** @format int32 */
@@ -84,8 +126,8 @@ export interface ProductModel {
 }
 
 export interface ProductRequest {
-  name: string | null;
-  sku: string | null;
+  name: string;
+  sku: string;
   /** @format double */
   price: number;
   /** @format int32 */
@@ -98,8 +140,8 @@ export interface ProductRequest {
 export interface ProductTableRow {
   /** @format uuid */
   id: string;
-  name: string | null;
-  sku: string | null;
+  name: string;
+  sku: string;
   /** @format double */
   price: number;
   /** @format int32 */
@@ -107,131 +149,164 @@ export interface ProductTableRow {
   active: boolean;
 }
 
-export interface ProductTableRowApiPaginationResponse {
-  data: ProductTableRow[] | null;
+export interface ProductTableRowApiPaginationSortResponse {
+  data: ProductTableRow[];
   /** @format int32 */
   pageNumber: number;
   /** @format int32 */
   pageSize: number;
   /** @format int32 */
   totalCount: number;
+  /** @format int32 */
+  totalPages: number;
+  /** @format int32 */
+  totalRecords: number;
+  sortBy?: string | null;
+  sortDirection: SortDirection;
 }
 
 export interface SupplierModel {
   /** @format uuid */
   id: string;
-  companyName: string | null;
-  contactEmail: string | null;
-  countryCode: string | null;
+  companyName: string;
+  contactEmail: string;
+  countryCode: string;
   verified: boolean;
   /** @format date-time */
   createdAt: string;
 }
 
 export interface SupplierModelApiPaginationResponse {
-  data: SupplierModel[] | null;
+  data: SupplierModel[];
   /** @format int32 */
   pageNumber: number;
   /** @format int32 */
   pageSize: number;
   /** @format int32 */
   totalCount: number;
+  /** @format int32 */
+  totalPages: number;
+  /** @format int32 */
+  totalRecords: number;
 }
 
 export interface SupplierRequest {
-  companyName: string | null;
-  contactEmail: string | null;
-  countryCode: string | null;
+  companyName: string;
+  contactEmail: string;
+  countryCode: string;
   verified: boolean;
 }
 
 export interface UploadResult {
   /** @format int32 */
   fileCount: number;
-  fileNames: string[] | null;
-  message: string | null;
+  fileNames: string[];
+  message: string;
 }
 
 export interface WarehouseModel {
   /** @format uuid */
   id: string;
-  code: string | null;
-  name: string | null;
-  city: string | null;
-  countryCode: string | null;
+  code: string;
+  name: string;
+  city: string;
+  countryCode: string;
   /** @format int32 */
   capacity: number;
   isActive: boolean;
 }
 
 export interface WarehouseModelApiPaginationResponse {
-  data: WarehouseModel[] | null;
+  data: WarehouseModel[];
   /** @format int32 */
   pageNumber: number;
   /** @format int32 */
   pageSize: number;
   /** @format int32 */
   totalCount: number;
+  /** @format int32 */
+  totalPages: number;
+  /** @format int32 */
+  totalRecords: number;
 }
 
 export interface WarehouseRequest {
-  code: string | null;
-  name: string | null;
-  city: string | null;
-  countryCode: string | null;
+  code: string;
+  name: string;
+  city: string;
+  countryCode: string;
   /** @format int32 */
   capacity: number;
   isActive: boolean;
 }
 
+export interface GetPathAndQueryParams {
+  /** @format uuid */
+  id: string;
+  /** @default false */
+  includeMetadata?: boolean;
+  culture?: string;
+}
+
+export interface PostUrlEncodedPayload {
+  name?: string;
+  /** @format int32 */
+  count?: number;
+  enabled?: boolean;
+}
+
+export interface PatchJsonParams {
+  /** @format uuid */
+  id: string;
+}
+
+export interface DeleteNoContentParams {
+  /** @format uuid */
+  id: string;
+}
+
 export interface UploadProductFilesPayload {
-  Files?: File[];
+  files?: File[];
 }
 
 export interface UploadSupplierFilePayload {
   /** @format binary */
-  File?: File;
+  file?: File;
 }
 
 export interface UploadMixedImportPayload {
-  Files?: File[];
-  ImportName?: string;
-  ValidateOnly?: boolean;
+  files?: File[];
+  importName?: string;
+  validateOnly?: boolean;
 }
 
 export interface GetOrdersParams {
-  orderIds?: string[];
-  orderNumber?: string;
+  OrderIds?: string[];
+  OrderNumber?: string;
   /** @format uuid */
-  productId?: string;
+  ProductId?: string;
   /** @format uuid */
-  supplierId?: string;
+  SupplierId?: string;
   /** @format int32 */
-  minQuantity?: number;
+  MinQuantity?: number;
   /** @format int32 */
-  maxQuantity?: number;
+  MaxQuantity?: number;
   /** @format double */
-  minTotalPrice?: number;
+  MinTotalPrice?: number;
   /** @format double */
-  maxTotalPrice?: number;
+  MaxTotalPrice?: number;
   /** @format date-time */
-  orderedFrom?: string;
+  OrderedFrom?: string;
   /** @format date-time */
-  orderedTo?: string;
-  status?: OrderStatus;
-  statuses?: OrderStatus[];
-  /**
-   * @format int32
-   * @default 1
-   */
-  pageNumber?: number;
-  /**
-   * @format int32
-   * @default 100
-   */
-  pageSize?: number;
-  sortBy?: string;
-  sortDirection?: SortDirection;
+  OrderedTo?: string;
+  Status?: OrderStatus;
+  Statuses?: OrderStatus[];
+  /** @format int32 */
+  PageNumber?: number;
+  /** @format int32 */
+  PageSize?: number;
+  SortBy?: string;
+  SortDirection?: SortDirection;
 }
 
 export interface GetOrderByIdParams {
@@ -261,34 +336,33 @@ export interface CancelOrderParams {
 }
 
 export interface GetProductsParams {
-  productIds?: string[];
-  search?: string;
-  skus?: string[];
+  ProductIds?: string[];
+  Search?: string;
+  Skus?: string[];
   /** @format double */
-  minPrice?: number;
+  MinPrice?: number;
   /** @format double */
-  maxPrice?: number;
+  MaxPrice?: number;
   /** @format int32 */
-  minStock?: number;
+  MinStock?: number;
   /** @format int32 */
-  maxStock?: number;
-  active?: boolean;
+  MaxStock?: number;
+  Active?: boolean;
   /** @format uuid */
-  supplierId?: string;
+  SupplierId?: string;
   /** @format date-time */
-  createdFrom?: string;
+  CreatedFrom?: string;
   /** @format date-time */
-  createdTo?: string;
-  /**
-   * @format int32
-   * @default 1
-   */
-  pageNumber?: number;
-  /**
-   * @format int32
-   * @default 100
-   */
-  pageSize?: number;
+  CreatedTo?: string;
+  /** @format int32 */
+  PageNumber?: number;
+  /** @format int32 */
+  PageSize?: number;
+  SortBy?: string;
+  SortDirection?: SortDirection;
+}
+
+export interface GetProductSortStateParams {
   sortBy?: string;
   sortDirection?: SortDirection;
 }
@@ -320,26 +394,20 @@ export interface ExportProductsParams {
 }
 
 export interface GetSuppliersParams {
-  supplierIds?: string[];
-  companyName?: string;
-  countryCodes?: string[];
-  verified?: boolean;
+  SupplierIds?: string[];
+  CompanyName?: string;
+  CountryCodes?: string[];
+  Verified?: boolean;
   /** @format date-time */
-  createdFrom?: string;
+  CreatedFrom?: string;
   /** @format date-time */
-  createdTo?: string;
-  /**
-   * @format int32
-   * @default 1
-   */
-  pageNumber?: number;
-  /**
-   * @format int32
-   * @default 100
-   */
-  pageSize?: number;
-  sortBy?: string;
-  sortDirection?: SortDirection;
+  CreatedTo?: string;
+  /** @format int32 */
+  PageNumber?: number;
+  /** @format int32 */
+  PageSize?: number;
+  SortBy?: string;
+  SortDirection?: SortDirection;
 }
 
 export interface GetSupplierByIdParams {
@@ -363,25 +431,19 @@ export interface VerifySupplierParams {
 }
 
 export interface GetWarehousesParams {
-  search?: string;
-  countryCodes?: string[];
+  Search?: string;
+  CountryCodes?: string[];
   /** @format int32 */
-  minCapacity?: number;
+  MinCapacity?: number;
   /** @format int32 */
-  maxCapacity?: number;
-  isActive?: boolean;
-  /**
-   * @format int32
-   * @default 1
-   */
-  pageNumber?: number;
-  /**
-   * @format int32
-   * @default 100
-   */
-  pageSize?: number;
-  sortBy?: string;
-  sortDirection?: SortDirection;
+  MaxCapacity?: number;
+  IsActive?: boolean;
+  /** @format int32 */
+  PageNumber?: number;
+  /** @format int32 */
+  PageSize?: number;
+  SortBy?: string;
+  SortDirection?: SortDirection;
 }
 
 export interface GetWarehouseByIdParams {

@@ -17,7 +17,7 @@ import type {
   GetOrderByIdParams,
   GetOrdersParams,
   OrderModel,
-  OrderModelApiPaginationResponse,
+  OrderModelApiPaginationSortResponse,
   OrderRequest,
   UpdateOrderParams,
 } from "../generated/data-contracts";
@@ -46,18 +46,18 @@ export async function getOrders(
   filters: FilterFormValues<GetOrdersQuery>[] = [],
   page = 1,
   pageSize = 100,
-  sortBy: SortableKeys<OrderModelApiPaginationResponse> | null = null,
+  sortBy: SortableKeys<OrderModelApiPaginationSortResponse> | null = null,
   sortDirection?: SortDirection,
-  options: ApiMethodOptions<OrderModelApiPaginationResponse, any, RequestParams> = {},
-): Promise<ApiResult<OrderModelApiPaginationResponse>> {
+  options: ApiMethodOptions<OrderModelApiPaginationSortResponse, any, RequestParams> = {},
+): Promise<ApiResult<OrderModelApiPaginationSortResponse>> {
   const { onSuccess, onError, params } = options;
   const builtQuery = buildQuery<
     GetOrdersQuery,
-    UnwrapArray<ExtractDataIfPaginated<OrderModelApiPaginationResponse>>
+    UnwrapArray<ExtractDataIfPaginated<OrderModelApiPaginationSortResponse>>
   >(filters, page, pageSize, sortBy, sortDirection);
 
-  return handleApiResponse<OrderModelApiPaginationResponse, any>(
-    () => request<OrderModelApiPaginationResponse, any>({
+  return handleApiResponse<OrderModelApiPaginationSortResponse, any>(
+    () => request<OrderModelApiPaginationSortResponse, any>({
       path: `/api/orders`,
       method: "GET",
       query: builtQuery ?? {},

@@ -5,6 +5,525 @@
     "version": "1.0"
   },
   "paths": {
+    "/api/endpoint-coverage/object": {
+      "get": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "GetObject",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/endpoint-coverage/array": {
+      "get": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "GetArray",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EndpointCoverageModel"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EndpointCoverageModel"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EndpointCoverageModel"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/endpoint-coverage/primitive": {
+      "get": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "GetPrimitive",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/endpoint-coverage/dictionary": {
+      "get": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "GetDictionary",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/endpoint-coverage/text": {
+      "get": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "GetText",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/endpoint-coverage/download": {
+      "get": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "DownloadFile",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/endpoint-coverage/{id}/details": {
+      "get": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "GetPathAndQuery",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "includeMetadata",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "culture",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/endpoint-coverage/json": {
+      "post": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "PostJson",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointCoverageRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointCoverageRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointCoverageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/endpoint-coverage/primitive-body": {
+      "post": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "PostPrimitiveBody",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/endpoint-coverage/url-encoded": {
+      "post": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "PostUrlEncoded",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Name": {
+                    "type": "string"
+                  },
+                  "Count": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Enabled": {
+                    "type": "boolean"
+                  }
+                }
+              },
+              "encoding": {
+                "Name": {
+                  "style": "form"
+                },
+                "Count": {
+                  "style": "form"
+                },
+                "Enabled": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/endpoint-coverage/accepted": {
+      "post": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "PostAccepted",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointCoverageRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointCoverageRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointCoverageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/endpoint-coverage/{id}": {
+      "patch": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "PatchJson",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointCoveragePatchRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointCoveragePatchRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EndpointCoveragePatchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/endpoint-coverage/{id}/no-content": {
+      "delete": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "DeleteNoContent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/api/imports/products": {
       "post": {
         "tags": [
@@ -181,7 +700,7 @@
         "operationId": "GetOrders",
         "parameters": [
           {
-            "name": "orderIds",
+            "name": "OrderIds",
             "in": "query",
             "schema": {
               "type": "array",
@@ -192,14 +711,14 @@
             }
           },
           {
-            "name": "orderNumber",
+            "name": "OrderNumber",
             "in": "query",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "productId",
+            "name": "ProductId",
             "in": "query",
             "schema": {
               "type": "string",
@@ -207,7 +726,7 @@
             }
           },
           {
-            "name": "supplierId",
+            "name": "SupplierId",
             "in": "query",
             "schema": {
               "type": "string",
@@ -215,7 +734,7 @@
             }
           },
           {
-            "name": "minQuantity",
+            "name": "MinQuantity",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -223,7 +742,7 @@
             }
           },
           {
-            "name": "maxQuantity",
+            "name": "MaxQuantity",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -231,7 +750,7 @@
             }
           },
           {
-            "name": "minTotalPrice",
+            "name": "MinTotalPrice",
             "in": "query",
             "schema": {
               "type": "number",
@@ -239,7 +758,7 @@
             }
           },
           {
-            "name": "maxTotalPrice",
+            "name": "MaxTotalPrice",
             "in": "query",
             "schema": {
               "type": "number",
@@ -247,7 +766,7 @@
             }
           },
           {
-            "name": "orderedFrom",
+            "name": "OrderedFrom",
             "in": "query",
             "schema": {
               "type": "string",
@@ -255,7 +774,7 @@
             }
           },
           {
-            "name": "orderedTo",
+            "name": "OrderedTo",
             "in": "query",
             "schema": {
               "type": "string",
@@ -263,14 +782,14 @@
             }
           },
           {
-            "name": "status",
+            "name": "Status",
             "in": "query",
             "schema": {
               "$ref": "#/components/schemas/OrderStatus"
             }
           },
           {
-            "name": "statuses",
+            "name": "Statuses",
             "in": "query",
             "schema": {
               "type": "array",
@@ -280,32 +799,30 @@
             }
           },
           {
-            "name": "pageNumber",
+            "name": "PageNumber",
             "in": "query",
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 1
+              "format": "int32"
             }
           },
           {
-            "name": "pageSize",
+            "name": "PageSize",
             "in": "query",
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 100
+              "format": "int32"
             }
           },
           {
-            "name": "sortBy",
+            "name": "SortBy",
             "in": "query",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "sortDirection",
+            "name": "SortDirection",
             "in": "query",
             "schema": {
               "$ref": "#/components/schemas/SortDirection"
@@ -318,17 +835,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrderModelApiPaginationResponse"
+                  "$ref": "#/components/schemas/OrderModelApiPaginationSortResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrderModelApiPaginationResponse"
+                  "$ref": "#/components/schemas/OrderModelApiPaginationSortResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrderModelApiPaginationResponse"
+                  "$ref": "#/components/schemas/OrderModelApiPaginationSortResponse"
                 }
               }
             }
@@ -601,7 +1118,7 @@
         "operationId": "GetProducts",
         "parameters": [
           {
-            "name": "productIds",
+            "name": "ProductIds",
             "in": "query",
             "schema": {
               "type": "array",
@@ -612,14 +1129,14 @@
             }
           },
           {
-            "name": "search",
+            "name": "Search",
             "in": "query",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "skus",
+            "name": "Skus",
             "in": "query",
             "schema": {
               "type": "array",
@@ -629,7 +1146,7 @@
             }
           },
           {
-            "name": "minPrice",
+            "name": "MinPrice",
             "in": "query",
             "schema": {
               "type": "number",
@@ -637,7 +1154,7 @@
             }
           },
           {
-            "name": "maxPrice",
+            "name": "MaxPrice",
             "in": "query",
             "schema": {
               "type": "number",
@@ -645,7 +1162,7 @@
             }
           },
           {
-            "name": "minStock",
+            "name": "MinStock",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -653,7 +1170,7 @@
             }
           },
           {
-            "name": "maxStock",
+            "name": "MaxStock",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -661,14 +1178,14 @@
             }
           },
           {
-            "name": "active",
+            "name": "Active",
             "in": "query",
             "schema": {
               "type": "boolean"
             }
           },
           {
-            "name": "supplierId",
+            "name": "SupplierId",
             "in": "query",
             "schema": {
               "type": "string",
@@ -676,7 +1193,7 @@
             }
           },
           {
-            "name": "createdFrom",
+            "name": "CreatedFrom",
             "in": "query",
             "schema": {
               "type": "string",
@@ -684,7 +1201,7 @@
             }
           },
           {
-            "name": "createdTo",
+            "name": "CreatedTo",
             "in": "query",
             "schema": {
               "type": "string",
@@ -692,32 +1209,30 @@
             }
           },
           {
-            "name": "pageNumber",
+            "name": "PageNumber",
             "in": "query",
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 1
+              "format": "int32"
             }
           },
           {
-            "name": "pageSize",
+            "name": "PageSize",
             "in": "query",
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 100
+              "format": "int32"
             }
           },
           {
-            "name": "sortBy",
+            "name": "SortBy",
             "in": "query",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "sortDirection",
+            "name": "SortDirection",
             "in": "query",
             "schema": {
               "$ref": "#/components/schemas/SortDirection"
@@ -730,17 +1245,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProductTableRowApiPaginationResponse"
+                  "$ref": "#/components/schemas/ProductTableRowApiPaginationSortResponse"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProductTableRowApiPaginationResponse"
+                  "$ref": "#/components/schemas/ProductTableRowApiPaginationSortResponse"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProductTableRowApiPaginationResponse"
+                  "$ref": "#/components/schemas/ProductTableRowApiPaginationSortResponse"
                 }
               }
             }
@@ -788,6 +1303,52 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProductModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/sort-state": {
+      "get": {
+        "tags": [
+          "Product"
+        ],
+        "operationId": "GetProductSortState",
+        "parameters": [
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDirection",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortDirection"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSortResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSortResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiSortResponse"
                 }
               }
             }
@@ -1005,7 +1566,7 @@
         "operationId": "GetSuppliers",
         "parameters": [
           {
-            "name": "supplierIds",
+            "name": "SupplierIds",
             "in": "query",
             "schema": {
               "type": "array",
@@ -1016,14 +1577,14 @@
             }
           },
           {
-            "name": "companyName",
+            "name": "CompanyName",
             "in": "query",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "countryCodes",
+            "name": "CountryCodes",
             "in": "query",
             "schema": {
               "type": "array",
@@ -1033,14 +1594,14 @@
             }
           },
           {
-            "name": "verified",
+            "name": "Verified",
             "in": "query",
             "schema": {
               "type": "boolean"
             }
           },
           {
-            "name": "createdFrom",
+            "name": "CreatedFrom",
             "in": "query",
             "schema": {
               "type": "string",
@@ -1048,7 +1609,7 @@
             }
           },
           {
-            "name": "createdTo",
+            "name": "CreatedTo",
             "in": "query",
             "schema": {
               "type": "string",
@@ -1056,32 +1617,30 @@
             }
           },
           {
-            "name": "pageNumber",
+            "name": "PageNumber",
             "in": "query",
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 1
+              "format": "int32"
             }
           },
           {
-            "name": "pageSize",
+            "name": "PageSize",
             "in": "query",
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 100
+              "format": "int32"
             }
           },
           {
-            "name": "sortBy",
+            "name": "SortBy",
             "in": "query",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "sortDirection",
+            "name": "SortDirection",
             "in": "query",
             "schema": {
               "$ref": "#/components/schemas/SortDirection"
@@ -1329,14 +1888,14 @@
         "operationId": "GetWarehouses",
         "parameters": [
           {
-            "name": "search",
+            "name": "Search",
             "in": "query",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "countryCodes",
+            "name": "CountryCodes",
             "in": "query",
             "schema": {
               "type": "array",
@@ -1346,7 +1905,7 @@
             }
           },
           {
-            "name": "minCapacity",
+            "name": "MinCapacity",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -1354,7 +1913,7 @@
             }
           },
           {
-            "name": "maxCapacity",
+            "name": "MaxCapacity",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -1362,39 +1921,37 @@
             }
           },
           {
-            "name": "isActive",
+            "name": "IsActive",
             "in": "query",
             "schema": {
               "type": "boolean"
             }
           },
           {
-            "name": "pageNumber",
+            "name": "PageNumber",
             "in": "query",
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 1
+              "format": "int32"
             }
           },
           {
-            "name": "pageSize",
+            "name": "PageSize",
             "in": "query",
             "schema": {
               "type": "integer",
-              "format": "int32",
-              "default": 100
+              "format": "int32"
             }
           },
           {
-            "name": "sortBy",
+            "name": "SortBy",
             "in": "query",
             "schema": {
               "type": "string"
             }
           },
           {
-            "name": "sortDirection",
+            "name": "SortDirection",
             "in": "query",
             "schema": {
               "$ref": "#/components/schemas/SortDirection"
@@ -1596,6 +2153,122 @@
   },
   "components": {
     "schemas": {
+      "ApiSortResponse": {
+        "required": [
+          "sortDirection"
+        ],
+        "type": "object",
+        "properties": {
+          "sortBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortDirection": {
+            "$ref": "#/components/schemas/SortDirection"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EndpointCoverageModel": {
+        "required": [
+          "count",
+          "createdAt",
+          "enabled",
+          "id",
+          "metadata",
+          "name",
+          "tags"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "optionalDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "EndpointCoveragePatchRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "enabled": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EndpointCoverageRequest": {
+        "required": [
+          "count",
+          "enabled",
+          "name",
+          "tags"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "optionalDescription": {
+            "type": "string",
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
       "OrderModel": {
         "required": [
           "id",
@@ -1614,8 +2287,7 @@
             "format": "uuid"
           },
           "orderNumber": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "productId": {
             "type": "string",
@@ -1643,12 +2315,15 @@
         },
         "additionalProperties": false
       },
-      "OrderModelApiPaginationResponse": {
+      "OrderModelApiPaginationSortResponse": {
         "required": [
           "data",
           "pageNumber",
           "pageSize",
-          "totalCount"
+          "sortDirection",
+          "totalCount",
+          "totalPages",
+          "totalRecords"
         ],
         "type": "object",
         "properties": {
@@ -1656,8 +2331,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/OrderModel"
-            },
-            "nullable": true
+            }
           },
           "pageNumber": {
             "type": "integer",
@@ -1670,6 +2344,21 @@
           "totalCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRecords": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sortBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortDirection": {
+            "$ref": "#/components/schemas/SortDirection"
           }
         },
         "additionalProperties": false
@@ -1687,8 +2376,7 @@
         "type": "object",
         "properties": {
           "orderNumber": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "productId": {
             "type": "string",
@@ -1744,12 +2432,10 @@
             "format": "uuid"
           },
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "sku": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "price": {
             "type": "number",
@@ -1785,12 +2471,10 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "sku": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "price": {
             "type": "number",
@@ -1826,12 +2510,10 @@
             "format": "uuid"
           },
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "sku": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "price": {
             "type": "number",
@@ -1847,12 +2529,15 @@
         },
         "additionalProperties": false
       },
-      "ProductTableRowApiPaginationResponse": {
+      "ProductTableRowApiPaginationSortResponse": {
         "required": [
           "data",
           "pageNumber",
           "pageSize",
-          "totalCount"
+          "sortDirection",
+          "totalCount",
+          "totalPages",
+          "totalRecords"
         ],
         "type": "object",
         "properties": {
@@ -1860,8 +2545,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProductTableRow"
-            },
-            "nullable": true
+            }
           },
           "pageNumber": {
             "type": "integer",
@@ -1874,6 +2558,21 @@
           "totalCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRecords": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "sortBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortDirection": {
+            "$ref": "#/components/schemas/SortDirection"
           }
         },
         "additionalProperties": false
@@ -1881,8 +2580,9 @@
       "SortDirection": {
         "enum": [
           "Default",
-          "Ascending",
-          "Descending"
+          "Neutral",
+          "Asc",
+          "Desc"
         ],
         "type": "string"
       },
@@ -1902,16 +2602,13 @@
             "format": "uuid"
           },
           "companyName": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "contactEmail": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "countryCode": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "verified": {
             "type": "boolean"
@@ -1928,7 +2625,9 @@
           "data",
           "pageNumber",
           "pageSize",
-          "totalCount"
+          "totalCount",
+          "totalPages",
+          "totalRecords"
         ],
         "type": "object",
         "properties": {
@@ -1936,8 +2635,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/SupplierModel"
-            },
-            "nullable": true
+            }
           },
           "pageNumber": {
             "type": "integer",
@@ -1948,6 +2646,14 @@
             "format": "int32"
           },
           "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRecords": {
             "type": "integer",
             "format": "int32"
           }
@@ -1964,16 +2670,13 @@
         "type": "object",
         "properties": {
           "companyName": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "contactEmail": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "countryCode": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "verified": {
             "type": "boolean"
@@ -1997,12 +2700,10 @@
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "nullable": true
+            }
           },
           "message": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         },
         "additionalProperties": false
@@ -2024,20 +2725,16 @@
             "format": "uuid"
           },
           "code": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "city": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "countryCode": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "capacity": {
             "type": "integer",
@@ -2054,7 +2751,9 @@
           "data",
           "pageNumber",
           "pageSize",
-          "totalCount"
+          "totalCount",
+          "totalPages",
+          "totalRecords"
         ],
         "type": "object",
         "properties": {
@@ -2062,8 +2761,7 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/WarehouseModel"
-            },
-            "nullable": true
+            }
           },
           "pageNumber": {
             "type": "integer",
@@ -2074,6 +2772,14 @@
             "format": "int32"
           },
           "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRecords": {
             "type": "integer",
             "format": "int32"
           }
@@ -2092,20 +2798,16 @@
         "type": "object",
         "properties": {
           "code": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "name": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "city": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "countryCode": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "capacity": {
             "type": "integer",
@@ -2120,6 +2822,9 @@
     }
   },
   "tags": [
+    {
+      "name": "EndpointCoverage"
+    },
     {
       "name": "Import"
     },
