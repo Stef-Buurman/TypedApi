@@ -1,7 +1,8 @@
 {
   "name": "typedapi-client-helpers",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Reusable typed OpenAPI client helpers.",
+  "license": "MIT",
   "keywords": [
     "typescript",
     "openapi",
@@ -41,7 +42,8 @@
   "files": [
     "dist",
     "scripts",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "bin": {
     "typedapi-generate": "./scripts/generate-api-minimal.mjs"
