@@ -1,8 +1,8 @@
-using System;
+using System.Reflection;
+using System.Runtime.Serialization;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 #if NET10_0_OR_GREATER
-using System.Collections.Generic;
 using System.Text.Json.Nodes;
 using Microsoft.OpenApi;
 #else
@@ -10,61 +10,59 @@ using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 #endif
 
-namespace TypedApi.Swagger.Filters
+namespace TypedApi.Swagger.Filters;
+
+/// <summary>Describes enum schemas using the same string values used at runtime.</summary>
+public sealed class StringEnumSchemaFilter : ISchemaFilter
 {
-    public sealed class StringEnumSchemaFilter : ISchemaFilter
-    {
 #if NET10_0_OR_GREATER
-        public void Apply(
-            IOpenApiSchema schema,
-            SchemaFilterContext context)
-        {
-            var enumType =
-                Nullable.GetUnderlyingType(context.Type)
-                ?? context.Type;
+    public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
+    {
+        if (schema is not OpenApiSchema concreteSchema) return;
+        ApplyCore(concreteSchema, context);
+    }
 
-            if (!enumType.IsEnum)
-            {
-                return;
-            }
-
-            if (schema is not OpenApiSchema openApiSchema)
-            {
-                return;
-            }
-
-            openApiSchema.Type = JsonSchemaType.String;
-            openApiSchema.Format = null;
-            openApiSchema.Enum = new List<JsonNode>();
-
-            foreach (var name in Enum.GetNames(enumType))
-            {
-                openApiSchema.Enum.Add(name);
-            }
-        }
+    private static void ApplyCore(OpenApiSchema schema, SchemaFilterContext context)
 #else
-        public void Apply(
-            OpenApiSchema schema,
-            SchemaFilterContext context)
-        {
-            var enumType =
-                Nullable.GetUnderlyingType(context.Type)
-                ?? context.Type;
-
-            if (!enumType.IsEnum)
-            {
-                return;
-            }
-
-            schema.Type = "string";
-            schema.Format = null;
-            schema.Enum.Clear();
-
-            foreach (var name in Enum.GetNames(enumType))
-            {
-                schema.Enum.Add(new OpenApiString(name));
-            }
-        }
+    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
 #endif
+    {
+        var enumType = Nullable.GetUnderlyingType(context.Type) ?? context.Type;
+        if (!enumType.IsEnum) return;
+
+#if NET10_0_OR_GREATER
+        schema.Type = JsonSchemaType.String;
+        schema.Format = null;
+        schema.Enum = enumType
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Select(field => (JsonNode?)GetSerializedName(field))
+            .ToList();
+        schema.Extensions ??= new Dictionary<string, IOpenApiExtension>();
+        schema.Extensions["x-enumFlags"] = new JsonNodeExtension(JsonValue.Create(enumType.IsDefined(typeof(FlagsAttribute), false))!);
+#else
+        schema.Type = "string";
+        schema.Format = null;
+        schema.Enum.Clear();
+        foreach (var field in enumType.GetFields(BindingFlags.Public | BindingFlags.Static))
+        {
+            schema.Enum.Add(new OpenApiString(GetSerializedName(field)));
+        }
+        schema.Extensions["x-enumFlags"] = new OpenApiBoolean(enumType.IsDefined(typeof(FlagsAttribute), false));
+#endif
+    }
+
+    private static string GetSerializedName(FieldInfo field)
+    {
+        var jsonNameAttribute = field.CustomAttributes.FirstOrDefault(attribute =>
+            attribute.AttributeType.FullName ==
+            "System.Text.Json.Serialization.JsonStringEnumMemberNameAttribute");
+        if (jsonNameAttribute?.ConstructorArguments.FirstOrDefault().Value is string jsonName
+            && !string.IsNullOrWhiteSpace(jsonName))
+        {
+            return jsonName;
+        }
+
+        var enumMemberName = field.GetCustomAttribute<EnumMemberAttribute>()?.Value;
+        return string.IsNullOrWhiteSpace(enumMemberName) ? field.Name : enumMemberName;
     }
 }
