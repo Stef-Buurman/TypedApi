@@ -1,0 +1,13 @@
+{
+  "contractVersion": 1,
+  "generator": "typedapi-client-helpers",
+  "generatorVersion": "0.3.0",
+  "schemaSha256": "12c13becfeca2fbd91950a912fe771b985f43740cef6e467696c40966a94084d",
+  "producer": {
+    "contractVersion": 1,
+    "producer": "TypedApi.Swagger",
+    "producerVersion": "0.3.0"
+  },
+  "operationCount": 42,
+  "methodNameStyle": "action"
+}

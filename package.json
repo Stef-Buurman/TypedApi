@@ -5,7 +5,7 @@
   "scripts": {
     "test-project-run": "dotnet run --project ./TypedApiTestProject/TypedApiTestProject.Server/TypedApiTestProject.Server.csproj",
     "test-project-pack-local-swagger": "dotnet pack ./dotnet/TypedApi.Swagger/TypedApi.Swagger.csproj -c Release",
-    "test-project-use-local-swagger": "dotnet nuget locals all --clear && dotnet package remove TypedApi.Swagger --project ./TypedApiTestProject/TypedApiTestProject.Server/TypedApiTestProject.Server.csproj || echo TypedApi.Swagger was not installed && dotnet package add TypedApi.Swagger --version 0.2.2 --project ./TypedApiTestProject/TypedApiTestProject.Server/TypedApiTestProject.Server.csproj --no-restore && dotnet restore ./TypedApiTestProject/TypedApiTestProject.Server/TypedApiTestProject.Server.csproj --configfile ./NuGet.Local.config",
+    "test-project-use-local-swagger": "dotnet nuget locals all --clear && dotnet package remove TypedApi.Swagger --project ./TypedApiTestProject/TypedApiTestProject.Server/TypedApiTestProject.Server.csproj || echo TypedApi.Swagger was not installed && dotnet package add TypedApi.Swagger --version 0.3.0 --project ./TypedApiTestProject/TypedApiTestProject.Server/TypedApiTestProject.Server.csproj --no-restore && dotnet restore ./TypedApiTestProject/TypedApiTestProject.Server/TypedApiTestProject.Server.csproj --configfile ./NuGet.Local.config",
     "test-project-reset-local-swagger": "npm run test-project-pack-local-swagger && npm run test-project-use-local-swagger",
     "nuget-swagger-clean": "powershell -NoProfile -Command \"Remove-Item -Force .\\dotnet\\TypedApi.Swagger\\bin\\Release\\*.nupkg -ErrorAction SilentlyContinue; Remove-Item -Force .\\dotnet\\TypedApi.Swagger\\bin\\Release\\*.snupkg -ErrorAction SilentlyContinue\"",
     "nuget-swagger-build": "dotnet build ./dotnet/TypedApi.Swagger/TypedApi.Swagger.csproj -c Release",
@@ -23,7 +23,7 @@
     "test-client-build-package": "cd ./npm/typed-api-client && npm run build",
     "test-client-pack-package": "cd ./npm/typed-api-client && npm pack",
     "test-client-remove-local-package": "cd ./TypedApiTestProject/typedapitestproject.client && npm uninstall typedapi-client-helpers",
-    "test-client-install-local-package": "cd ./TypedApiTestProject/typedapitestproject.client && npm install ../../npm/typed-api-client/typedapi-client-helpers-0.2.0.tgz",
+    "test-client-install-local-package": "cd ./TypedApiTestProject/typedapitestproject.client && npm install ../../npm/typed-api-client/typedapi-client-helpers-0.3.0.tgz",
     "test-client-update-local-package": "npm run test-client-remove-local-package && npm run test-client-build-package && npm run test-client-pack-package && npm run test-client-install-local-package",
     "test-client-generate-api": "cd ./TypedApiTestProject/typedapitestproject.client && npm run generate:api",
     "test-client-build": "cd ./TypedApiTestProject/typedapitestproject.client && npm run build",
