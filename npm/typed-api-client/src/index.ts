@@ -15,3 +15,4 @@ export * from "./utils/extractArgsCallbacksAndParams";
 export * from "./utils/handleApiResponse";
 export * from "./utils/SortTypeFromSortDirection";
 export * from "./utils/toFormData";
+export * from "./utils/wireMapping";

@@ -1,220 +1,213 @@
 # typedapi-client-helpers
 
-`typedapi-client-helpers` generates a typed TypeScript fetch client from an OpenAPI/Swagger document and adds reusable helper types and functions for API results, callbacks, filtering, sorting, request parameters, and multipart uploads.
+A small Fetch runtime and OpenAPI 3 TypeScript generator designed to work with `TypedApi.Swagger` on ASP.NET Core.
 
-The package is intended for frontend projects that want a generated API client while still keeping generated files inside their own source tree.
+## Version 0.3 highlights
 
-## Installation
+- Lowercases only the first character of generated TypeScript members while preserving exact OpenAPI names on the wire.
+- Sanitizes operation IDs and rejects duplicates before writing output.
+- Can name frontend functions from either the unique OpenAPI operation ID or the original ASP.NET controller action name.
+- Supports path, query, header, cookie, and request-body inputs in the same operation.
+- Resolves local OpenAPI references for schemas, parameters, request bodies, and responses.
+- Supports `allOf` composition with local properties.
+- Generates typed unions for documented non-success responses.
+- Produces `index.ts` and `typedapi.manifest.json`.
+- Writes generated output transactionally, with a Windows-safe in-place fallback when directory renames are blocked by editors or file watchers.
+- Adds `--check`, `--strict`, `--offline`, and `--verbose` CLI modes.
+- Improves cancellation, timeouts, header merging, SSR safety, and malformed-response handling.
+
+## Install
 
 ```bash
-npm install typedapi-client-helpers
+npm install typedapi-client-helpers@0.3.0
 ```
 
-## Basic usage
+The generator expects an OpenAPI 3.x document. Swagger 2.0 documents are rejected with a clear error.
 
-Add a generator script to your project:
+## Configure generation
+
+Add settings to the consuming application's `package.json`:
 
 ```json
 {
   "scripts": {
-    "generate:api": "typedapi-generate"
+    "generate:api": "typedapi-generate",
+    "check:api": "typedapi-generate --check"
+  },
+  "config": {
+    "swaggerUrl": "https://localhost:7000/swagger/v1/swagger.json",
+    "apiOutput": "src/api",
+    "typedApiSwaggerBackupFile": "swagger/swagger.backup.json",
+    "typedApiDownloadTimeoutMs": 15000,
+    "typedApiCleanOutput": true,
+    "typedApiGenerateMissingOperationIds": false,
+    "typedApiMethodNameStyle": "operationId"
   }
 }
 ```
 
-Run the generator:
+Run:
 
 ```bash
 npm run generate:api
 ```
 
-By default, the generator first looks for a local `swagger/swagger.json` file in the project where the command is run. If that file is not available, it tries `https://localhost:7000/swagger/v1/swagger.json` and stores a validated backup copy inside this package for later runs.
+Generated output contains:
 
-You can also run the command directly:
-
-```bash
-npx typedapi-generate
+```text
+src/api/
+├── generated/
+│   ├── data-contracts.ts
+│   └── http-client.ts
+├── methods/
+│   └── Products.api.ts
+├── index.ts
+└── typedapi.manifest.json
 ```
 
-## Configuration
+The Swagger backup belongs to the consuming project, not this npm package.
 
-Configuration can be supplied in the `config` section of your `package.json`, with environment variables, or with npm command-line arguments.
+## Frontend method names
 
-Configuration is resolved in this order:
-
-1. environment variables;
-2. npm command-line config values;
-3. the consuming project's `package.json` config;
-4. this package's default config values;
-5. built-in fallbacks.
-
-### Package configuration
+Choose how generated function names are created with `typedApiMethodNameStyle`:
 
 ```json
 {
   "config": {
-    "swaggerUrl": "https://localhost:7000/swagger/v1/swagger.json",
-    "swaggerFile": "swagger/openapi.json",
-    "typedApiSwaggerBackupFile": "swagger/swagger.backup.json",
-    "apiOutput": "src/api",
-    "typedApiCleanOutput": true,
-    "typedApiModuleNameFirstTag": true,
-    "typedApiUseTypeOnlyImports": true,
-    "typedApiDefaultFunctionsPath": "src/defaultApiFunctions",
-    "typedApiDefaultSuccessHandler": "handleGoodResult",
-    "typedApiDefaultErrorHandler": "handleErrors",
-    "typedApiDefaultResponseAsSuccess": false,
-    "typedApiGenerateUnionEnums": false,
-    "typedApiEnumNamesAsValues": false,
-    "typedApiBaseUrl": "https://localhost:7000"
+    "typedApiMethodNameStyle": "operationId"
   }
 }
 ```
 
-`swaggerFile` takes precedence over `swaggerUrl` when both are configured.
+- `"operationId"` is the default and keeps the current unique names derived from the full OpenAPI operation ID.
+- `"action"` uses the original ASP.NET controller action name. For example, an action named `UpdateWarehouse` generates `updateWarehouse(...)` even when its unique operation ID also contains the controller, HTTP verb, and route.
 
-### OpenAPI input and backup behavior
+```json
+{
+  "config": {
+    "typedApiMethodNameStyle": "action"
+  }
+}
+```
 
-The generator resolves the OpenAPI/Swagger input as follows:
+Action-name mode requires the matching `TypedApi.Swagger` 0.3.0 package, which emits `x-typedapi-operation.actionName`. OpenAPI operation IDs remain unique in both modes. If two controllers contain actions that normalize to the same frontend function name, generation stops with a clear collision error; use `"operationId"` or rename one action.
 
-1. If `swaggerFile` is configured and the file exists, that file is used and copied to the backup file.
-2. If `swaggerFile` is configured but missing, the generator uses the backup file when it exists. If no backup exists, generation fails.
-3. If `swaggerUrl` is configured, the generator downloads it, validates that the response is JSON, writes it to the backup file, and generates from that backup copy.
-4. If `swaggerUrl` is configured but unavailable, the generator uses the backup file when it exists. If no backup exists, generation fails.
-5. If neither `swaggerFile` nor `swaggerUrl` is configured, the generator tries `swagger/swagger.json` in the current project.
-6. If no local default file exists, the generator tries `https://localhost:7000/swagger/v1/swagger.json` and falls back to the backup file if the URL is unavailable.
+Operation-specific types follow the same naming mode. For example, action mode generates `GetSuppliersQueryParams` instead of a long operation-ID-based type. Generated JSDoc `@name` values also use the action name. Paginated methods pass the result of `buildQuery(...)` directly as the request query object.
 
-The backup prevents a temporary unavailable Swagger endpoint from breaking generation when a valid backup was created earlier.
 
-The backup file is always package-owned: `swagger/swagger.backup.json` inside `typedapi-client-helpers`. Consumers do not need to add or configure a backup file in their own project.
-
-### Configuration options
-
-| Option                             | Default                                          | Description                                                                                                    |
-| ---------------------------------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
-| `swaggerUrl`                       | `https://localhost:7000/swagger/v1/swagger.json` | URL of the OpenAPI/Swagger document. Used when no configured or default local file is available.               |
-| `swaggerFile`                      | none                                             | Local path to an OpenAPI/Swagger document. When set, this is used before `swaggerUrl`.                         |
-| `apiOutput`                        | `src/api`                                        | Directory where the generated API files are written.                                                           |
-| `typedApiCleanOutput`              | `true`                                           | Cleans generated API output before writing the new files.                                                      |
-| `typedApiModuleNameFirstTag`       | `true`                                           | Groups operations by their first OpenAPI tag, creating one controller file per tag.                            |
-| `typedApiUseTypeOnlyImports`       | `true`                                           | Generates `import type` statements for imports that are only used as types. Set to `false` for normal imports. |
-| `typedApiDefaultFunctionsPath`     | `src/defaultApiFunctions`                        | Path to the project file that exports the shared default API success and error handlers. Created when missing. |
-| `typedApiDefaultSuccessHandler`    | `handleGoodResult`                               | Export name of the default success handler imported into generated method files.                               |
-| `typedApiDefaultErrorHandler`      | `handleErrors`                                   | Export name of the default error handler imported into generated method files.                                 |
-| `typedApiDefaultResponseAsSuccess` | `false`                                          | Uses the OpenAPI `default` response as a success response when no 2xx response is available.                   |
-| `typedApiGenerateUnionEnums`       | `false`                                          | Generates enum schemas as string-literal union types instead of `as const` enum-like objects.               |
-| `typedApiEnumNamesAsValues`        | `false`                                          | When OpenAPI uses `x-enumNames`, uses those names as enum/union values instead of only as object keys.   |
-| `typedApiBaseUrl`                  | first OpenAPI server URL                         | Overrides the generated HTTP client's default `baseUrl`.                                                       |
-
-### Environment variables
-
-| Environment variable                    | Description                                                  |
-| --------------------------------------- | ------------------------------------------------------------ |
-| `SWAGGER_URL`                           | URL of the OpenAPI/Swagger document.                         |
-| `SWAGGER_FILE`                          | Local path to an OpenAPI/Swagger document.                   |
-| `API_OUTPUT`                            | Directory where generated API files are written.             |
-| `TYPED_API_CLEAN_OUTPUT`                | Cleans generated API output when set to `true`.              |
-| `TYPED_API_MODULE_NAME_FIRST_TAG`       | Groups operations by first OpenAPI tag when set to `true`.   |
-| `TYPED_API_USE_TYPE_ONLY_IMPORTS`       | Enables type-only imports when set to `true`.                |
-| `TYPED_API_DEFAULT_FUNCTIONS_PATH`      | Path to the shared default handler file.                     |
-| `TYPED_API_DEFAULT_SUCCESS_HANDLER`     | Export name of the default success handler.                  |
-| `TYPED_API_DEFAULT_ERROR_HANDLER`       | Export name of the default error handler.                    |
-| `TYPED_API_DEFAULT_RESPONSE_AS_SUCCESS` | Allows the OpenAPI `default` response to be used as success. |
-| `TYPED_API_GENERATE_UNION_ENUMS`        | Generates enum schemas as union types when set to `true`.    |
-| `TYPED_API_ENUM_NAMES_AS_VALUES`        | Generates enum-like literal values when set to `true`.       |
-| `TYPED_API_BASE_URL`                    | Overrides the generated HTTP client's default base URL.      |
-
-Example:
+## CI consistency check
 
 ```bash
-SWAGGER_URL=https://localhost:7000/swagger/v1/swagger.json npm run generate:api
+typedapi-generate --check
 ```
 
-### Command-line npm config
+This generates in memory and exits with an error when committed generated files are missing, stale, or different.
+
+Other modes:
 
 ```bash
-npm run generate:api --swagger-url=https://localhost:7000/swagger/v1/swagger.json
-npm run generate:api --swagger-file=swagger/openapi.json
-npm run generate:api --typed-api-swagger-backup-file=swagger/swagger.backup.json
-npm run generate:api --api-output=src/api
-npm run generate:api --typed-api-use-type-only-imports=true
-npm run generate:api --typed-api-module-name-first-tag=true
-npm run generate:api --typed-api-generate-union-enums=true
+typedapi-generate --strict   # fail instead of using a backup after a download error
+typedapi-generate --offline  # intentionally generate from the backup
+typedapi-generate --verbose  # print additional diagnostics
 ```
 
-## Generated structure
 
-Running the generator creates a structure similar to this:
+## Generated property names
 
-```text
-src/
-└── api/
-    ├── generated/
-    │   ├── data-contracts.ts
-    │   └── http-client.ts
-    ├── methods/
-    │   ├── Product.api.ts
-    │   └── Supplier.api.ts
-    └── index.ts
-```
-
-| Folder or file                | Description                                                                                                                                                                            |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `generated/data-contracts.ts` | TypeScript models, request parameter types, const enum-like objects, and multipart payload interfaces generated from the OpenAPI schema.                                               |
-| `generated/http-client.ts`    | Function-based fetch client with request params, security worker support, custom fetch support, cancellation tokens, and content formatting. It does not generate a class.             |
-| `methods/*.api.ts`            | One generated file per controller/tag. These files export plain functions such as `getProducts`, `createProduct`, and `uploadProductFiles`; there are no generated controller classes. |
-| `index.ts`                    | Barrel file that exports contracts, HTTP client utilities, and callable methods.                                                                                                       |
-
-The generated `generated/` folder, `methods/` folder, old `controllers/` folder, and `index.ts` are cleaned each time the generator runs.
-
-The `generated/` and `methods/` folders are cleaned and recreated each time the generator runs.
-
-## Calling generated methods
-
-Generated method files export plain functions that can be called directly. The wrapper return type stays `ApiResult<T>`, so existing UI code can keep using `result.ok`, `result.status`, `result.response`, and `result.error`.
+Generated interface and parameter members lowercase **only the first character**:
 
 ```ts
-import {
-  getProducts,
-  getProductById,
-  updateProduct,
-} from "./api/methods/Product.api";
+Files -> files
+URLValue -> uRLValue
+ProductID -> productID
+snake_case -> snake_case
+```
 
-const products = await getProducts([], 1, 25);
-const product = await getProductById({ id: "..." });
-await updateProduct(
-  { id: "..." },
-  { name: "Updated", sku: "SKU-1", price: 10, stock: 5, active: true },
+The rest of each name is left unchanged. Generated wire metadata converts these local names back to the exact OpenAPI names for JSON, multipart forms, query parameters, headers, cookies, and path parameters. Responses and documented error bodies are converted in the opposite direction.
+
+## Generated method shape
+
+Generated methods keep parameters and request bodies as separate positional groups. Non-body parameters come first, the body comes second, and request options remain last:
+
+```ts
+await updateWarehouse(
+  { id: requireId(context.warehouseId, "Warehouse ID") },
+  warehouse,
 );
 ```
 
-The generated method signatures stay close to the existing callable wrappers:
+The generated signature is:
 
 ```ts
-getProducts(filters?, page?, pageSize?, sortBy?, sortDirection?, options?);
-getProductById({ id }, options?);
-updateProduct({ id }, data, options?);
-uploadProductFile(data, options?);
+export async function updateWarehouse(
+  pathParams: UpdateWarehouseParams,
+  data: WarehouseRequest,
+  options: ApiMethodOptions<WarehouseModel, unknown, RequestParams> = {},
+): Promise<ApiResult<WarehouseModel, unknown>>;
 ```
 
-`options.params` is the generated `RequestParams` type and is forwarded directly to the fetch client.
-
-### Default success and error handlers
-
-Generated method files import default handlers from `typedApiDefaultFunctionsPath` when that file exports the configured handler names. With the package defaults, the generator uses `src/defaultApiFunctions.ts` and creates it automatically when it is missing.
+Path operations without a body use only the params object:
 
 ```ts
-export function handleGoodResult<T>(
-  response: ApiSuccessResult<T>,
-): void | Promise<void> {
-  // default success behavior
-}
+await deleteSupplier({ id: requireId(context.supplierId, "Supplier ID") });
+```
 
-export function handleErrors<T>(
-  error: ApiErrorResult<T>,
-): void | Promise<void> {
-  // default error behavior
+Body-only operations accept their payload directly:
+
+```ts
+await uploadProductFiles({ files: selectedFiles });
+```
+
+Query-only operations use a `query` argument. Operations involving headers or cookies without path parameters use `requestParams`. All generated parameter interfaces are named `OperationNameParams`; nested `path`, `query`, `headers`, `cookies`, or `body` wrappers are not generated.
+
+Request options are always last:
+
+```ts
+await updateWarehouse(pathParams, data, {
+  params: {
+    signal: abortController.signal,
+    timeoutMs: 10_000,
+    headers: new Headers({ Authorization: "Bearer ..." }),
+  },
+  onSuccess: result => console.log(result.response),
+  onError: result => console.error(result.error),
+});
+```
+
+## Typed errors
+
+When the OpenAPI document describes error response bodies, generated methods expose their union:
+
+```ts
+const result = await createProduct(body);
+
+if (!result.ok) {
+  // Documented backend error type or a TypedApi client error:
+  // network, aborted, or parse.
+  console.error(result.error);
 }
 ```
 
-You can override the path or export names from the consuming project's `package.json` without changing generated method signatures.
+Malformed JSON is reported as a structured parse error instead of being cast to the expected response type. Consumer callback exceptions are allowed to propagate and are not disguised as API failures.
+
+## Runtime configuration
+
+```ts
+import { configureApiClient, setSecurityData } from "typedapi-client-helpers";
+
+configureApiClient({
+  baseUrl: "https://api.example.com",
+  timeoutMs: 15_000,
+  securityWorker: token => token
+    ? { headers: { Authorization: `Bearer ${token}` } }
+    : undefined
+});
+
+setSecurityData("access-token");
+```
+
+The runtime also exports `createApiClient`, `request`, `abortRequest`, `mergeHeaders`, `toRequestHeaders`, `toCookieHeader`, `handleApiResponse`, `buildQuery`, `toFormData`, `toWireValue`, and `fromWireValue`.
+
+## Backend pairing
+
+Use `TypedApi.Swagger` 0.3 or newer on the backend. It emits `x-typedapi.contractVersion = 1`, unique operation IDs, serializer-aware property names, and explicit pagination metadata. The generator validates the contract version before replacing generated files.

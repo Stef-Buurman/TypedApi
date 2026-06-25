@@ -154,7 +154,7 @@ function createMethod(operationInfo, operationTypes) {
    * ${description.replace(/\n/g, "\n   * ")}
    *
    * @tags ${tags}
-   * @name ${operationTypes.operationId}
+   * @name ${operationTypes.methodNameSource ?? operationTypes.operationId}
    * @request ${operationInfo.method}:${operationInfo.routePath}
    */
   ${operationTypes.methodName} = (${methodArguments(operationTypes)}): Promise<HttpResponse<${operationTypes.responseType}, any>> =>

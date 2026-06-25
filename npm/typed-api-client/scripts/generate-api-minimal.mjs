@@ -19,6 +19,25 @@ const consumerPackageJson = fs.existsSync(consumerPackageJsonPath)
   : {};
 
 const cwd = process.cwd();
+const cliArguments = new Set(process.argv.slice(2));
+
+if (cliArguments.has("--help") || cliArguments.has("-h")) {
+  console.log(`typedapi-generate [options]
+
+Options:
+  --check       Fail when generated files differ
+  --strict      Do not fall back to a stale Swagger backup
+  --offline     Generate only from the configured Swagger backup
+  --verbose     Print additional diagnostics
+  --help        Show this help`);
+  process.exit(0);
+}
+
+const checkMode = cliArguments.has("--check");
+const strictMode = cliArguments.has("--strict");
+const offlineMode = cliArguments.has("--offline");
+const verboseMode = cliArguments.has("--verbose");
+
 const config = {
   ...(runtimePackageJson.config ?? {}),
   ...(consumerPackageJson.config ?? {}),
@@ -54,6 +73,13 @@ const swaggerBackupPath = path.resolve(
     config.typedApiSwaggerBackupFile,
     "swagger/swagger.backup.json",
   ),
+);
+
+const swaggerDownloadTimeoutMs = getNumberSetting(
+  process.env.TYPED_API_DOWNLOAD_TIMEOUT_MS,
+  process.env.npm_config_typed_api_download_timeout_ms,
+  config.typedApiDownloadTimeoutMs,
+  15000,
 );
 
 const apiRoot = path.resolve(
@@ -147,6 +173,19 @@ const generatorOptions = {
     config.typedApiUseFilterFormValues,
     true,
   ),
+  generateMissingOperationIds: getBooleanSetting(
+    process.env.TYPED_API_GENERATE_MISSING_OPERATION_IDS,
+    process.env.npm_config_typed_api_generate_missing_operation_ids,
+    config.typedApiGenerateMissingOperationIds,
+    false,
+  ),
+  methodNameStyle: getMethodNameStyle(
+    process.env.TYPED_API_METHOD_NAME_STYLE,
+    process.env.npm_config_typed_api_method_name_style,
+    config.typedApiMethodNameStyle,
+    "operationId",
+  ),
+  check: checkMode,
   baseUrl: getStringSetting(
     process.env.TYPED_API_BASE_URL,
     process.env.npm_config_typed_api_base_url,
@@ -165,6 +204,18 @@ function getStringSetting(...values) {
   return undefined;
 }
 
+function getMethodNameStyle(...values) {
+  const value = getStringSetting(...values) ?? "operationId";
+  const normalized = value.replace(/[\s_-]/g, "").toLowerCase();
+
+  if (["operationid", "operation"].includes(normalized)) return "operationId";
+  if (["action", "actionname", "controllermethod"].includes(normalized)) return "action";
+
+  throw new Error(
+    `Invalid typedApiMethodNameStyle ${JSON.stringify(value)}. Use "operationId" or "action".`,
+  );
+}
+
 function getBooleanSetting(...values) {
   const fallback = values[values.length - 1];
 
@@ -178,6 +229,14 @@ function getBooleanSetting(...values) {
   }
 
   return Boolean(fallback);
+}
+
+function getNumberSetting(...values) {
+  for (const value of values) {
+    const number = typeof value === "number" ? value : Number(value);
+    if (Number.isFinite(number) && number > 0) return number;
+  }
+  return undefined;
 }
 
 function fileExists(filePath) {
@@ -194,7 +253,9 @@ function displayPath(filePath) {
 
 function writeSwaggerBackup(content, sourceLabel) {
   fs.mkdirSync(path.dirname(swaggerBackupPath), { recursive: true });
-  fs.writeFileSync(swaggerBackupPath, content);
+  const temporaryPath = `${swaggerBackupPath}.tmp-${process.pid}-${Date.now()}`;
+  fs.writeFileSync(temporaryPath, content);
+  fs.renameSync(temporaryPath, swaggerBackupPath);
 
   console.log(
     `Updated Swagger backup from ${sourceLabel}: ${displayPath(swaggerBackupPath)}`,
@@ -208,7 +269,17 @@ function copySwaggerBackupFromFile(filePath) {
 }
 
 async function downloadSwaggerBackupFromUrl(url) {
-  const response = await fetch(url);
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(new Error(`Swagger download timed out after ${swaggerDownloadTimeoutMs}ms.`)),
+    swaggerDownloadTimeoutMs,
+  );
+  let response;
+  try {
+    response = await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     throw new Error(
@@ -237,6 +308,13 @@ function useBackupSwaggerInput(reason) {
 }
 
 async function resolveSwaggerInput() {
+  if (offlineMode) {
+    if (!fileExists(swaggerBackupPath)) {
+      throw new Error(`Offline mode requires an existing Swagger backup: ${swaggerBackupPath}`);
+    }
+    return { input: swaggerBackupPath, label: swaggerBackupPath };
+  }
+
   if (swaggerFile) {
     const swaggerFilePath = path.resolve(cwd, swaggerFile);
 
@@ -249,13 +327,11 @@ async function resolveSwaggerInput() {
       };
     }
 
-    const backupInput = useBackupSwaggerInput(
-      `Swagger file was not found: ${swaggerFilePath}.`,
-    );
+    const backupInput = strictMode
+      ? undefined
+      : useBackupSwaggerInput(`Swagger file was not found: ${swaggerFilePath}.`);
 
-    if (backupInput) {
-      return backupInput;
-    }
+    if (backupInput) return backupInput;
 
     throw new Error(
       `Swagger file was not found and no backup exists: ${swaggerFilePath}`,
@@ -271,13 +347,11 @@ async function resolveSwaggerInput() {
         label: swaggerUrl,
       };
     } catch (error) {
-      const backupInput = useBackupSwaggerInput(
-        `Swagger URL is not available: ${swaggerUrl}.`,
-      );
+      const backupInput = strictMode
+        ? undefined
+        : useBackupSwaggerInput(`Swagger URL is not available: ${swaggerUrl}.`);
 
-      if (backupInput) {
-        return backupInput;
-      }
+      if (backupInput) return backupInput;
 
       throw error;
     }
@@ -302,13 +376,13 @@ async function resolveSwaggerInput() {
       label: defaultSwaggerUrl,
     };
   } catch {
-    const backupInput = useBackupSwaggerInput(
-      "Default Swagger file was not found and default Swagger URL is not available.",
-    );
+    const backupInput = strictMode
+      ? undefined
+      : useBackupSwaggerInput(
+          "Default Swagger file was not found and default Swagger URL is not available.",
+        );
 
-    if (backupInput) {
-      return backupInput;
-    }
+    if (backupInput) return backupInput;
 
     throw new Error(
       `No Swagger input found. Add swagger/swagger.json, configure swaggerFile, or configure swaggerUrl.`,
@@ -417,9 +491,14 @@ function fileExportsName(source, exportName) {
 }
 
 function resolveDefaultHandlers() {
-  const defaultFunctionsFile = createDefaultFunctionsFileIfMissing(
-    defaultFunctionsFilePath,
-  );
+  const candidatePath = path.extname(defaultFunctionsFilePath)
+    ? defaultFunctionsFilePath
+    : `${defaultFunctionsFilePath}.ts`;
+  if (checkMode && !fs.existsSync(candidatePath)) {
+    if (verboseMode) console.log("Skipping missing default handler file in check mode.");
+    return undefined;
+  }
+  const defaultFunctionsFile = createDefaultFunctionsFileIfMissing(defaultFunctionsFilePath);
   const source = fs.readFileSync(defaultFunctionsFile, "utf8");
   const hasSuccessHandler = fileExportsName(source, defaultSuccessHandlerName);
   const hasErrorHandler = fileExportsName(source, defaultErrorHandlerName);
@@ -460,6 +539,7 @@ async function main() {
     input: swaggerInput.input,
     output: apiRoot,
     ...generatorOptions,
+    generatorVersion: runtimePackageJson.version,
     defaultHandlers: resolveDefaultHandlers(),
   });
 
@@ -467,7 +547,13 @@ async function main() {
     console.log(`Generated ${path.relative(cwd, file)}`);
   }
 
-  console.log("API generation completed.");
+  if (verboseMode && result.writeStrategy === "managed-file-sync") {
+    console.log(
+      "Used Windows-safe managed-file synchronization because the output directory could not be replaced atomically.",
+    );
+  }
+
+  console.log(checkMode ? "Generated API is up to date." : "API generation completed.");
 }
 
 main().catch((error) => {

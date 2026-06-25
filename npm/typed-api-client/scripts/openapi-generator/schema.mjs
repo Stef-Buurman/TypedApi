@@ -1,44 +1,212 @@
 import {
   dereference,
+  getErrorResponses,
+  getParameterSchema,
   getRequestBodyContent,
   getResponseContent,
   getSuccessResponse,
 } from "./openapi-utils.mjs";
-import { camelCase, pascalCase, propertyKey, refName } from "./names.mjs";
+import {
+  operationTypeName,
+  pascalCase,
+  propertyKey,
+  refName,
+  sanitizeIdentifier,
+  typePropertyName,
+  uniqueName,
+} from "./names.mjs";
 
 function jsDocFromSchema(schema, indent = "") {
   const lines = [];
-
-  if (schema?.description) {
+  if (schema?.description)
     lines.push(...String(schema.description).split(/\r?\n/));
-  }
-
-  if (schema?.format) {
-    lines.push(`@format ${schema.format}`);
-  }
-
+  if (schema?.format) lines.push(`@format ${schema.format}`);
   if (Object.prototype.hasOwnProperty.call(schema ?? {}, "default")) {
     lines.push(`@default ${JSON.stringify(schema.default)}`);
   }
-
-  if (schema?.deprecated) {
-    lines.push("@deprecated");
-  }
-
-  if (lines.length === 0) {
-    return "";
-  }
-
-  if (lines.length === 1) {
-    return `${indent}/** ${lines[0]} */\n`;
-  }
-
+  if (schema?.readOnly) lines.push("@readonly");
+  if (schema?.writeOnly) lines.push("@writeOnly");
+  if (schema?.deprecated) lines.push("@deprecated");
+  if (lines.length === 0) return "";
+  if (lines.length === 1) return `${indent}/** ${lines[0]} */\n`;
   return `${indent}/**\n${lines.map((line) => `${indent} * ${line}`).join("\n")}\n${indent} */\n`;
 }
 
-function unionTypes(types) {
+function unionTypes(types, fallback = "unknown") {
   const unique = [...new Set(types.filter(Boolean))];
-  return unique.length > 0 ? unique.join(" | ") : "any";
+  return unique.length > 0 ? unique.join(" | ") : fallback;
+}
+
+function intersectionTypes(types, fallback = "Record<string, unknown>") {
+  const unique = [...new Set(types.filter(Boolean))];
+  return unique.length > 0 ? unique.join(" & ") : fallback;
+}
+
+function hasObjectShape(schema) {
+  return Boolean(
+    schema?.properties ||
+    schema?.additionalProperties ||
+    schema?.type === "object",
+  );
+}
+
+function schemaWithoutComposition(schema) {
+  const { allOf, oneOf, anyOf, nullable, ...local } = schema ?? {};
+  return local;
+}
+
+function assertUniqueTypePropertyNames(entries, contextName) {
+  const seen = new Map();
+  for (const rawName of entries) {
+    const localName = typePropertyName(rawName);
+    const existing = seen.get(localName);
+    if (existing !== undefined && existing !== rawName) {
+      throw new Error(
+        `OpenAPI members ${JSON.stringify(existing)} and ${JSON.stringify(rawName)} in ${contextName} ` +
+          `both become TypeScript property ${JSON.stringify(localName)} when only the first character is lowercased.`,
+      );
+    }
+    seen.set(localName, rawName);
+  }
+}
+
+function escapeJsonPointerPart(value) {
+  return String(value).replace(/~/g, "~0").replace(/\//g, "~1");
+}
+
+function componentWireSchemaKey(rawName) {
+  return `#/components/schemas/${escapeJsonPointerPart(rawName)}`;
+}
+
+function operationWireSchemaKey(operationId, kind) {
+  return `operation:${operationId}:${kind}`;
+}
+
+function wireSchemaDescriptor(openApi, schemaOrRef) {
+  if (!schemaOrRef) return { kind: "identity" };
+  if (schemaOrRef.$ref) return { kind: "ref", ref: String(schemaOrRef.$ref) };
+
+  const schema =
+    dereference(openApi, schemaOrRef, "Wire schema reference") ?? schemaOrRef;
+
+  if (schema.allOf) {
+    const schemas = schema.allOf.map((item) =>
+      wireSchemaDescriptor(openApi, item),
+    );
+    const localSchema = schemaWithoutComposition(schema);
+    if (hasObjectShape(localSchema))
+      schemas.push(wireSchemaDescriptor(openApi, localSchema));
+    return { kind: "allOf", schemas };
+  }
+
+  if (schema.oneOf || schema.anyOf) {
+    return {
+      kind: "union",
+      schemas: (schema.oneOf ?? schema.anyOf).map((item) =>
+        wireSchemaDescriptor(openApi, item),
+      ),
+    };
+  }
+
+  const schemaType = Array.isArray(schema.type)
+    ? schema.type.find((item) => item !== "null")
+    : schema.type;
+
+  if (schemaType === "array") {
+    return {
+      kind: "array",
+      items: wireSchemaDescriptor(openApi, schema.items ?? {}),
+    };
+  }
+
+  if (
+    schemaType === "object" ||
+    schema.properties ||
+    schema.additionalProperties
+  ) {
+    const rawPropertyNames = Object.keys(schema.properties ?? {});
+    assertUniqueTypePropertyNames(rawPropertyNames, "an OpenAPI object schema");
+    const properties = {};
+
+    for (const [wireName, propertySchema] of Object.entries(
+      schema.properties ?? {},
+    )) {
+      const localName = typePropertyName(wireName);
+      const nested = wireSchemaDescriptor(openApi, propertySchema);
+      properties[localName] = {
+        wireName,
+        ...(nested.kind === "identity" ? {} : { schema: nested }),
+      };
+    }
+
+    let additionalProperties;
+    if (schema.additionalProperties === true) additionalProperties = true;
+    else if (schema.additionalProperties) {
+      additionalProperties = wireSchemaDescriptor(
+        openApi,
+        schema.additionalProperties,
+      );
+    }
+
+    return {
+      kind: "object",
+      ...(Object.keys(properties).length > 0 ? { properties } : {}),
+      ...(additionalProperties !== undefined ? { additionalProperties } : {}),
+    };
+  }
+
+  return { kind: "identity" };
+}
+
+function generateWireSchemaRegistry(openApi, operations, options = {}) {
+  const registry = {};
+
+  for (const [rawName, schema] of Object.entries(
+    openApi.components?.schemas ?? {},
+  )) {
+    registry[componentWireSchemaKey(rawName)] = wireSchemaDescriptor(
+      openApi,
+      schema,
+    );
+  }
+
+  for (const operationInfo of operations) {
+    const operationId = operationInfo.operationId;
+    const requestBody = getRequestBodyContent(
+      openApi,
+      operationInfo.operation.requestBody,
+    );
+    const requestSchema = requestBody?.mediaType?.schema;
+    if (requestSchema) {
+      registry[operationWireSchemaKey(operationId, "body")] =
+        wireSchemaDescriptor(openApi, requestSchema);
+    }
+
+    const successResponse = getSuccessResponse(
+      openApi,
+      operationInfo.operation,
+      options.defaultResponseAsSuccess,
+    );
+    const responseSchema = getResponseContent(successResponse?.response)
+      ?.mediaType?.schema;
+    if (responseSchema) {
+      registry[operationWireSchemaKey(operationId, "response")] =
+        wireSchemaDescriptor(openApi, responseSchema);
+    }
+
+    const errorSchemas = getErrorResponses(openApi, operationInfo.operation)
+      .map(({ response }) => getResponseContent(response)?.mediaType?.schema)
+      .filter(Boolean)
+      .map((schema) => wireSchemaDescriptor(openApi, schema));
+    if (errorSchemas.length > 0) {
+      registry[operationWireSchemaKey(operationId, "error")] =
+        errorSchemas.length === 1
+          ? errorSchemas[0]
+          : { kind: "union", schemas: errorSchemas };
+    }
+  }
+
+  return registry;
 }
 
 export class TypeResolver {
@@ -46,34 +214,39 @@ export class TypeResolver {
     this.openApi = openApi;
     this.options = options;
     this.inlineTypes = new Map();
+    this.componentNames = new Map();
+    const usedNames = new Set();
+
+    for (const rawName of Object.keys(openApi.components?.schemas ?? {})) {
+      const name = uniqueName(operationTypeName(rawName), usedNames);
+      this.componentNames.set(rawName, name);
+    }
+  }
+
+  componentName(rawName) {
+    return this.componentNames.get(rawName) ?? operationTypeName(rawName);
   }
 
   resolve(schemaOrRef, contextName = "Anonymous", options = {}) {
-    if (!schemaOrRef) {
-      return "any";
-    }
+    if (!schemaOrRef) return "unknown";
 
     if (schemaOrRef.$ref) {
-      return refName(schemaOrRef.$ref);
+      dereference(this.openApi, schemaOrRef, "Schema reference");
+      return this.componentName(refName(schemaOrRef.$ref));
     }
 
-    const schema = dereference(this.openApi, schemaOrRef) ?? schemaOrRef;
+    const schema =
+      dereference(this.openApi, schemaOrRef, "Schema reference") ?? schemaOrRef;
     const nullable =
       schema.nullable ||
       (Array.isArray(schema.type) && schema.type.includes("null"));
     let type = this.resolveNonNullable(schema, contextName, options);
-
-    if (nullable && !type.includes("null")) {
-      type = `${type} | null`;
-    }
-
+    if (nullable && !/(^|\W)null(\W|$)/.test(type)) type = `${type} | null`;
     return type;
   }
 
   resolveNonNullable(schema, contextName, options = {}) {
-    if (schema.const !== undefined) {
-      return JSON.stringify(schema.const);
-    }
+    if (schema.const !== undefined) return JSON.stringify(schema.const);
 
     if (Array.isArray(schema.enum)) {
       if (options.inlineEnumAsUnion) {
@@ -81,8 +254,7 @@ export class TypeResolver {
           this.enumLiteralValues(schema).map((value) => JSON.stringify(value)),
         );
       }
-
-      return pascalCase(contextName);
+      return operationTypeName(contextName);
     }
 
     if (schema.oneOf || schema.anyOf) {
@@ -95,11 +267,20 @@ export class TypeResolver {
     }
 
     if (schema.allOf) {
-      return schema.allOf
-        .map((item, index) =>
-          this.resolve(item, `${contextName}${index + 1}`, options),
-        )
-        .join(" & ");
+      const parts = schema.allOf.map((item, index) =>
+        this.resolve(item, `${contextName}${index + 1}`, options),
+      );
+      const localSchema = schemaWithoutComposition(schema);
+      if (hasObjectShape(localSchema)) {
+        parts.push(
+          this.createInlineObjectType(
+            localSchema,
+            `${contextName}Own`,
+            options,
+          ),
+        );
+      }
+      return intersectionTypes(parts);
     }
 
     const schemaType = Array.isArray(schema.type)
@@ -113,9 +294,8 @@ export class TypeResolver {
       case "boolean":
         return "boolean";
       case "string":
-        if (schema.format === "binary") {
+        if (schema.format === "binary")
           return options.binaryAsBlob ? "Blob" : "File";
-        }
         return "string";
       case "array": {
         const itemType = this.resolve(
@@ -130,14 +310,12 @@ export class TypeResolver {
       }
       case "object":
       default:
-        if (schema.properties) {
+        if (schema.properties)
           return this.createInlineObjectType(schema, contextName, options);
-        }
-
         if (schema.additionalProperties) {
           const valueType =
             schema.additionalProperties === true
-              ? "any"
+              ? "unknown"
               : this.resolve(
                   schema.additionalProperties,
                   `${contextName}Value`,
@@ -145,125 +323,320 @@ export class TypeResolver {
                 );
           return `Record<string, ${valueType}>`;
         }
-
-        return schemaType === "object" ? "Record<string, any>" : "any";
+        return schemaType === "object" ? "Record<string, unknown>" : "unknown";
     }
   }
 
-  createInlineObjectType(schema, contextName, options = {}) {
-    const name = pascalCase(contextName);
-
-    if (!this.inlineTypes.has(name)) {
-      this.inlineTypes.set(name, schema);
+  createInlineObjectType(schema, contextName) {
+    const base = operationTypeName(contextName);
+    let name = base;
+    let counter = 2;
+    while (
+      this.componentNamesHasValue(name) ||
+      (this.inlineTypes.has(name) && this.inlineTypes.get(name) !== schema)
+    ) {
+      name = `${base}${counter++}`;
     }
-
+    if (!this.inlineTypes.has(name)) this.inlineTypes.set(name, schema);
     return name;
   }
 
-  createInterface(name, schema) {
+  componentNamesHasValue(value) {
+    return [...this.componentNames.values()].includes(value);
+  }
+
+  objectMembers(name, schema) {
     const required = new Set(schema.required ?? []);
-    const lines = [`export interface ${name} {`];
+    const lines = [];
 
-    for (const [propertyName, propertySchema] of Object.entries(
-      schema.properties ?? {},
-    )) {
-      // Required names must still be checked against the original OpenAPI name.
-      const propertyRequired = required.has(propertyName);
-      const optionalToken = propertyRequired ? "" : "?";
+    const propertyEntries = Object.entries(schema.properties ?? {});
+    assertUniqueTypePropertyNames(
+      propertyEntries.map(([propertyName]) => propertyName),
+      name,
+    );
 
+    for (const [propertyName, propertySchema] of propertyEntries) {
+      const localPropertyName = typePropertyName(propertyName);
+      const optionalToken = required.has(propertyName) ? "" : "?";
       const propertyType = this.resolve(
         propertySchema,
         `${name}${pascalCase(propertyName)}`,
-        { inlineEnumAsUnion: true },
+        {
+          inlineEnumAsUnion: true,
+        },
       );
-
-      const resolvedSchema = dereference(this.openApi, propertySchema);
-      const typescriptPropertyName = camelCase(propertyName);
-
+      const resolvedSchema = dereference(
+        this.openApi,
+        propertySchema,
+        "Property schema reference",
+      );
       lines.push(
         jsDocFromSchema(resolvedSchema, "  ") +
-          `  ${propertyKey(typescriptPropertyName)}${optionalToken}: ${propertyType};`,
+          `  ${propertyKey(localPropertyName)}${optionalToken}: ${propertyType};`,
       );
     }
 
     if (schema.additionalProperties) {
       const valueType =
         schema.additionalProperties === true
-          ? "any"
+          ? "unknown"
           : this.resolve(schema.additionalProperties, `${name}Value`, {
               inlineEnumAsUnion: true,
             });
-
       lines.push(`  [key: string]: ${valueType};`);
     }
 
-    lines.push("}");
-    return lines.join("\n");
+    return lines;
+  }
+
+  createInterface(name, schema) {
+    return [
+      `export interface ${name} {`,
+      ...this.objectMembers(name, schema),
+      "}",
+    ].join("\n");
+  }
+
+  createObjectTypeLiteral(name, schema) {
+    return ["{", ...this.objectMembers(name, schema), "}"].join("\n");
+  }
+
+  createDeclaration(name, schema) {
+    if (Array.isArray(schema.enum)) return this.createEnum(name, schema);
+
+    if (schema.allOf) {
+      const parts = schema.allOf.map((item, index) =>
+        this.resolve(item, `${name}${index + 1}`, { inlineEnumAsUnion: true }),
+      );
+      const localSchema = schemaWithoutComposition(schema);
+      if (hasObjectShape(localSchema))
+        parts.push(this.createObjectTypeLiteral(`${name}Own`, localSchema));
+      return `export type ${name} = ${intersectionTypes(parts)};`;
+    }
+
+    if (hasObjectShape(schema)) return this.createInterface(name, schema);
+    return `export type ${name} = ${this.resolve(schema, name, { inlineEnumAsUnion: true })};`;
   }
 
   createEnum(name, schema) {
-    const values = schema.enum ?? [];
-
     if (this.options.generateUnionEnums) {
-      return `export type ${name} = ${unionTypes(this.enumLiteralValues(schema).map((value) => JSON.stringify(value)))};`;
+      return `export type ${name} = ${unionTypes(
+        this.enumLiteralValues(schema).map((value) => JSON.stringify(value)),
+      )};`;
     }
 
     const lines = [`export const ${name} = {`];
-
-    for (const [index, value] of values.entries()) {
+    for (const [index, value] of (schema.enum ?? []).entries()) {
       const memberName = this.enumMemberName(schema, value, index);
       const enumValue = this.enumRuntimeValue(schema, value, index);
-      lines.push(`  ${memberName}: ${JSON.stringify(enumValue)},`);
+      lines.push(`  ${propertyKey(memberName)}: ${JSON.stringify(enumValue)},`);
     }
-
     lines.push("} as const;");
     lines.push(`export type ${name} = (typeof ${name})[keyof typeof ${name}];`);
     return lines.join("\n");
   }
 
   enumMetadataNames(schema) {
-    const enumNames =
+    const names =
       schema?.["x-enumNames"] ??
       schema?.["x-enum-varnames"] ??
       schema?.["x-enumVarnames"];
-
-    return Array.isArray(enumNames) ? enumNames : [];
+    return Array.isArray(names) ? names : [];
   }
 
   enumLiteralValues(schema) {
     const values = schema.enum ?? [];
-    const enumNames = this.enumMetadataNames(schema);
-
-    if (this.options.enumNamesAsValues && enumNames.length > 0) {
-      return values.map((value, index) => enumNames[index] ?? value);
-    }
-
-    return values;
+    const names = this.enumMetadataNames(schema);
+    return this.options.enumNamesAsValues && names.length > 0
+      ? values.map((value, index) => names[index] ?? value)
+      : values;
   }
 
   enumRuntimeValue(schema, value, index) {
-    const enumNames = this.enumMetadataNames(schema);
-
-    if (this.options.enumNamesAsValues && enumNames.length > 0) {
-      return enumNames[index] ?? value;
-    }
-
-    return value;
+    const names = this.enumMetadataNames(schema);
+    return this.options.enumNamesAsValues && names.length > 0
+      ? (names[index] ?? value)
+      : value;
   }
 
   enumMemberName(schema, value, index) {
-    const enumNames = this.enumMetadataNames(schema);
-    const rawName = enumNames[index] ?? value;
-    return pascalCase(String(rawName), "Value").replace(/^[0-9]/, "_$&");
+    const rawName = this.enumMetadataNames(schema)[index] ?? value;
+    return operationTypeName(String(rawName) || "Value");
   }
 }
 
-function shouldUseInterface(schema) {
-  return Boolean(
-    schema?.properties ||
-    schema?.additionalProperties ||
-    schema?.type === "object",
+function parameterTypeName(operationId, location) {
+  return `${operationId}${pascalCase(location)}Params`;
+}
+
+function combinedParameterTypeName(operationId) {
+  return `${operationId}Params`;
+}
+
+function createParamsInterface(openApi, resolver, name, parameters) {
+  const lines = [`export interface ${name} {`];
+  assertUniqueTypePropertyNames(
+    parameters.map((parameter) => parameter.name),
+    name,
   );
+  for (const parameter of parameters) {
+    const parameterSchema = getParameterSchema(openApi, parameter);
+    const optionalToken =
+      parameter.required || parameter.in === "path" ? "" : "?";
+    const parameterType = resolver.resolve(
+      parameterSchema,
+      `${name}${pascalCase(parameter.name)}`,
+      {
+        inlineEnumAsUnion: true,
+      },
+    );
+    lines.push(
+      jsDocFromSchema(parameterSchema, "  ") +
+        `  ${propertyKey(typePropertyName(parameter.name))}${optionalToken}: ${parameterType};`,
+    );
+  }
+  lines.push("}");
+  return lines.join("\n");
+}
+
+function resolveResponseType(
+  resolver,
+  response,
+  contextName,
+  binaryAsBlob = false,
+) {
+  const content = getResponseContent(response);
+  const schema = content?.mediaType?.schema;
+  if (!schema) return undefined;
+  return resolver.resolve(schema, contextName, {
+    binaryAsBlob:
+      binaryAsBlob || content?.contentType === "application/octet-stream",
+    inlineEnumAsUnion: true,
+  });
+}
+
+export function getOperationTypes(
+  openApi,
+  operationInfo,
+  options = {},
+  resolver = new TypeResolver(openApi, options),
+) {
+  const operationId = operationInfo.operationId;
+  const operationTypeNameBase = operationInfo.typeName ?? operationId;
+  const parameters = operationInfo.parameters ?? [];
+  const parametersByLocation = Object.fromEntries(
+    ["path", "query", "header", "cookie"].map((location) => [
+      location,
+      parameters.filter((parameter) => parameter.in === location),
+    ]),
+  );
+
+  const requestBodyContent = getRequestBodyContent(
+    openApi,
+    operationInfo.operation.requestBody,
+  );
+  const requestBodySchema = requestBodyContent?.mediaType?.schema;
+  let bodyType;
+  if (requestBodySchema) {
+    if (requestBodySchema.$ref) {
+      bodyType = resolver.resolve(requestBodySchema, `${operationTypeNameBase}Payload`);
+    } else if (
+      requestBodyContent?.contentType === "multipart/form-data" ||
+      hasObjectShape(requestBodySchema)
+    ) {
+      bodyType = `${operationTypeNameBase}Payload`;
+    } else {
+      bodyType = resolver.resolve(requestBodySchema, `${operationTypeNameBase}Payload`, {
+        inlineEnumAsUnion: true,
+      });
+    }
+  }
+
+  const successResponse = getSuccessResponse(
+    openApi,
+    operationInfo.operation,
+    options.defaultResponseAsSuccess,
+  );
+  const responseContent = getResponseContent(successResponse?.response);
+  const responseType = successResponse
+    ? (resolveResponseType(
+        resolver,
+        successResponse.response,
+        `${operationTypeNameBase}Response`,
+      ) ?? "void")
+    : "void";
+
+  const errorResponses = getErrorResponses(openApi, operationInfo.operation);
+  const errorTypes = errorResponses
+    .map(({ statusCode, response }) =>
+      resolveResponseType(
+        resolver,
+        response,
+        `${operationTypeNameBase}Error${statusCode}`,
+      ),
+    )
+    .filter(Boolean);
+  const errorType = unionTypes(errorTypes, "unknown");
+  const responseSchema = responseContent?.mediaType?.schema;
+  const errorSchemas = errorResponses
+    .map(({ response }) => getResponseContent(response)?.mediaType?.schema)
+    .filter(Boolean);
+
+  const hasNonBodyInput = parameters.length > 0;
+  const paginated =
+    Boolean(operationInfo.operation["x-typedapi-pagination"]) ||
+    /(?:Api)?Pagination(?:Sort)?Response\b|Paged(?:Response|Result)?\b|Paginated(?:Response|Result)?\b/.test(
+      responseType,
+    );
+  const isPurePaginatedQuery =
+    paginated &&
+    parametersByLocation.query.length > 0 &&
+    !parametersByLocation.path.length &&
+    !parametersByLocation.header.length &&
+    !parametersByLocation.cookie.length &&
+    !bodyType;
+  const parameterTypeNames = isPurePaginatedQuery
+    ? { query: parameterTypeName(operationTypeNameBase, "query") }
+    : {};
+
+  return {
+    operationId,
+    operationTypeNameBase,
+    originalOperationId: operationInfo.originalOperationId,
+    methodName: operationInfo.methodName,
+    methodNameSource: operationInfo.methodNameSource,
+    paramsTypeName:
+      hasNonBodyInput && !isPurePaginatedQuery
+        ? combinedParameterTypeName(operationTypeNameBase)
+        : undefined,
+    parameterTypeNames,
+    parameters,
+    parametersByLocation,
+    allParametersOptional: parameters.every(
+      (parameter) => parameter.in !== "path" && !parameter.required,
+    ),
+    bodyType,
+    bodyRequired: Boolean(requestBodyContent?.requestBody?.required),
+    bodyWireSchemaKey: requestBodySchema
+      ? operationWireSchemaKey(operationId, "body")
+      : undefined,
+    responseType,
+    responseWireSchemaKey: responseSchema
+      ? operationWireSchemaKey(operationId, "response")
+      : undefined,
+    errorType,
+    errorWireSchemaKey:
+      errorSchemas.length > 0
+        ? operationWireSchemaKey(operationId, "error")
+        : undefined,
+    contentType: requestBodyContent?.contentType,
+    responseContentType: responseContent?.contentType,
+    hasPathParams: parametersByLocation.path.length > 0,
+    hasQueryParams: parametersByLocation.query.length > 0,
+    hasHeaderParams: parametersByLocation.header.length > 0,
+    hasCookieParams: parametersByLocation.cookie.length > 0,
+    paginationMetadata: operationInfo.operation["x-typedapi-pagination"],
+  };
 }
 
 export function generateDataContracts(openApi, operations, options = {}) {
@@ -271,185 +644,92 @@ export function generateDataContracts(openApi, operations, options = {}) {
   const declarations = [];
   const schemas = openApi.components?.schemas ?? {};
 
-  const schemaEntries = Object.entries(schemas).sort(
-    ([aName, aSchema], [bName, bSchema]) => {
-      const aIsEnum = Array.isArray(aSchema.enum);
-      const bIsEnum = Array.isArray(bSchema.enum);
-      if (aIsEnum !== bIsEnum) return aIsEnum ? -1 : 1;
-      return aName.localeCompare(bName);
-    },
+  const entries = Object.entries(schemas).sort(([a], [b]) =>
+    a.localeCompare(b),
   );
-
-  for (const [name, schema] of schemaEntries) {
-    if (Array.isArray(schema.enum)) {
-      declarations.push(resolver.createEnum(name, schema));
-    } else if (shouldUseInterface(schema)) {
-      declarations.push(resolver.createInterface(name, schema));
-    } else {
-      declarations.push(
-        `export type ${name} = ${resolver.resolve(schema, name, { inlineEnumAsUnion: true })};`,
-      );
-    }
+  for (const [rawName, schemaOrRef] of entries) {
+    const schema = dereference(
+      openApi,
+      schemaOrRef,
+      "Component schema reference",
+    );
+    declarations.push(
+      resolver.createDeclaration(resolver.componentName(rawName), schema),
+    );
   }
 
   for (const operationInfo of operations) {
-    const operationId = operationInfo.operation.operationId;
-    if (!operationId) continue;
+    const operationTypes = getOperationTypes(
+      openApi,
+      operationInfo,
+      options,
+      resolver,
+    );
 
-    const parameterProperties = operationInfo.parameters.map((parameter) => ({
-      name: parameter.name,
-      schema: parameter.schema ?? {},
-      required: Boolean(parameter.required),
-    }));
-
-    if (parameterProperties.length > 0) {
+    if (operationTypes.paramsTypeName) {
       declarations.push(
         createParamsInterface(
           openApi,
           resolver,
-          `${operationId}Params`,
-          parameterProperties,
+          operationTypes.paramsTypeName,
+          operationTypes.parameters,
         ),
       );
     }
 
+    for (const [location, parameters] of Object.entries(
+      operationTypes.parametersByLocation,
+    )) {
+      const typeName = operationTypes.parameterTypeNames[location];
+      if (typeName)
+        declarations.push(
+          createParamsInterface(openApi, resolver, typeName, parameters),
+        );
+    }
+
     const bodyContent = getRequestBodyContent(
+      openApi,
       operationInfo.operation.requestBody,
     );
     const bodySchema = bodyContent?.mediaType?.schema;
-
     if (
       bodySchema &&
       !bodySchema.$ref &&
       (bodyContent.contentType === "multipart/form-data" ||
-        shouldUseInterface(bodySchema))
+        hasObjectShape(bodySchema))
     ) {
-      const payloadName = `${operationId}Payload`;
-      if (!schemas[payloadName]) {
-        declarations.push(resolver.createInterface(payloadName, bodySchema));
-      }
-    }
-
-    const successResponse = getSuccessResponse(
-      operationInfo.operation,
-      options.defaultResponseAsSuccess,
-    );
-    const responseContent = getResponseContent(successResponse?.response);
-    const responseSchema = responseContent?.mediaType?.schema;
-
-    if (responseSchema && !responseSchema.$ref) {
-      resolver.resolve(responseSchema, `${operationId}Response`, {
-        binaryAsBlob:
-          responseContent?.contentType === "application/octet-stream",
-        inlineEnumAsUnion: true,
-      });
+      declarations.push(
+        resolver.createDeclaration(
+          `${operationTypes.operationTypeNameBase}Payload`,
+          bodySchema,
+        ),
+      );
     }
   }
 
   for (const [name, schema] of resolver.inlineTypes.entries()) {
-    if (!schemas[name]) {
-      declarations.push(resolver.createInterface(name, schema));
-    }
+    if (!resolver.componentNamesHasValue(name))
+      declarations.push(resolver.createDeclaration(name, schema));
   }
+
+  const wireSchemas = generateWireSchemaRegistry(openApi, operations, options);
+  declarations.push(
+    `export const typedApiWireSchemas = ${JSON.stringify(wireSchemas, null, 2)} as const;`,
+  );
 
   return `${generatedFileHeader()}\n\n${declarations.join("\n\n")}\n`;
-}
-
-function createParamsInterface(openApi, resolver, name, parameters) {
-  const required = new Set(
-    parameters
-      .filter((parameter) => parameter.required)
-      .map((parameter) => parameter.name),
-  );
-  const lines = [`export interface ${name} {`];
-
-  for (const parameter of parameters) {
-    const parameterSchema = dereference(openApi, parameter.schema);
-    const optionalToken = required.has(parameter.name) ? "" : "?";
-    const parameterType = resolver.resolve(
-      parameter.schema,
-      `${name}${pascalCase(parameter.name)}`,
-      { inlineEnumAsUnion: true },
-    );
-    lines.push(
-      jsDocFromSchema(parameterSchema, "  ") +
-        `  ${propertyKey(parameter.name)}${optionalToken}: ${parameterType};`,
-    );
-  }
-
-  lines.push("}");
-  return lines.join("\n");
-}
-
-export function getOperationTypes(openApi, operationInfo, options = {}) {
-  const resolver = new TypeResolver(openApi, options);
-  const operationId = operationInfo.operation.operationId;
-  const parameters = operationInfo.parameters ?? [];
-  const pathParams = parameters.filter((parameter) => parameter.in === "path");
-  const queryParams = parameters.filter(
-    (parameter) => parameter.in === "query",
-  );
-  const requestBodyContent = getRequestBodyContent(
-    operationInfo.operation.requestBody,
-  );
-  const requestBodySchema = requestBodyContent?.mediaType?.schema;
-  const successResponse = getSuccessResponse(
-    operationInfo.operation,
-    options.defaultResponseAsSuccess,
-  );
-  const responseContent = getResponseContent(successResponse?.response);
-  const responseSchema = responseContent?.mediaType?.schema;
-
-  let bodyType;
-  if (requestBodySchema) {
-    if (requestBodySchema.$ref) {
-      bodyType = resolver.resolve(requestBodySchema, `${operationId}Payload`);
-    } else if (
-      requestBodyContent?.contentType === "multipart/form-data" ||
-      shouldUseInterface(requestBodySchema)
-    ) {
-      bodyType = `${operationId}Payload`;
-    } else {
-      bodyType = resolver.resolve(requestBodySchema, `${operationId}Payload`, {
-        inlineEnumAsUnion: true,
-      });
-    }
-  }
-
-  let responseType = "void";
-  if (responseSchema) {
-    responseType = resolver.resolve(responseSchema, `${operationId}Response`, {
-      binaryAsBlob: responseContent?.contentType === "application/octet-stream",
-      inlineEnumAsUnion: true,
-    });
-  }
-
-  return {
-    operationId,
-    methodName: operationId
-      ? operationId.charAt(0).toLowerCase() + operationId.slice(1)
-      : undefined,
-    paramsTypeName: parameters.length > 0 ? `${operationId}Params` : undefined,
-    bodyType,
-    responseType,
-    contentType: requestBodyContent?.contentType,
-    responseContentType: responseContent?.contentType,
-    hasPathParams: pathParams.length > 0,
-    hasQueryParams: queryParams.length > 0,
-    pathParams,
-    queryParams,
-  };
 }
 
 export function generatedFileHeader() {
   return `/* eslint-disable */
 /* tslint:disable */
 /*
- * --------------------------------------------------------------------------------
- * ## THIS FILE WAS GENERATED BY typedapi-client-helpers                         ##
- * ##                                                                            ##
- * ## AUTHOR: Stef Buurman                                                       ##
+ * -------------------------------------------------------------------------------------
+ * ## THIS FILE WAS GENERATED BY typedapi-client-helpers                              ##
+ * ## DO NOT EDIT THIS FILE DIRECTLY                                                  ##
+ * ##                                                                                 ##
+ * ## AUTHOR: Stef Buurman                                                            ##
  * ## SOURCE: https://github.com/Stef-Buurman/TypedApi/tree/main/npm/typed-api-client ##
- * --------------------------------------------------------------------------------
+ * -------------------------------------------------------------------------------------
  */`;
 }
