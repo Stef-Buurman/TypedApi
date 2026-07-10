@@ -73,7 +73,7 @@
     "typedApiDownloadTimeoutMs": 15000,
     "typedApiGenerateMissingOperationIds": false,
     "typedApiMethodNameStyle": "operationId",
-    "typedApiPrefixMethodNamesWithController": true
+    "typedApiPrefixMethodNamesWithController": false
   },
   "scripts": {
     "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
