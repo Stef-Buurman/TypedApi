@@ -13,13 +13,13 @@ import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
 import { typedApiWireSchemas } from "../generated/data-contracts";
 import type {
-  DeleteWarehouseParams,
-  GetWarehouseByIdParams,
-  GetWarehousesQueryParams,
-  UpdateWarehouseParams,
+  WarehouseDeleteWarehouseParams,
+  WarehouseGetWarehouseByIdParams,
+  WarehouseGetWarehousesQueryParams,
   WarehouseModel,
   WarehouseModelApiPaginationResponse,
   WarehouseRequest,
+  WarehouseUpdateWarehouseParams,
 } from "../generated/data-contracts";
 import {
   buildQuery,
@@ -42,11 +42,11 @@ import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as type
  * No description
  *
  * @tags Warehouse
- * @name GetWarehouses
+ * @name WarehouseGetWarehouses
  * @request GET:/api/warehouses
  */
-export async function getWarehouses(
-  filters: FilterFormValues<GetWarehousesQueryParams>[] = [],
+export async function warehouseGetWarehouses(
+  filters: FilterFormValues<WarehouseGetWarehousesQueryParams>[] = [],
   page = 1,
   pageSize = 100,
   sortBy: SortableKeys<WarehouseModelApiPaginationResponse> | null = null,
@@ -55,7 +55,7 @@ export async function getWarehouses(
 ): Promise<ApiResult<WarehouseModelApiPaginationResponse, unknown>> {
   const { onSuccess, onError, params = {} } = options;
   const builtQuery = buildQuery<
-    GetWarehousesQueryParams,
+    WarehouseGetWarehousesQueryParams,
     UnwrapArray<ExtractDataIfPaginated<WarehouseModelApiPaginationResponse>>
   >(filters, page, pageSize, sortBy, sortDirection);
 
@@ -79,10 +79,10 @@ export async function getWarehouses(
  * No description
  *
  * @tags Warehouse
- * @name CreateWarehouse
+ * @name WarehouseCreateWarehouse
  * @request POST:/api/warehouses
  */
-export async function createWarehouse(
+export async function warehouseCreateWarehouse(
   data: WarehouseRequest,
   options: ApiMethodOptions<WarehouseModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<WarehouseModel, unknown>> {
@@ -109,11 +109,11 @@ export async function createWarehouse(
  * No description
  *
  * @tags Warehouse
- * @name GetWarehouseById
+ * @name WarehouseGetWarehouseById
  * @request GET:/api/warehouses/{id}
  */
-export async function getWarehouseById(
-  pathParams: GetWarehouseByIdParams,
+export async function warehouseGetWarehouseById(
+  pathParams: WarehouseGetWarehouseByIdParams,
   options: ApiMethodOptions<WarehouseModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<WarehouseModel, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -137,11 +137,11 @@ export async function getWarehouseById(
  * No description
  *
  * @tags Warehouse
- * @name UpdateWarehouse
+ * @name WarehouseUpdateWarehouse
  * @request PUT:/api/warehouses/{id}
  */
-export async function updateWarehouse(
-  pathParams: UpdateWarehouseParams,
+export async function warehouseUpdateWarehouse(
+  pathParams: WarehouseUpdateWarehouseParams,
   data: WarehouseRequest,
   options: ApiMethodOptions<WarehouseModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<WarehouseModel, unknown>> {
@@ -168,11 +168,11 @@ export async function updateWarehouse(
  * No description
  *
  * @tags Warehouse
- * @name DeleteWarehouse
+ * @name WarehouseDeleteWarehouse
  * @request DELETE:/api/warehouses/{id}
  */
-export async function deleteWarehouse(
-  pathParams: DeleteWarehouseParams,
+export async function warehouseDeleteWarehouse(
+  pathParams: WarehouseDeleteWarehouseParams,
   options: ApiMethodOptions<void, unknown, RequestParams> = {}
 ): Promise<ApiResult<void, unknown>> {
   const { onSuccess, onError, params = {} } = options;

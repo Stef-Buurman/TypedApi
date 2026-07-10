@@ -13,10 +13,10 @@ import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
 import { typedApiWireSchemas } from "../generated/data-contracts";
 import type {
-  UploadMixedImportPayload,
-  UploadProductFilesPayload,
+  ImportUploadMixedImportPayload,
+  ImportUploadProductFilesPayload,
+  ImportUploadSupplierFilePayload,
   UploadResult,
-  UploadSupplierFilePayload,
 } from "../generated/data-contracts";
 import { fromWireValue, handleApiResponse, toWireValue } from "typedapi-client-helpers";
 import type { ApiMethodOptions, ApiResult } from "typedapi-client-helpers";
@@ -26,11 +26,11 @@ import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as type
  * No description
  *
  * @tags Import
- * @name UploadProductFiles
+ * @name ImportUploadProductFiles
  * @request POST:/api/imports/products
  */
-export async function uploadProductFiles(
-  data: UploadProductFilesPayload,
+export async function importUploadProductFiles(
+  data: ImportUploadProductFilesPayload,
   options: ApiMethodOptions<UploadResult, unknown, RequestParams> = {}
 ): Promise<ApiResult<UploadResult, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -56,11 +56,11 @@ export async function uploadProductFiles(
  * No description
  *
  * @tags Import
- * @name UploadSupplierFile
+ * @name ImportUploadSupplierFile
  * @request POST:/api/imports/supplier
  */
-export async function uploadSupplierFile(
-  data: UploadSupplierFilePayload,
+export async function importUploadSupplierFile(
+  data: ImportUploadSupplierFilePayload,
   options: ApiMethodOptions<UploadResult, unknown, RequestParams> = {}
 ): Promise<ApiResult<UploadResult, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -86,11 +86,11 @@ export async function uploadSupplierFile(
  * No description
  *
  * @tags Import
- * @name UploadMixedImport
+ * @name ImportUploadMixedImport
  * @request POST:/api/imports/mixed
  */
-export async function uploadMixedImport(
-  data: UploadMixedImportPayload,
+export async function importUploadMixedImport(
+  data: ImportUploadMixedImportPayload,
   options: ApiMethodOptions<UploadResult, unknown, RequestParams> = {}
 ): Promise<ApiResult<UploadResult, unknown>> {
   const { onSuccess, onError, params = {} } = options;

@@ -14,16 +14,16 @@ import type { RequestParams } from "../generated/http-client";
 import { typedApiWireSchemas } from "../generated/data-contracts";
 import type {
   ApiSortResponse,
-  DeleteProductParams,
-  ExportProductsParams,
-  GetProductByIdParams,
-  GetProductSortStateParams,
-  GetProductsQueryParams,
+  ProductDeleteProductParams,
+  ProductExportProductsParams,
+  ProductGetProductByIdParams,
+  ProductGetProductSortStateParams,
+  ProductGetProductsQueryParams,
   ProductModel,
   ProductRequest,
   ProductTableRowApiPaginationSortResponse,
-  ToggleProductActiveParams,
-  UpdateProductParams,
+  ProductToggleProductActiveParams,
+  ProductUpdateProductParams,
 } from "../generated/data-contracts";
 import {
   buildQuery,
@@ -46,11 +46,11 @@ import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as type
  * No description
  *
  * @tags Product
- * @name GetProducts
+ * @name ProductGetProducts
  * @request GET:/api/products
  */
-export async function getProducts(
-  filters: FilterFormValues<GetProductsQueryParams>[] = [],
+export async function productGetProducts(
+  filters: FilterFormValues<ProductGetProductsQueryParams>[] = [],
   page = 1,
   pageSize = 100,
   sortBy: SortableKeys<ProductTableRowApiPaginationSortResponse> | null = null,
@@ -59,7 +59,7 @@ export async function getProducts(
 ): Promise<ApiResult<ProductTableRowApiPaginationSortResponse, unknown>> {
   const { onSuccess, onError, params = {} } = options;
   const builtQuery = buildQuery<
-    GetProductsQueryParams,
+    ProductGetProductsQueryParams,
     UnwrapArray<ExtractDataIfPaginated<ProductTableRowApiPaginationSortResponse>>
   >(filters, page, pageSize, sortBy, sortDirection);
 
@@ -83,10 +83,10 @@ export async function getProducts(
  * No description
  *
  * @tags Product
- * @name CreateProduct
+ * @name ProductCreateProduct
  * @request POST:/api/products
  */
-export async function createProduct(
+export async function productCreateProduct(
   data: ProductRequest,
   options: ApiMethodOptions<ProductModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<ProductModel, unknown>> {
@@ -113,11 +113,11 @@ export async function createProduct(
  * No description
  *
  * @tags Product
- * @name GetProductSortState
+ * @name ProductGetProductSortState
  * @request GET:/api/products/sort-state
  */
-export async function getProductSortState(
-  query: GetProductSortStateParams = {},
+export async function productGetProductSortState(
+  query: ProductGetProductSortStateParams = {},
   options: ApiMethodOptions<ApiSortResponse, unknown, RequestParams> = {}
 ): Promise<ApiResult<ApiSortResponse, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -142,11 +142,11 @@ export async function getProductSortState(
  * No description
  *
  * @tags Product
- * @name GetProductById
+ * @name ProductGetProductById
  * @request GET:/api/products/{id}
  */
-export async function getProductById(
-  pathParams: GetProductByIdParams,
+export async function productGetProductById(
+  pathParams: ProductGetProductByIdParams,
   options: ApiMethodOptions<ProductModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<ProductModel, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -170,11 +170,11 @@ export async function getProductById(
  * No description
  *
  * @tags Product
- * @name UpdateProduct
+ * @name ProductUpdateProduct
  * @request PUT:/api/products/{id}
  */
-export async function updateProduct(
-  pathParams: UpdateProductParams,
+export async function productUpdateProduct(
+  pathParams: ProductUpdateProductParams,
   data: ProductRequest,
   options: ApiMethodOptions<ProductModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<ProductModel, unknown>> {
@@ -201,11 +201,11 @@ export async function updateProduct(
  * No description
  *
  * @tags Product
- * @name DeleteProduct
+ * @name ProductDeleteProduct
  * @request DELETE:/api/products/{id}
  */
-export async function deleteProduct(
-  pathParams: DeleteProductParams,
+export async function productDeleteProduct(
+  pathParams: ProductDeleteProductParams,
   options: ApiMethodOptions<void, unknown, RequestParams> = {}
 ): Promise<ApiResult<void, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -224,11 +224,11 @@ export async function deleteProduct(
  * No description
  *
  * @tags Product
- * @name ToggleProductActive
+ * @name ProductToggleProductActive
  * @request POST:/api/products/{id}/toggle-active
  */
-export async function toggleProductActive(
-  pathParams: ToggleProductActiveParams,
+export async function productToggleProductActive(
+  pathParams: ProductToggleProductActiveParams,
   options: ApiMethodOptions<ProductModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<ProductModel, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -252,11 +252,11 @@ export async function toggleProductActive(
  * No description
  *
  * @tags Product
- * @name ExportProducts
+ * @name ProductExportProducts
  * @request GET:/api/products/export
  */
-export async function exportProducts(
-  query: ExportProductsParams = {},
+export async function productExportProducts(
+  query: ProductExportProductsParams = {},
   options: ApiMethodOptions<void, unknown, RequestParams> = {}
 ): Promise<ApiResult<void, unknown>> {
   const { onSuccess, onError, params = {} } = options;

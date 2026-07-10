@@ -13,13 +13,13 @@ import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
 import { typedApiWireSchemas } from "../generated/data-contracts";
 import type {
-  DeleteNoContentParams,
+  EndpointCoverageDeleteNoContentParams,
+  EndpointCoverageGetPathAndQueryParams,
   EndpointCoverageModel,
+  EndpointCoveragePatchJsonParams,
   EndpointCoveragePatchRequest,
+  EndpointCoveragePostUrlEncodedPayload,
   EndpointCoverageRequest,
-  GetPathAndQueryParams,
-  PatchJsonParams,
-  PostUrlEncodedPayload,
 } from "../generated/data-contracts";
 import { fromWireValue, handleApiResponse, toWireValue } from "typedapi-client-helpers";
 import type { ApiMethodOptions, ApiResult } from "typedapi-client-helpers";
@@ -29,10 +29,10 @@ import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as type
  * No description
  *
  * @tags EndpointCoverage
- * @name GetObject
+ * @name EndpointCoverageGetObject
  * @request GET:/api/endpoint-coverage/object
  */
-export async function getObject(
+export async function endpointCoverageGetObject(
   options: ApiMethodOptions<EndpointCoverageModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<EndpointCoverageModel, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -56,10 +56,10 @@ export async function getObject(
  * No description
  *
  * @tags EndpointCoverage
- * @name GetArray
+ * @name EndpointCoverageGetArray
  * @request GET:/api/endpoint-coverage/array
  */
-export async function getArray(
+export async function endpointCoverageGetArray(
   options: ApiMethodOptions<EndpointCoverageModel[], unknown, RequestParams> = {}
 ): Promise<ApiResult<EndpointCoverageModel[], unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -83,10 +83,10 @@ export async function getArray(
  * No description
  *
  * @tags EndpointCoverage
- * @name GetPrimitive
+ * @name EndpointCoverageGetPrimitive
  * @request GET:/api/endpoint-coverage/primitive
  */
-export async function getPrimitive(
+export async function endpointCoverageGetPrimitive(
   options: ApiMethodOptions<number, unknown, RequestParams> = {}
 ): Promise<ApiResult<number, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -110,10 +110,10 @@ export async function getPrimitive(
  * No description
  *
  * @tags EndpointCoverage
- * @name GetDictionary
+ * @name EndpointCoverageGetDictionary
  * @request GET:/api/endpoint-coverage/dictionary
  */
-export async function getDictionary(
+export async function endpointCoverageGetDictionary(
   options: ApiMethodOptions<Record<string, number>, unknown, RequestParams> = {}
 ): Promise<ApiResult<Record<string, number>, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -137,10 +137,10 @@ export async function getDictionary(
  * No description
  *
  * @tags EndpointCoverage
- * @name GetText
+ * @name EndpointCoverageGetText
  * @request GET:/api/endpoint-coverage/text
  */
-export async function getText(
+export async function endpointCoverageGetText(
   options: ApiMethodOptions<void, unknown, RequestParams> = {}
 ): Promise<ApiResult<void, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -159,10 +159,10 @@ export async function getText(
  * No description
  *
  * @tags EndpointCoverage
- * @name DownloadFile
+ * @name EndpointCoverageDownloadFile
  * @request GET:/api/endpoint-coverage/download
  */
-export async function downloadFile(
+export async function endpointCoverageDownloadFile(
   options: ApiMethodOptions<void, unknown, RequestParams> = {}
 ): Promise<ApiResult<void, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -181,11 +181,11 @@ export async function downloadFile(
  * No description
  *
  * @tags EndpointCoverage
- * @name GetPathAndQuery
+ * @name EndpointCoverageGetPathAndQuery
  * @request GET:/api/endpoint-coverage/{id}/details
  */
-export async function getPathAndQuery(
-  pathParams: GetPathAndQueryParams,
+export async function endpointCoverageGetPathAndQuery(
+  pathParams: EndpointCoverageGetPathAndQueryParams,
   options: ApiMethodOptions<EndpointCoverageModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<EndpointCoverageModel, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -210,10 +210,10 @@ export async function getPathAndQuery(
  * No description
  *
  * @tags EndpointCoverage
- * @name PostJson
+ * @name EndpointCoveragePostJson
  * @request POST:/api/endpoint-coverage/json
  */
-export async function postJson(
+export async function endpointCoveragePostJson(
   data: EndpointCoverageRequest,
   options: ApiMethodOptions<EndpointCoverageModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<EndpointCoverageModel, unknown>> {
@@ -240,10 +240,10 @@ export async function postJson(
  * No description
  *
  * @tags EndpointCoverage
- * @name PostPrimitiveBody
+ * @name EndpointCoveragePostPrimitiveBody
  * @request POST:/api/endpoint-coverage/primitive-body
  */
-export async function postPrimitiveBody(
+export async function endpointCoveragePostPrimitiveBody(
   data: string,
   options: ApiMethodOptions<string, unknown, RequestParams> = {}
 ): Promise<ApiResult<string, unknown>> {
@@ -270,11 +270,11 @@ export async function postPrimitiveBody(
  * No description
  *
  * @tags EndpointCoverage
- * @name PostUrlEncoded
+ * @name EndpointCoveragePostUrlEncoded
  * @request POST:/api/endpoint-coverage/url-encoded
  */
-export async function postUrlEncoded(
-  data: PostUrlEncodedPayload,
+export async function endpointCoveragePostUrlEncoded(
+  data: EndpointCoveragePostUrlEncodedPayload,
   options: ApiMethodOptions<EndpointCoverageModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<EndpointCoverageModel, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -300,10 +300,10 @@ export async function postUrlEncoded(
  * No description
  *
  * @tags EndpointCoverage
- * @name PostAccepted
+ * @name EndpointCoveragePostAccepted
  * @request POST:/api/endpoint-coverage/accepted
  */
-export async function postAccepted(
+export async function endpointCoveragePostAccepted(
   data: EndpointCoverageRequest,
   options: ApiMethodOptions<EndpointCoverageModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<EndpointCoverageModel, unknown>> {
@@ -330,11 +330,11 @@ export async function postAccepted(
  * No description
  *
  * @tags EndpointCoverage
- * @name PatchJson
+ * @name EndpointCoveragePatchJson
  * @request PATCH:/api/endpoint-coverage/{id}
  */
-export async function patchJson(
-  pathParams: PatchJsonParams,
+export async function endpointCoveragePatchJson(
+  pathParams: EndpointCoveragePatchJsonParams,
   data: EndpointCoveragePatchRequest,
   options: ApiMethodOptions<EndpointCoverageModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<EndpointCoverageModel, unknown>> {
@@ -361,11 +361,11 @@ export async function patchJson(
  * No description
  *
  * @tags EndpointCoverage
- * @name DeleteNoContent
+ * @name EndpointCoverageDeleteNoContent
  * @request DELETE:/api/endpoint-coverage/{id}/no-content
  */
-export async function deleteNoContent(
-  pathParams: DeleteNoContentParams,
+export async function endpointCoverageDeleteNoContent(
+  pathParams: EndpointCoverageDeleteNoContentParams,
   options: ApiMethodOptions<void, unknown, RequestParams> = {}
 ): Promise<ApiResult<void, unknown>> {
   const { onSuccess, onError, params = {} } = options;

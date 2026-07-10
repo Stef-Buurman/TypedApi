@@ -253,7 +253,7 @@ export interface WarehouseRequest {
   isActive: boolean;
 }
 
-export interface GetPathAndQueryParams {
+export interface EndpointCoverageGetPathAndQueryParams {
   /** @format uuid */
   id: string;
   /** @default false */
@@ -261,39 +261,39 @@ export interface GetPathAndQueryParams {
   culture?: string;
 }
 
-export interface PostUrlEncodedPayload {
+export interface EndpointCoveragePostUrlEncodedPayload {
   name?: string;
   /** @format int32 */
   count?: number;
   enabled?: boolean;
 }
 
-export interface PatchJsonParams {
+export interface EndpointCoveragePatchJsonParams {
   /** @format uuid */
   id: string;
 }
 
-export interface DeleteNoContentParams {
+export interface EndpointCoverageDeleteNoContentParams {
   /** @format uuid */
   id: string;
 }
 
-export interface UploadProductFilesPayload {
+export interface ImportUploadProductFilesPayload {
   files?: File[];
 }
 
-export interface UploadSupplierFilePayload {
+export interface ImportUploadSupplierFilePayload {
   /** @format binary */
   file?: File;
 }
 
-export interface UploadMixedImportPayload {
+export interface ImportUploadMixedImportPayload {
   files?: File[];
   importName?: string;
   validateOnly?: boolean;
 }
 
-export interface GetOrdersQueryParams {
+export interface OrderGetOrdersQueryParams {
   orderIds?: string[];
   orderNumber?: string;
   /** @format uuid */
@@ -322,33 +322,33 @@ export interface GetOrdersQueryParams {
   sortDirection?: "Default" | "Neutral" | "Asc" | "Desc";
 }
 
-export interface GetOrderByIdParams {
+export interface OrderGetOrderByIdParams {
   /** @format uuid */
   id: string;
 }
 
-export interface UpdateOrderParams {
+export interface OrderUpdateOrderParams {
   /** @format uuid */
   id: string;
 }
 
-export interface DeleteOrderParams {
+export interface OrderDeleteOrderParams {
   /** @format uuid */
   id: string;
 }
 
-export interface ApproveOrderParams {
+export interface OrderApproveOrderParams {
   /** @format uuid */
   id: string;
 }
 
-export interface CancelOrderParams {
+export interface OrderCancelOrderParams {
   /** @format uuid */
   id: string;
   reason?: string;
 }
 
-export interface GetProductsQueryParams {
+export interface ProductGetProductsQueryParams {
   productIds?: string[];
   search?: string;
   skus?: string[];
@@ -375,38 +375,38 @@ export interface GetProductsQueryParams {
   sortDirection?: "Default" | "Neutral" | "Asc" | "Desc";
 }
 
-export interface GetProductSortStateParams {
+export interface ProductGetProductSortStateParams {
   sortBy?: string;
   sortDirection?: "Default" | "Neutral" | "Asc" | "Desc";
 }
 
-export interface GetProductByIdParams {
+export interface ProductGetProductByIdParams {
   /** @format uuid */
   id: string;
 }
 
-export interface UpdateProductParams {
+export interface ProductUpdateProductParams {
   /** @format uuid */
   id: string;
 }
 
-export interface DeleteProductParams {
+export interface ProductDeleteProductParams {
   /** @format uuid */
   id: string;
 }
 
-export interface ToggleProductActiveParams {
+export interface ProductToggleProductActiveParams {
   /** @format uuid */
   id: string;
 }
 
-export interface ExportProductsParams {
+export interface ProductExportProductsParams {
   search?: string;
   active?: boolean;
   productIds?: string[];
 }
 
-export interface GetSuppliersQueryParams {
+export interface SupplierGetSuppliersQueryParams {
   supplierIds?: string[];
   companyName?: string;
   countryCodes?: string[];
@@ -423,27 +423,27 @@ export interface GetSuppliersQueryParams {
   sortDirection?: "Default" | "Neutral" | "Asc" | "Desc";
 }
 
-export interface GetSupplierByIdParams {
+export interface SupplierGetSupplierByIdParams {
   /** @format uuid */
   id: string;
 }
 
-export interface UpdateSupplierParams {
+export interface SupplierUpdateSupplierParams {
   /** @format uuid */
   id: string;
 }
 
-export interface DeleteSupplierParams {
+export interface SupplierDeleteSupplierParams {
   /** @format uuid */
   id: string;
 }
 
-export interface VerifySupplierParams {
+export interface SupplierVerifySupplierParams {
   /** @format uuid */
   id: string;
 }
 
-export interface GetWarehousesQueryParams {
+export interface WarehouseGetWarehousesQueryParams {
   search?: string;
   countryCodes?: string[];
   /** @format int32 */
@@ -459,17 +459,17 @@ export interface GetWarehousesQueryParams {
   sortDirection?: "Default" | "Neutral" | "Asc" | "Desc";
 }
 
-export interface GetWarehouseByIdParams {
+export interface WarehouseGetWarehouseByIdParams {
   /** @format uuid */
   id: string;
 }
 
-export interface UpdateWarehouseParams {
+export interface WarehouseUpdateWarehouseParams {
   /** @format uuid */
   id: string;
 }
 
-export interface DeleteWarehouseParams {
+export interface WarehouseDeleteWarehouseParams {
   /** @format uuid */
   id: string;
 }

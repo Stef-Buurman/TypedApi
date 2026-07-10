@@ -13,15 +13,15 @@ import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
 import { typedApiWireSchemas } from "../generated/data-contracts";
 import type {
-  ApproveOrderParams,
-  CancelOrderParams,
-  DeleteOrderParams,
-  GetOrderByIdParams,
-  GetOrdersQueryParams,
+  OrderApproveOrderParams,
+  OrderCancelOrderParams,
+  OrderDeleteOrderParams,
+  OrderGetOrderByIdParams,
+  OrderGetOrdersQueryParams,
   OrderModel,
   OrderModelApiPaginationSortResponse,
   OrderRequest,
-  UpdateOrderParams,
+  OrderUpdateOrderParams,
 } from "../generated/data-contracts";
 import {
   buildQuery,
@@ -44,11 +44,11 @@ import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as type
  * No description
  *
  * @tags Order
- * @name GetOrders
+ * @name OrderGetOrders
  * @request GET:/api/orders
  */
-export async function getOrders(
-  filters: FilterFormValues<GetOrdersQueryParams>[] = [],
+export async function orderGetOrders(
+  filters: FilterFormValues<OrderGetOrdersQueryParams>[] = [],
   page = 1,
   pageSize = 100,
   sortBy: SortableKeys<OrderModelApiPaginationSortResponse> | null = null,
@@ -57,7 +57,7 @@ export async function getOrders(
 ): Promise<ApiResult<OrderModelApiPaginationSortResponse, unknown>> {
   const { onSuccess, onError, params = {} } = options;
   const builtQuery = buildQuery<
-    GetOrdersQueryParams,
+    OrderGetOrdersQueryParams,
     UnwrapArray<ExtractDataIfPaginated<OrderModelApiPaginationSortResponse>>
   >(filters, page, pageSize, sortBy, sortDirection);
 
@@ -81,10 +81,10 @@ export async function getOrders(
  * No description
  *
  * @tags Order
- * @name CreateOrder
+ * @name OrderCreateOrder
  * @request POST:/api/orders
  */
-export async function createOrder(
+export async function orderCreateOrder(
   data: OrderRequest,
   options: ApiMethodOptions<OrderModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<OrderModel, unknown>> {
@@ -111,11 +111,11 @@ export async function createOrder(
  * No description
  *
  * @tags Order
- * @name GetOrderById
+ * @name OrderGetOrderById
  * @request GET:/api/orders/{id}
  */
-export async function getOrderById(
-  pathParams: GetOrderByIdParams,
+export async function orderGetOrderById(
+  pathParams: OrderGetOrderByIdParams,
   options: ApiMethodOptions<OrderModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<OrderModel, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -139,11 +139,11 @@ export async function getOrderById(
  * No description
  *
  * @tags Order
- * @name UpdateOrder
+ * @name OrderUpdateOrder
  * @request PUT:/api/orders/{id}
  */
-export async function updateOrder(
-  pathParams: UpdateOrderParams,
+export async function orderUpdateOrder(
+  pathParams: OrderUpdateOrderParams,
   data: OrderRequest,
   options: ApiMethodOptions<OrderModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<OrderModel, unknown>> {
@@ -170,11 +170,11 @@ export async function updateOrder(
  * No description
  *
  * @tags Order
- * @name DeleteOrder
+ * @name OrderDeleteOrder
  * @request DELETE:/api/orders/{id}
  */
-export async function deleteOrder(
-  pathParams: DeleteOrderParams,
+export async function orderDeleteOrder(
+  pathParams: OrderDeleteOrderParams,
   options: ApiMethodOptions<void, unknown, RequestParams> = {}
 ): Promise<ApiResult<void, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -193,11 +193,11 @@ export async function deleteOrder(
  * No description
  *
  * @tags Order
- * @name ApproveOrder
+ * @name OrderApproveOrder
  * @request POST:/api/orders/{id}/approve
  */
-export async function approveOrder(
-  pathParams: ApproveOrderParams,
+export async function orderApproveOrder(
+  pathParams: OrderApproveOrderParams,
   options: ApiMethodOptions<OrderModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<OrderModel, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -221,11 +221,11 @@ export async function approveOrder(
  * No description
  *
  * @tags Order
- * @name CancelOrder
+ * @name OrderCancelOrder
  * @request POST:/api/orders/{id}/cancel
  */
-export async function cancelOrder(
-  pathParams: CancelOrderParams,
+export async function orderCancelOrder(
+  pathParams: OrderCancelOrderParams,
   options: ApiMethodOptions<OrderModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<OrderModel, unknown>> {
   const { onSuccess, onError, params = {} } = options;

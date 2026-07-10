@@ -13,14 +13,14 @@ import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
 import { typedApiWireSchemas } from "../generated/data-contracts";
 import type {
-  DeleteSupplierParams,
-  GetSupplierByIdParams,
-  GetSuppliersQueryParams,
+  SupplierDeleteSupplierParams,
+  SupplierGetSupplierByIdParams,
+  SupplierGetSuppliersQueryParams,
   SupplierModel,
   SupplierModelApiPaginationResponse,
   SupplierRequest,
-  UpdateSupplierParams,
-  VerifySupplierParams,
+  SupplierUpdateSupplierParams,
+  SupplierVerifySupplierParams,
 } from "../generated/data-contracts";
 import {
   buildQuery,
@@ -43,11 +43,11 @@ import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as type
  * No description
  *
  * @tags Supplier
- * @name GetSuppliers
+ * @name SupplierGetSuppliers
  * @request GET:/api/suppliers
  */
-export async function getSuppliers(
-  filters: FilterFormValues<GetSuppliersQueryParams>[] = [],
+export async function supplierGetSuppliers(
+  filters: FilterFormValues<SupplierGetSuppliersQueryParams>[] = [],
   page = 1,
   pageSize = 100,
   sortBy: SortableKeys<SupplierModelApiPaginationResponse> | null = null,
@@ -56,7 +56,7 @@ export async function getSuppliers(
 ): Promise<ApiResult<SupplierModelApiPaginationResponse, unknown>> {
   const { onSuccess, onError, params = {} } = options;
   const builtQuery = buildQuery<
-    GetSuppliersQueryParams,
+    SupplierGetSuppliersQueryParams,
     UnwrapArray<ExtractDataIfPaginated<SupplierModelApiPaginationResponse>>
   >(filters, page, pageSize, sortBy, sortDirection);
 
@@ -80,10 +80,10 @@ export async function getSuppliers(
  * No description
  *
  * @tags Supplier
- * @name CreateSupplier
+ * @name SupplierCreateSupplier
  * @request POST:/api/suppliers
  */
-export async function createSupplier(
+export async function supplierCreateSupplier(
   data: SupplierRequest,
   options: ApiMethodOptions<SupplierModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<SupplierModel, unknown>> {
@@ -110,11 +110,11 @@ export async function createSupplier(
  * No description
  *
  * @tags Supplier
- * @name GetSupplierById
+ * @name SupplierGetSupplierById
  * @request GET:/api/suppliers/{id}
  */
-export async function getSupplierById(
-  pathParams: GetSupplierByIdParams,
+export async function supplierGetSupplierById(
+  pathParams: SupplierGetSupplierByIdParams,
   options: ApiMethodOptions<SupplierModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<SupplierModel, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -138,11 +138,11 @@ export async function getSupplierById(
  * No description
  *
  * @tags Supplier
- * @name UpdateSupplier
+ * @name SupplierUpdateSupplier
  * @request PUT:/api/suppliers/{id}
  */
-export async function updateSupplier(
-  pathParams: UpdateSupplierParams,
+export async function supplierUpdateSupplier(
+  pathParams: SupplierUpdateSupplierParams,
   data: SupplierRequest,
   options: ApiMethodOptions<SupplierModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<SupplierModel, unknown>> {
@@ -169,11 +169,11 @@ export async function updateSupplier(
  * No description
  *
  * @tags Supplier
- * @name DeleteSupplier
+ * @name SupplierDeleteSupplier
  * @request DELETE:/api/suppliers/{id}
  */
-export async function deleteSupplier(
-  pathParams: DeleteSupplierParams,
+export async function supplierDeleteSupplier(
+  pathParams: SupplierDeleteSupplierParams,
   options: ApiMethodOptions<void, unknown, RequestParams> = {}
 ): Promise<ApiResult<void, unknown>> {
   const { onSuccess, onError, params = {} } = options;
@@ -192,11 +192,11 @@ export async function deleteSupplier(
  * No description
  *
  * @tags Supplier
- * @name VerifySupplier
+ * @name SupplierVerifySupplier
  * @request POST:/api/suppliers/{id}/verify
  */
-export async function verifySupplier(
-  pathParams: VerifySupplierParams,
+export async function supplierVerifySupplier(
+  pathParams: SupplierVerifySupplierParams,
   options: ApiMethodOptions<SupplierModel, unknown, RequestParams> = {}
 ): Promise<ApiResult<SupplierModel, unknown>> {
   const { onSuccess, onError, params = {} } = options;
