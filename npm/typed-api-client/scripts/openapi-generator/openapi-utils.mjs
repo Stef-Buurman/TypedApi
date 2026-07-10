@@ -1,7 +1,14 @@
 import { operationMethodName, operationTypeName } from "./names.mjs";
 
 export const httpMethods = new Set([
-  "get", "put", "post", "delete", "options", "head", "patch", "trace",
+  "get",
+  "put",
+  "post",
+  "delete",
+  "options",
+  "head",
+  "patch",
+  "trace",
 ]);
 
 export function isObject(value) {
@@ -32,7 +39,8 @@ export function dereference(openApi, value, kind = "OpenAPI reference") {
 }
 
 export function getParameterSchema(openApi, parameter) {
-  if (parameter?.schema) return dereference(openApi, parameter.schema, "Parameter schema reference");
+  if (parameter?.schema)
+    return dereference(openApi, parameter.schema, "Parameter schema reference");
 
   const content = parameter?.content ?? {};
   const mediaTypes = Object.entries(content);
@@ -42,11 +50,19 @@ export function getParameterSchema(openApi, parameter) {
       `Parameter ${JSON.stringify(parameter?.name ?? "unknown")} contains multiple media types, which is not supported.`,
     );
   }
-  return dereference(openApi, mediaTypes[0][1]?.schema ?? {}, "Parameter content schema reference");
+  return dereference(
+    openApi,
+    mediaTypes[0][1]?.schema ?? {},
+    "Parameter content schema reference",
+  );
 }
 
 export function getRequestBodyContent(openApi, requestBodyOrRef) {
-  const requestBody = dereference(openApi, requestBodyOrRef, "Request body reference");
+  const requestBody = dereference(
+    openApi,
+    requestBodyOrRef,
+    "Request body reference",
+  );
   const content = requestBody?.content ?? {};
   const preferredTypes = [
     "application/json",
@@ -58,24 +74,42 @@ export function getRequestBodyContent(openApi, requestBodyOrRef) {
   ];
 
   for (const contentType of preferredTypes) {
-    if (content[contentType]) return { contentType, mediaType: content[contentType], requestBody };
+    if (content[contentType])
+      return { contentType, mediaType: content[contentType], requestBody };
   }
 
   const [contentType, mediaType] = Object.entries(content)[0] ?? [];
   return contentType ? { contentType, mediaType, requestBody } : undefined;
 }
 
-export function getSuccessResponse(openApi, operation, defaultResponseAsSuccess = false) {
+export function getSuccessResponse(
+  openApi,
+  operation,
+  defaultResponseAsSuccess = false,
+) {
   const responses = operation.responses ?? {};
   const preferredStatusCodes = [
-    "200", "201", "202", "203", "204", "205", "206", "207", "208", "226",
+    "200",
+    "201",
+    "202",
+    "203",
+    "204",
+    "205",
+    "206",
+    "207",
+    "208",
+    "226",
   ];
 
   for (const statusCode of preferredStatusCodes) {
     if (responses[statusCode]) {
       return {
         statusCode,
-        response: dereference(openApi, responses[statusCode], "Response reference"),
+        response: dereference(
+          openApi,
+          responses[statusCode],
+          "Response reference",
+        ),
       };
     }
   }
@@ -102,7 +136,10 @@ export function getSuccessResponse(openApi, operation, defaultResponseAsSuccess 
 
 export function getErrorResponses(openApi, operation) {
   return Object.entries(operation.responses ?? {})
-    .filter(([statusCode]) => statusCode === "default" || !/^2(?:\d\d|XX)$/i.test(statusCode))
+    .filter(
+      ([statusCode]) =>
+        statusCode === "default" || !/^2(?:\d\d|XX)$/i.test(statusCode),
+    )
     .map(([statusCode, response]) => ({
       statusCode,
       response: dereference(openApi, response, "Response reference"),
@@ -120,7 +157,8 @@ export function getResponseContent(response) {
   ];
 
   for (const contentType of preferredTypes) {
-    if (content[contentType]) return { contentType, mediaType: content[contentType] };
+    if (content[contentType])
+      return { contentType, mediaType: content[contentType] };
   }
 
   const [contentType, mediaType] = Object.entries(content)[0] ?? [];
@@ -138,20 +176,77 @@ function getTypedApiOperationMetadata(operation) {
   return isObject(metadata) ? metadata : {};
 }
 
-function resolveMethodNameSource(operation, rawOperationId, options, method, routePath) {
+function normalizeControllerName(value) {
+  return String(value ?? "")
+    .trim()
+    .replace(/Controller$/i, "")
+    .trim();
+}
+
+function resolveControllerName(operation, routePath) {
+  const metadataControllerName = normalizeControllerName(
+    getTypedApiOperationMetadata(operation).controllerName,
+  );
+  if (metadataControllerName) return metadataControllerName;
+
+  const [tag] = operation.tags ?? [];
+  const tagControllerName = normalizeControllerName(tag);
+  if (tagControllerName) return tagControllerName;
+
+  const parts = routePath.split("/").filter(Boolean);
+  return normalizeControllerName(parts[1] ?? parts[0] ?? "");
+}
+
+function controllerActionName(controllerName, actionName) {
+  const normalizedControllerName = normalizeControllerName(controllerName);
+  const normalizedActionName = String(actionName ?? "").trim();
+
+  if (!normalizedControllerName) return normalizedActionName;
+  if (!normalizedActionName) return normalizedControllerName;
+
+  if (
+    normalizedActionName
+      .toLowerCase()
+      .startsWith(normalizedControllerName.toLowerCase())
+  ) {
+    return normalizedActionName;
+  }
+
+  return `${normalizedControllerName}${normalizedActionName}`;
+}
+
+function resolveMethodNameSource(
+  operation,
+  rawOperationId,
+  options,
+  method,
+  routePath,
+) {
   const style = options.methodNameStyle ?? "operationId";
   if (style === "operationId") return rawOperationId;
 
   if (style === "action") {
-    const actionName = String(getTypedApiOperationMetadata(operation).actionName ?? "").trim();
+    const metadata = getTypedApiOperationMetadata(operation);
+    const actionName = String(metadata.actionName ?? "").trim();
+
     if (!actionName) {
       throw new Error(
         `Cannot use typedApiMethodNameStyle "action" for ${method.toUpperCase()} ${routePath}: ` +
           "the operation does not contain x-typedapi-operation.actionName metadata. " +
-          'Update TypedApi.Swagger to the matching 0.3.0 package or use typedApiMethodNameStyle "operationId".', 
+          'Update TypedApi.Swagger to the matching 0.3.0 package or use typedApiMethodNameStyle "operationId".',
       );
     }
-    return actionName;
+
+    const controllerName = resolveControllerName(operation, routePath);
+
+    if (!controllerName) {
+      throw new Error(
+        `Cannot use typedApiMethodNameStyle "action" for ${method.toUpperCase()} ${routePath}: ` +
+          "the controller name could not be determined from x-typedapi-operation.controllerName, the first tag, or the route.",
+      );
+    }
+
+    return controllerActionName(controllerName, actionName);
   }
 
   throw new Error(
@@ -165,10 +260,14 @@ export function collectOperations(openApi, options = {}) {
   const typeNames = new Map();
   const methodNames = new Map();
 
-  for (const [routePath, pathItemOrRef] of Object.entries(openApi.paths ?? {})) {
+  for (const [routePath, pathItemOrRef] of Object.entries(
+    openApi.paths ?? {},
+  )) {
     const pathItem = dereference(openApi, pathItemOrRef, "Path item reference");
     const pathParameters = Array.isArray(pathItem.parameters)
-      ? pathItem.parameters.map((item) => dereference(openApi, item, "Parameter reference"))
+      ? pathItem.parameters.map((item) =>
+          dereference(openApi, item, "Parameter reference"),
+        )
       : [];
 
     for (const [method, operation] of Object.entries(pathItem)) {
@@ -219,14 +318,19 @@ export function collectOperations(openApi, options = {}) {
           `Generated TypeScript method name ${JSON.stringify(methodName)} is duplicated by ` +
             `${JSON.stringify(previous.operationId)} and ${JSON.stringify(rawOperationId)} ` +
             `while typedApiMethodNameStyle is ${JSON.stringify(options.methodNameStyle ?? "operationId")}. ` +
-            'Rename one controller action or use typedApiMethodNameStyle "operationId".', 
+            'Rename one controller action or use typedApiMethodNameStyle "operationId".',
         );
       }
       typeNames.set(operationId, rawOperationId);
-      methodNames.set(methodName, { operationId: rawOperationId, source: methodNameSource });
+      methodNames.set(methodName, {
+        operationId: rawOperationId,
+        source: methodNameSource,
+      });
 
       const operationParameters = Array.isArray(operation.parameters)
-        ? operation.parameters.map((item) => dereference(openApi, item, "Parameter reference"))
+        ? operation.parameters.map((item) =>
+            dereference(openApi, item, "Parameter reference"),
+          )
         : [];
       const parametersByKey = new Map();
       for (const parameter of [...pathParameters, ...operationParameters]) {
@@ -238,10 +342,14 @@ export function collectOperations(openApi, options = {}) {
           );
         }
         if (!name) {
-          throw new Error(`A ${location} parameter for ${method.toUpperCase()} ${routePath} has no name.`);
+          throw new Error(
+            `A ${location} parameter for ${method.toUpperCase()} ${routePath} has no name.`,
+          );
         }
         if (location === "path" && parameter.required !== true) {
-          throw new Error(`Path parameter ${JSON.stringify(name)} must be required for ${method.toUpperCase()} ${routePath}.`);
+          throw new Error(
+            `Path parameter ${JSON.stringify(name)} must be required for ${method.toUpperCase()} ${routePath}.`,
+          );
         }
         parametersByKey.set(`${location}:${name}`, parameter);
       }
@@ -265,14 +373,24 @@ export function collectOperations(openApi, options = {}) {
 }
 
 export function validateOpenApiDocument(openApi, options = {}) {
-  if (!isObject(openApi)) throw new Error("The OpenAPI input is not a JSON object.");
-  if (typeof openApi.openapi !== "string" || !openApi.openapi.startsWith("3.")) {
+  if (!isObject(openApi))
+    throw new Error("The OpenAPI input is not a JSON object.");
+  if (
+    typeof openApi.openapi !== "string" ||
+    !openApi.openapi.startsWith("3.")
+  ) {
     throw new Error(
       `TypedApi requires an OpenAPI 3.x document. Received: ${JSON.stringify(openApi.openapi ?? openApi.swagger ?? "unknown")}.`,
     );
   }
-  if (!isObject(openApi.info)) throw new Error("The OpenAPI document does not contain a valid info object.");
-  if (!isObject(openApi.paths)) throw new Error("The OpenAPI document does not contain a valid paths object.");
+  if (!isObject(openApi.info))
+    throw new Error(
+      "The OpenAPI document does not contain a valid info object.",
+    );
+  if (!isObject(openApi.paths))
+    throw new Error(
+      "The OpenAPI document does not contain a valid paths object.",
+    );
 
   const contract = openApi["x-typedapi"];
   if (contract?.contractVersion !== undefined) {
