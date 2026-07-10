@@ -1,6 +1,6 @@
 {
   "name": "typedapi-client-helpers",
-  "version": "0.2.1",
+  "version": "0.3.1",
   "description": "Reusable typed OpenAPI client helpers.",
   "license": "MIT",
   "keywords": [
@@ -28,14 +28,14 @@
     "sorting"
   ],
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -43,7 +43,8 @@
     "dist",
     "scripts",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md"
   ],
   "bin": {
     "typedapi-generate": "./scripts/generate-api-minimal.mjs"
@@ -68,17 +69,22 @@
     "typedApiDefaultResponseAsSuccess": false,
     "typedApiGenerateUnionEnums": false,
     "typedApiEnumNamesAsValues": false,
-    "typedApiSwaggerBackupFile": "swagger/swagger.backup.json"
+    "typedApiSwaggerBackupFile": "swagger/swagger.backup.json",
+    "typedApiDownloadTimeoutMs": 15000,
+    "typedApiGenerateMissingOperationIds": false,
+    "typedApiMethodNameStyle": "operationId",
+    "typedApiPrefixMethodNamesWithController": false
   },
   "scripts": {
     "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
-    "typecheck": "tsc --noEmit",
-    "build": "npm run clean && tsup src/index.ts --format esm,cjs --dts",
+    "typecheck": "node ./node_modules/typescript/bin/tsc --noEmit",
+    "build": "node ./scripts/build.mjs",
     "prepack": "npm run typecheck && npm run build",
-    "generate:api": "node ./scripts/generate-api-minimal.mjs"
+    "generate:api": "node ./scripts/generate-api-minimal.mjs",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "verify": "npm run typecheck && npm test"
   },
   "devDependencies": {
-    "tsup": "^8.5.1",
     "typescript": "5.8.3"
   }
 }

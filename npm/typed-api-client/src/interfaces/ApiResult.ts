@@ -1,9 +1,38 @@
-/**
- * Standard result wrapper returned by generated API wrapper methods.
- *
- * When `ok` is true, the request succeeded and `response` contains the expected data.
- * When `ok` is false, the request failed and `error` contains the thrown or returned error value.
- */
+export type ApiHttpErrorBody =
+  | string
+  | number
+  | boolean
+  | null
+  | Blob
+  | undefined
+  | ApiHttpErrorBody[]
+  | { [key: string]: ApiHttpErrorBody };
+
+/** An HTTP error response without a documented OpenAPI error schema. */
+export type ApiHttpError = {
+  kind: "http";
+  status: number;
+  body: ApiHttpErrorBody;
+};
+
+/** Errors created by the TypedApi runtime before a typed HTTP error body is available. */
+export type ApiClientError =
+  | {
+      kind: "network";
+      cause: unknown;
+    }
+  | {
+      kind: "aborted";
+      cause: unknown;
+    }
+  | {
+      kind: "parse";
+      status: number;
+      rawBody: string;
+      cause: unknown;
+    };
+
+/** Standard result wrapper returned by generated API wrapper methods. */
 export type ApiResult<TResponse, TError = unknown> =
   | {
       ok: true;
@@ -15,24 +44,14 @@ export type ApiResult<TResponse, TError = unknown> =
       ok: false;
       status: number;
       response?: undefined;
-      error: TError;
+      error: TError | ApiClientError;
     };
 
-/**
- * Narrowed success branch of `ApiResult<T>`.
- *
- * Use this type for success callbacks or helper functions that should only receive successful API results.
- */
 export type ApiSuccessResult<TResponse, TError = unknown> = Extract<
   ApiResult<TResponse, TError>,
   { ok: true }
 >;
 
-/**
- * Narrowed error branch of `ApiResult<T>`.
- *
- * Use this type for error callbacks or helper functions that should only receive failed API results.
- */
 export type ApiErrorResult<TResponse, TError = unknown> = Extract<
   ApiResult<TResponse, TError>,
   { ok: false }

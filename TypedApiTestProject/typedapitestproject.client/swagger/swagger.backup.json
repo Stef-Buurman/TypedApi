@@ -10,7 +10,7 @@
         "tags": [
           "EndpointCoverage"
         ],
-        "operationId": "GetObject",
+        "operationId": "EndpointCoverage_GetObject_GET_api_endpoint_coverage_object",
         "responses": {
           "200": {
             "description": "OK",
@@ -32,6 +32,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "GetObject"
         }
       }
     },
@@ -40,7 +44,7 @@
         "tags": [
           "EndpointCoverage"
         ],
-        "operationId": "GetArray",
+        "operationId": "EndpointCoverage_GetArray_GET_api_endpoint_coverage_array",
         "responses": {
           "200": {
             "description": "OK",
@@ -71,6 +75,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "GetArray"
         }
       }
     },
@@ -79,7 +87,7 @@
         "tags": [
           "EndpointCoverage"
         ],
-        "operationId": "GetPrimitive",
+        "operationId": "EndpointCoverage_GetPrimitive_GET_api_endpoint_coverage_primitive",
         "responses": {
           "200": {
             "description": "OK",
@@ -104,6 +112,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "GetPrimitive"
         }
       }
     },
@@ -112,7 +124,7 @@
         "tags": [
           "EndpointCoverage"
         ],
-        "operationId": "GetDictionary",
+        "operationId": "EndpointCoverage_GetDictionary_GET_api_endpoint_coverage_dictionary",
         "responses": {
           "200": {
             "description": "OK",
@@ -146,6 +158,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "GetDictionary"
         }
       }
     },
@@ -154,11 +170,15 @@
         "tags": [
           "EndpointCoverage"
         ],
-        "operationId": "GetText",
+        "operationId": "EndpointCoverage_GetText_GET_api_endpoint_coverage_text",
         "responses": {
           "200": {
             "description": "OK"
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "GetText"
         }
       }
     },
@@ -167,11 +187,15 @@
         "tags": [
           "EndpointCoverage"
         ],
-        "operationId": "DownloadFile",
+        "operationId": "EndpointCoverage_DownloadFile_GET_api_endpoint_coverage_download",
         "responses": {
           "200": {
             "description": "OK"
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "DownloadFile"
         }
       }
     },
@@ -180,7 +204,7 @@
         "tags": [
           "EndpointCoverage"
         ],
-        "operationId": "GetPathAndQuery",
+        "operationId": "EndpointCoverage_GetPathAndQuery_GET_api_endpoint_coverage_id_details",
         "parameters": [
           {
             "name": "id",
@@ -228,6 +252,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "GetPathAndQuery"
         }
       }
     },
@@ -236,7 +264,7 @@
         "tags": [
           "EndpointCoverage"
         ],
-        "operationId": "PostJson",
+        "operationId": "EndpointCoverage_PostJson_POST_api_endpoint_coverage_json",
         "requestBody": {
           "content": {
             "application/json": {
@@ -277,6 +305,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "PostJson"
         }
       }
     },
@@ -285,7 +317,7 @@
         "tags": [
           "EndpointCoverage"
         ],
-        "operationId": "PostPrimitiveBody",
+        "operationId": "EndpointCoverage_PostPrimitiveBody_POST_api_endpoint_coverage_primitive_body",
         "requestBody": {
           "content": {
             "application/json": {
@@ -326,6 +358,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "PostPrimitiveBody"
         }
       }
     },
@@ -334,7 +370,7 @@
         "tags": [
           "EndpointCoverage"
         ],
-        "operationId": "PostUrlEncoded",
+        "operationId": "EndpointCoverage_PostUrlEncoded_POST_api_endpoint_coverage_url_encoded",
         "requestBody": {
           "content": {
             "application/x-www-form-urlencoded": {
@@ -388,6 +424,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "PostUrlEncoded"
         }
       }
     },
@@ -396,7 +436,7 @@
         "tags": [
           "EndpointCoverage"
         ],
-        "operationId": "PostAccepted",
+        "operationId": "EndpointCoverage_PostAccepted_POST_api_endpoint_coverage_accepted",
         "requestBody": {
           "content": {
             "application/json": {
@@ -437,6 +477,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "PostAccepted"
         }
       }
     },
@@ -445,7 +489,7 @@
         "tags": [
           "EndpointCoverage"
         ],
-        "operationId": "PatchJson",
+        "operationId": "EndpointCoverage_PatchJson_PATCH_api_endpoint_coverage_id",
         "parameters": [
           {
             "name": "id",
@@ -497,6 +541,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "PatchJson"
         }
       }
     },
@@ -505,7 +553,7 @@
         "tags": [
           "EndpointCoverage"
         ],
-        "operationId": "DeleteNoContent",
+        "operationId": "EndpointCoverage_DeleteNoContent_DELETE_api_endpoint_coverage_id_no_content",
         "parameters": [
           {
             "name": "id",
@@ -521,6 +569,10 @@
           "204": {
             "description": "No Content"
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "DeleteNoContent"
         }
       }
     },
@@ -529,7 +581,7 @@
         "tags": [
           "Import"
         ],
-        "operationId": "UploadProductFiles",
+        "operationId": "Import_UploadProductFiles_POST_api_imports_products",
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -574,6 +626,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Import",
+          "actionName": "UploadProductFiles"
         }
       }
     },
@@ -582,7 +638,7 @@
         "tags": [
           "Import"
         ],
-        "operationId": "UploadSupplierFile",
+        "operationId": "Import_UploadSupplierFile_POST_api_imports_supplier",
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -624,6 +680,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Import",
+          "actionName": "UploadSupplierFile"
         }
       }
     },
@@ -632,7 +692,7 @@
         "tags": [
           "Import"
         ],
-        "operationId": "UploadMixedImport",
+        "operationId": "Import_UploadMixedImport_POST_api_imports_mixed",
         "requestBody": {
           "content": {
             "multipart/form-data": {
@@ -689,6 +749,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Import",
+          "actionName": "UploadMixedImport"
         }
       }
     },
@@ -697,7 +761,7 @@
         "tags": [
           "Order"
         ],
-        "operationId": "GetOrders",
+        "operationId": "Order_GetOrders_GET_api_orders",
         "parameters": [
           {
             "name": "OrderIds",
@@ -802,6 +866,8 @@
             "name": "PageNumber",
             "in": "query",
             "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer",
               "format": "int32"
             }
@@ -850,13 +916,24 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Order",
+          "actionName": "GetOrders"
+        },
+        "x-typedapi-pagination": {
+          "pageProperty": "PageNumber",
+          "pageSizeProperty": "PageSize",
+          "sortProperty": "SortBy",
+          "directionProperty": "SortDirection",
+          "dataProperty": "data"
         }
       },
       "post": {
         "tags": [
           "Order"
         ],
-        "operationId": "CreateOrder",
+        "operationId": "Order_CreateOrder_POST_api_orders",
         "requestBody": {
           "content": {
             "application/json": {
@@ -897,6 +974,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Order",
+          "actionName": "CreateOrder"
         }
       }
     },
@@ -905,7 +986,7 @@
         "tags": [
           "Order"
         ],
-        "operationId": "GetOrderById",
+        "operationId": "Order_GetOrderById_GET_api_orders_id",
         "parameters": [
           {
             "name": "id",
@@ -938,13 +1019,17 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Order",
+          "actionName": "GetOrderById"
         }
       },
       "put": {
         "tags": [
           "Order"
         ],
-        "operationId": "UpdateOrder",
+        "operationId": "Order_UpdateOrder_PUT_api_orders_id",
         "parameters": [
           {
             "name": "id",
@@ -996,13 +1081,17 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Order",
+          "actionName": "UpdateOrder"
         }
       },
       "delete": {
         "tags": [
           "Order"
         ],
-        "operationId": "DeleteOrder",
+        "operationId": "Order_DeleteOrder_DELETE_api_orders_id",
         "parameters": [
           {
             "name": "id",
@@ -1018,6 +1107,10 @@
           "200": {
             "description": "OK"
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Order",
+          "actionName": "DeleteOrder"
         }
       }
     },
@@ -1026,7 +1119,7 @@
         "tags": [
           "Order"
         ],
-        "operationId": "ApproveOrder",
+        "operationId": "Order_ApproveOrder_POST_api_orders_id_approve",
         "parameters": [
           {
             "name": "id",
@@ -1059,6 +1152,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Order",
+          "actionName": "ApproveOrder"
         }
       }
     },
@@ -1067,7 +1164,7 @@
         "tags": [
           "Order"
         ],
-        "operationId": "CancelOrder",
+        "operationId": "Order_CancelOrder_POST_api_orders_id_cancel",
         "parameters": [
           {
             "name": "id",
@@ -1107,6 +1204,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Order",
+          "actionName": "CancelOrder"
         }
       }
     },
@@ -1115,7 +1216,7 @@
         "tags": [
           "Product"
         ],
-        "operationId": "GetProducts",
+        "operationId": "Product_GetProducts_GET_api_products",
         "parameters": [
           {
             "name": "ProductIds",
@@ -1212,6 +1313,8 @@
             "name": "PageNumber",
             "in": "query",
             "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer",
               "format": "int32"
             }
@@ -1260,13 +1363,24 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Product",
+          "actionName": "GetProducts"
+        },
+        "x-typedapi-pagination": {
+          "pageProperty": "PageNumber",
+          "pageSizeProperty": "PageSize",
+          "sortProperty": "SortBy",
+          "directionProperty": "SortDirection",
+          "dataProperty": "data"
         }
       },
       "post": {
         "tags": [
           "Product"
         ],
-        "operationId": "CreateProduct",
+        "operationId": "Product_CreateProduct_POST_api_products",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1307,6 +1421,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Product",
+          "actionName": "CreateProduct"
         }
       }
     },
@@ -1315,7 +1433,7 @@
         "tags": [
           "Product"
         ],
-        "operationId": "GetProductSortState",
+        "operationId": "Product_GetProductSortState_GET_api_products_sort_state",
         "parameters": [
           {
             "name": "sortBy",
@@ -1353,6 +1471,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Product",
+          "actionName": "GetProductSortState"
         }
       }
     },
@@ -1361,7 +1483,7 @@
         "tags": [
           "Product"
         ],
-        "operationId": "GetProductById",
+        "operationId": "Product_GetProductById_GET_api_products_id",
         "parameters": [
           {
             "name": "id",
@@ -1394,13 +1516,17 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Product",
+          "actionName": "GetProductById"
         }
       },
       "put": {
         "tags": [
           "Product"
         ],
-        "operationId": "UpdateProduct",
+        "operationId": "Product_UpdateProduct_PUT_api_products_id",
         "parameters": [
           {
             "name": "id",
@@ -1452,13 +1578,17 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Product",
+          "actionName": "UpdateProduct"
         }
       },
       "delete": {
         "tags": [
           "Product"
         ],
-        "operationId": "DeleteProduct",
+        "operationId": "Product_DeleteProduct_DELETE_api_products_id",
         "parameters": [
           {
             "name": "id",
@@ -1474,6 +1604,10 @@
           "200": {
             "description": "OK"
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Product",
+          "actionName": "DeleteProduct"
         }
       }
     },
@@ -1482,7 +1616,7 @@
         "tags": [
           "Product"
         ],
-        "operationId": "ToggleProductActive",
+        "operationId": "Product_ToggleProductActive_POST_api_products_id_toggle_active",
         "parameters": [
           {
             "name": "id",
@@ -1515,6 +1649,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Product",
+          "actionName": "ToggleProductActive"
         }
       }
     },
@@ -1523,7 +1661,7 @@
         "tags": [
           "Product"
         ],
-        "operationId": "ExportProducts",
+        "operationId": "Product_ExportProducts_GET_api_products_export",
         "parameters": [
           {
             "name": "search",
@@ -1555,6 +1693,10 @@
           "200": {
             "description": "OK"
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Product",
+          "actionName": "ExportProducts"
         }
       }
     },
@@ -1563,7 +1705,7 @@
         "tags": [
           "Supplier"
         ],
-        "operationId": "GetSuppliers",
+        "operationId": "Supplier_GetSuppliers_GET_api_suppliers",
         "parameters": [
           {
             "name": "SupplierIds",
@@ -1620,6 +1762,8 @@
             "name": "PageNumber",
             "in": "query",
             "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer",
               "format": "int32"
             }
@@ -1668,13 +1812,24 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Supplier",
+          "actionName": "GetSuppliers"
+        },
+        "x-typedapi-pagination": {
+          "pageProperty": "PageNumber",
+          "pageSizeProperty": "PageSize",
+          "sortProperty": "SortBy",
+          "directionProperty": "SortDirection",
+          "dataProperty": "data"
         }
       },
       "post": {
         "tags": [
           "Supplier"
         ],
-        "operationId": "CreateSupplier",
+        "operationId": "Supplier_CreateSupplier_POST_api_suppliers",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1715,6 +1870,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Supplier",
+          "actionName": "CreateSupplier"
         }
       }
     },
@@ -1723,7 +1882,7 @@
         "tags": [
           "Supplier"
         ],
-        "operationId": "GetSupplierById",
+        "operationId": "Supplier_GetSupplierById_GET_api_suppliers_id",
         "parameters": [
           {
             "name": "id",
@@ -1756,13 +1915,17 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Supplier",
+          "actionName": "GetSupplierById"
         }
       },
       "put": {
         "tags": [
           "Supplier"
         ],
-        "operationId": "UpdateSupplier",
+        "operationId": "Supplier_UpdateSupplier_PUT_api_suppliers_id",
         "parameters": [
           {
             "name": "id",
@@ -1814,13 +1977,17 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Supplier",
+          "actionName": "UpdateSupplier"
         }
       },
       "delete": {
         "tags": [
           "Supplier"
         ],
-        "operationId": "DeleteSupplier",
+        "operationId": "Supplier_DeleteSupplier_DELETE_api_suppliers_id",
         "parameters": [
           {
             "name": "id",
@@ -1836,6 +2003,10 @@
           "200": {
             "description": "OK"
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Supplier",
+          "actionName": "DeleteSupplier"
         }
       }
     },
@@ -1844,7 +2015,7 @@
         "tags": [
           "Supplier"
         ],
-        "operationId": "VerifySupplier",
+        "operationId": "Supplier_VerifySupplier_POST_api_suppliers_id_verify",
         "parameters": [
           {
             "name": "id",
@@ -1877,6 +2048,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Supplier",
+          "actionName": "VerifySupplier"
         }
       }
     },
@@ -1885,7 +2060,7 @@
         "tags": [
           "Warehouse"
         ],
-        "operationId": "GetWarehouses",
+        "operationId": "Warehouse_GetWarehouses_GET_api_warehouses",
         "parameters": [
           {
             "name": "Search",
@@ -1931,6 +2106,8 @@
             "name": "PageNumber",
             "in": "query",
             "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer",
               "format": "int32"
             }
@@ -1979,13 +2156,24 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Warehouse",
+          "actionName": "GetWarehouses"
+        },
+        "x-typedapi-pagination": {
+          "pageProperty": "PageNumber",
+          "pageSizeProperty": "PageSize",
+          "sortProperty": "SortBy",
+          "directionProperty": "SortDirection",
+          "dataProperty": "data"
         }
       },
       "post": {
         "tags": [
           "Warehouse"
         ],
-        "operationId": "CreateWarehouse",
+        "operationId": "Warehouse_CreateWarehouse_POST_api_warehouses",
         "requestBody": {
           "content": {
             "application/json": {
@@ -2026,6 +2214,10 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Warehouse",
+          "actionName": "CreateWarehouse"
         }
       }
     },
@@ -2034,7 +2226,7 @@
         "tags": [
           "Warehouse"
         ],
-        "operationId": "GetWarehouseById",
+        "operationId": "Warehouse_GetWarehouseById_GET_api_warehouses_id",
         "parameters": [
           {
             "name": "id",
@@ -2067,13 +2259,17 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Warehouse",
+          "actionName": "GetWarehouseById"
         }
       },
       "put": {
         "tags": [
           "Warehouse"
         ],
-        "operationId": "UpdateWarehouse",
+        "operationId": "Warehouse_UpdateWarehouse_PUT_api_warehouses_id",
         "parameters": [
           {
             "name": "id",
@@ -2125,13 +2321,17 @@
               }
             }
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Warehouse",
+          "actionName": "UpdateWarehouse"
         }
       },
       "delete": {
         "tags": [
           "Warehouse"
         ],
-        "operationId": "DeleteWarehouse",
+        "operationId": "Warehouse_DeleteWarehouse_DELETE_api_warehouses_id",
         "parameters": [
           {
             "name": "id",
@@ -2147,6 +2347,10 @@
           "200": {
             "description": "OK"
           }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Warehouse",
+          "actionName": "DeleteWarehouse"
         }
       }
     }
@@ -2351,7 +2555,8 @@
           },
           "totalRecords": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "deprecated": true
           },
           "sortBy": {
             "type": "string",
@@ -2412,7 +2617,8 @@
           "Shipped",
           "Cancelled"
         ],
-        "type": "string"
+        "type": "string",
+        "x-enumFlags": false
       },
       "ProductModel": {
         "required": [
@@ -2565,7 +2771,8 @@
           },
           "totalRecords": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "deprecated": true
           },
           "sortBy": {
             "type": "string",
@@ -2584,7 +2791,8 @@
           "Asc",
           "Desc"
         ],
-        "type": "string"
+        "type": "string",
+        "x-enumFlags": false
       },
       "SupplierModel": {
         "required": [
@@ -2655,7 +2863,8 @@
           },
           "totalRecords": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "deprecated": true
           }
         },
         "additionalProperties": false
@@ -2781,7 +2990,8 @@
           },
           "totalRecords": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "deprecated": true
           }
         },
         "additionalProperties": false
@@ -2840,5 +3050,10 @@
     {
       "name": "Warehouse"
     }
-  ]
+  ],
+  "x-typedapi": {
+    "contractVersion": 1,
+    "producer": "TypedApi.Swagger",
+    "producerVersion": "0.3.0"
+  }
 }

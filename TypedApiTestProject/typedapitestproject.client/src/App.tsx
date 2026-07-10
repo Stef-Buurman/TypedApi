@@ -2,25 +2,59 @@ import { useMemo, useState } from "react";
 import "./App.css";
 import type { ApiResult } from "typedapi-client-helpers";
 import { OrderStatus } from "./api/generated/data-contracts";
-import { uploadProductFiles, uploadSupplierFile, uploadMixedImport } from "./api/methods/Import.api";
-import { getOrders, createOrder, getOrderById, updateOrder, approveOrder, cancelOrder, deleteOrder } from "./api/methods/Order.api";
-import { getProducts, createProduct, getProductById, updateProduct, toggleProductActive, exportProducts, deleteProduct, getProductSortState } from "./api/methods/Product.api";
-import { getSuppliers, createSupplier, getSupplierById, updateSupplier, verifySupplier, deleteSupplier } from "./api/methods/Supplier.api";
-import { getWarehouses, createWarehouse, getWarehouseById, updateWarehouse, deleteWarehouse } from "./api/methods/Warehouse.api";
 import {
-  deleteNoContent,
-  downloadFile,
-  getArray,
-  getDictionary,
-  getObject,
-  getPathAndQuery,
-  getPrimitive,
-  getText,
-  patchJson,
-  postAccepted,
-  postJson,
-  postPrimitiveBody,
-  postUrlEncoded,
+  importUploadMixedImport,
+  importUploadProductFiles,
+  importUploadSupplierFile,
+} from "./api/methods/Import.api";
+import {
+  orderApproveOrder,
+  orderCancelOrder,
+  orderCreateOrder,
+  orderDeleteOrder,
+  orderGetOrderById,
+  orderGetOrders,
+  orderUpdateOrder,
+} from "./api/methods/Order.api";
+import {
+  productCreateProduct,
+  productDeleteProduct,
+  productExportProducts,
+  productGetProductById,
+  productGetProducts,
+  productGetProductSortState,
+  productToggleProductActive,
+  productUpdateProduct,
+} from "./api/methods/Product.api";
+import {
+  supplierCreateSupplier,
+  supplierDeleteSupplier,
+  supplierGetSupplierById,
+  supplierGetSuppliers,
+  supplierUpdateSupplier,
+  supplierVerifySupplier,
+} from "./api/methods/Supplier.api";
+import {
+  warehouseCreateWarehouse,
+  warehouseDeleteWarehouse,
+  warehouseGetWarehouseById,
+  warehouseGetWarehouses,
+  warehouseUpdateWarehouse,
+} from "./api/methods/Warehouse.api";
+import {
+  endpointCoverageDeleteNoContent,
+  endpointCoverageDownloadFile,
+  endpointCoverageGetArray,
+  endpointCoverageGetDictionary,
+  endpointCoverageGetObject,
+  endpointCoverageGetPathAndQuery,
+  endpointCoverageGetPrimitive,
+  endpointCoverageGetText,
+  endpointCoveragePatchJson,
+  endpointCoveragePostAccepted,
+  endpointCoveragePostJson,
+  endpointCoveragePostPrimitiveBody,
+  endpointCoveragePostUrlEncoded,
 } from "./api/methods/EndpointCoverage.api";
 
 type TestStatus = "idle" | "running" | "passed" | "failed";
@@ -122,7 +156,7 @@ const tests: TestDefinition[] = [
     name: "Upload product files",
     method: "POST",
     path: "/api/imports/products",
-    run: () => uploadProductFiles({ files: testFiles(2) }),
+    run: () => importUploadProductFiles({ files: testFiles(2) }),
   },
   {
     id: "import-supplier",
@@ -130,7 +164,7 @@ const tests: TestDefinition[] = [
     name: "Upload supplier file",
     method: "POST",
     path: "/api/imports/supplier",
-    run: () => uploadSupplierFile({ file: testFiles(1)[0] }),
+    run: () => importUploadSupplierFile({ file: testFiles(1)[0] }),
   },
   {
     id: "import-mixed",
@@ -139,7 +173,7 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/imports/mixed",
     run: () =>
-      uploadMixedImport({
+      importUploadMixedImport({
         files: testFiles(2),
         importName: "Frontend suite",
         validateOnly: true,
@@ -152,7 +186,7 @@ const tests: TestDefinition[] = [
     name: "JSON object response",
     method: "GET",
     path: "/api/endpoint-coverage/object",
-    run: () => getObject(),
+    run: () => endpointCoverageGetObject(),
   },
   {
     id: "coverage-array",
@@ -160,7 +194,7 @@ const tests: TestDefinition[] = [
     name: "JSON array response",
     method: "GET",
     path: "/api/endpoint-coverage/array",
-    run: () => getArray(),
+    run: () => endpointCoverageGetArray(),
   },
   {
     id: "coverage-primitive",
@@ -168,7 +202,7 @@ const tests: TestDefinition[] = [
     name: "Primitive response",
     method: "GET",
     path: "/api/endpoint-coverage/primitive",
-    run: () => getPrimitive(),
+    run: () => endpointCoverageGetPrimitive(),
   },
   {
     id: "coverage-dictionary",
@@ -176,7 +210,7 @@ const tests: TestDefinition[] = [
     name: "Dictionary response",
     method: "GET",
     path: "/api/endpoint-coverage/dictionary",
-    run: () => getDictionary(),
+    run: () => endpointCoverageGetDictionary(),
   },
   {
     id: "coverage-text",
@@ -184,7 +218,7 @@ const tests: TestDefinition[] = [
     name: "Text response",
     method: "GET",
     path: "/api/endpoint-coverage/text",
-    run: () => getText(),
+    run: () => endpointCoverageGetText(),
   },
   {
     id: "coverage-download",
@@ -192,7 +226,7 @@ const tests: TestDefinition[] = [
     name: "Blob response",
     method: "GET",
     path: "/api/endpoint-coverage/download",
-    run: () => downloadFile(),
+    run: () => endpointCoverageDownloadFile(),
   },
   {
     id: "coverage-path-query",
@@ -201,7 +235,7 @@ const tests: TestDefinition[] = [
     method: "GET",
     path: "/api/endpoint-coverage/{id}/details",
     run: () =>
-      getPathAndQuery({
+      endpointCoverageGetPathAndQuery({
         id: "33333333-3333-3333-3333-333333333333",
         includeMetadata: true,
         culture: "nl-NL",
@@ -214,7 +248,7 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/endpoint-coverage/json",
     run: () =>
-      postJson({
+      endpointCoveragePostJson({
         name: "Created by coverage suite",
         optionalDescription: null,
         count: 5,
@@ -231,7 +265,7 @@ const tests: TestDefinition[] = [
     name: "Primitive JSON body",
     method: "POST",
     path: "/api/endpoint-coverage/primitive-body",
-    run: () => postPrimitiveBody("primitive request body"),
+    run: () => endpointCoveragePostPrimitiveBody("primitive request body"),
   },
   {
     id: "coverage-url-encoded",
@@ -239,7 +273,12 @@ const tests: TestDefinition[] = [
     name: "URL-encoded body",
     method: "POST",
     path: "/api/endpoint-coverage/url-encoded",
-    run: () => postUrlEncoded({ name: "Form body", count: 2, enabled: true }),
+    run: () =>
+      endpointCoveragePostUrlEncoded({
+        name: "Form body",
+        count: 2,
+        enabled: true,
+      }),
   },
   {
     id: "coverage-accepted",
@@ -248,7 +287,7 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/endpoint-coverage/accepted",
     run: () =>
-      postAccepted({
+      endpointCoveragePostAccepted({
         name: "Accepted request",
         optionalDescription: "queued",
         count: 1,
@@ -263,7 +302,7 @@ const tests: TestDefinition[] = [
     method: "PATCH",
     path: "/api/endpoint-coverage/{id}",
     run: (context) =>
-      patchJson(
+      endpointCoveragePatchJson(
         { id: requireId(context.coverageId, "Coverage ID") },
         { name: "Patched coverage item", enabled: false },
       ),
@@ -275,9 +314,10 @@ const tests: TestDefinition[] = [
     method: "DELETE",
     path: "/api/endpoint-coverage/{id}/no-content",
     run: (context) =>
-      deleteNoContent({ id: requireId(context.coverageId, "Coverage ID") }),
+      endpointCoverageDeleteNoContent({
+        id: requireId(context.coverageId, "Coverage ID"),
+      }),
   },
-
 
   {
     id: "suppliers-list",
@@ -285,7 +325,7 @@ const tests: TestDefinition[] = [
     name: "List suppliers",
     method: "GET",
     path: "/api/suppliers",
-    run: () => getSuppliers([], 1, 10, "companyName", "Asc"),
+    run: () => supplierGetSuppliers([], 1, 10, "companyName", "Asc"),
   },
   {
     id: "suppliers-create",
@@ -293,7 +333,7 @@ const tests: TestDefinition[] = [
     name: "Create supplier",
     method: "POST",
     path: "/api/suppliers",
-    run: () => createSupplier(supplierBody),
+    run: () => supplierCreateSupplier(supplierBody),
     capture: (data, context) => {
       context.supplierId = extractId(data);
     },
@@ -305,7 +345,9 @@ const tests: TestDefinition[] = [
     method: "GET",
     path: "/api/suppliers/{id}",
     run: (context) =>
-      getSupplierById({ id: requireId(context.supplierId, "Supplier ID") }),
+      supplierGetSupplierById({
+        id: requireId(context.supplierId, "Supplier ID"),
+      }),
   },
   {
     id: "suppliers-update",
@@ -314,7 +356,7 @@ const tests: TestDefinition[] = [
     method: "PUT",
     path: "/api/suppliers/{id}",
     run: (context) =>
-      updateSupplier(
+      supplierUpdateSupplier(
         { id: requireId(context.supplierId, "Supplier ID") },
         {
           ...supplierBody,
@@ -329,7 +371,9 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/suppliers/{id}/verify",
     run: (context) =>
-      verifySupplier({ id: requireId(context.supplierId, "Supplier ID") }),
+      supplierVerifySupplier({
+        id: requireId(context.supplierId, "Supplier ID"),
+      }),
   },
 
   {
@@ -338,7 +382,7 @@ const tests: TestDefinition[] = [
     name: "List products",
     method: "GET",
     path: "/api/products",
-    run: () => getProducts([], 1, 10, "name", "Asc"),
+    run: () => productGetProducts([], 1, 10, "name", "Asc"),
   },
   {
     id: "products-sort-state",
@@ -346,7 +390,11 @@ const tests: TestDefinition[] = [
     name: "Get ApiSortResponse",
     method: "GET",
     path: "/api/products/sort-state",
-    run: () => getProductSortState({ sortBy: "price", sortDirection: "Desc" }),
+    run: () =>
+      productGetProductSortState({
+        sortBy: "price",
+        sortDirection: "Desc",
+      }),
   },
 
   {
@@ -356,7 +404,9 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/products",
     run: (context) =>
-      createProduct(productBody(requireId(context.supplierId, "Supplier ID"))),
+      productCreateProduct(
+        productBody(requireId(context.supplierId, "Supplier ID")),
+      ),
     capture: (data, context) => {
       context.productId = extractId(data);
     },
@@ -368,7 +418,9 @@ const tests: TestDefinition[] = [
     method: "GET",
     path: "/api/products/{id}",
     run: (context) =>
-      getProductById({ id: requireId(context.productId, "Product ID") }),
+      productGetProductById({
+        id: requireId(context.productId, "Product ID"),
+      }),
   },
   {
     id: "products-update",
@@ -377,7 +429,7 @@ const tests: TestDefinition[] = [
     method: "PUT",
     path: "/api/products/{id}",
     run: (context) =>
-      updateProduct(
+      productUpdateProduct(
         { id: requireId(context.productId, "Product ID") },
         {
           ...productBody(requireId(context.supplierId, "Supplier ID")),
@@ -392,7 +444,9 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/products/{id}/toggle-active",
     run: (context) =>
-      toggleProductActive({ id: requireId(context.productId, "Product ID") }),
+      productToggleProductActive({
+        id: requireId(context.productId, "Product ID"),
+      }),
   },
   {
     id: "products-export",
@@ -400,7 +454,7 @@ const tests: TestDefinition[] = [
     name: "Export products",
     method: "GET",
     path: "/api/products/export",
-    run: () => exportProducts({ search: "Frontend" }),
+    run: () => productExportProducts({ search: "Frontend" }),
   },
 
   {
@@ -409,7 +463,7 @@ const tests: TestDefinition[] = [
     name: "List warehouses",
     method: "GET",
     path: "/api/warehouses",
-    run: () => getWarehouses([], 1, 10, "capacity", "Desc"),
+    run: () => warehouseGetWarehouses([], 1, 10, "capacity", "Desc"),
   },
   {
     id: "warehouses-create",
@@ -417,7 +471,7 @@ const tests: TestDefinition[] = [
     name: "Create warehouse",
     method: "POST",
     path: "/api/warehouses",
-    run: () => createWarehouse(warehouseBody),
+    run: () => warehouseCreateWarehouse(warehouseBody),
     capture: (data, context) => {
       context.warehouseId = extractId(data);
     },
@@ -429,7 +483,7 @@ const tests: TestDefinition[] = [
     method: "GET",
     path: "/api/warehouses/{id}",
     run: (context) =>
-      getWarehouseById({
+      warehouseGetWarehouseById({
         id: requireId(context.warehouseId, "Warehouse ID"),
       }),
   },
@@ -440,7 +494,7 @@ const tests: TestDefinition[] = [
     method: "PUT",
     path: "/api/warehouses/{id}",
     run: (context) =>
-      updateWarehouse(
+      warehouseUpdateWarehouse(
         { id: requireId(context.warehouseId, "Warehouse ID") },
         {
           ...warehouseBody,
@@ -455,7 +509,7 @@ const tests: TestDefinition[] = [
     name: "List orders",
     method: "GET",
     path: "/api/orders",
-    run: () => getOrders([], 1, 10, "orderedAt", "Desc"),
+    run: () => orderGetOrders([], 1, 10, "orderedAt", "Desc"),
   },
   {
     id: "orders-create",
@@ -464,7 +518,7 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/orders",
     run: (context) =>
-      createOrder(
+      orderCreateOrder(
         orderBody(
           requireId(context.productId, "Product ID"),
           requireId(context.supplierId, "Supplier ID"),
@@ -481,7 +535,7 @@ const tests: TestDefinition[] = [
     method: "GET",
     path: "/api/orders/{id}",
     run: (context) =>
-      getOrderById({ id: requireId(context.orderId, "Order ID") }),
+      orderGetOrderById({ id: requireId(context.orderId, "Order ID") }),
   },
   {
     id: "orders-update",
@@ -490,7 +544,7 @@ const tests: TestDefinition[] = [
     method: "PUT",
     path: "/api/orders/{id}",
     run: (context) =>
-      updateOrder(
+      orderUpdateOrder(
         { id: requireId(context.orderId, "Order ID") },
         {
           ...orderBody(
@@ -509,7 +563,7 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/orders/{id}/approve",
     run: (context) =>
-      approveOrder({ id: requireId(context.orderId, "Order ID") }),
+      orderApproveOrder({ id: requireId(context.orderId, "Order ID") }),
   },
   {
     id: "orders-cancel",
@@ -518,7 +572,7 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/orders/{id}/cancel",
     run: (context) =>
-      cancelOrder({ id: requireId(context.orderId, "Order ID") }),
+      orderCancelOrder({ id: requireId(context.orderId, "Order ID") }),
   },
 
   {
@@ -528,7 +582,7 @@ const tests: TestDefinition[] = [
     method: "DELETE",
     path: "/api/orders/{id}",
     run: (context) =>
-      deleteOrder({ id: requireId(context.orderId, "Order ID") }),
+      orderDeleteOrder({ id: requireId(context.orderId, "Order ID") }),
   },
   {
     id: "products-delete",
@@ -537,7 +591,7 @@ const tests: TestDefinition[] = [
     method: "DELETE",
     path: "/api/products/{id}",
     run: (context) =>
-      deleteProduct({ id: requireId(context.productId, "Product ID") }),
+      productDeleteProduct({ id: requireId(context.productId, "Product ID") }),
   },
   {
     id: "warehouses-delete",
@@ -546,7 +600,9 @@ const tests: TestDefinition[] = [
     method: "DELETE",
     path: "/api/warehouses/{id}",
     run: (context) =>
-      deleteWarehouse({ id: requireId(context.warehouseId, "Warehouse ID") }),
+      warehouseDeleteWarehouse({
+        id: requireId(context.warehouseId, "Warehouse ID"),
+      }),
   },
   {
     id: "suppliers-delete",
@@ -555,7 +611,9 @@ const tests: TestDefinition[] = [
     method: "DELETE",
     path: "/api/suppliers/{id}",
     run: (context) =>
-      deleteSupplier({ id: requireId(context.supplierId, "Supplier ID") }),
+      supplierDeleteSupplier({
+        id: requireId(context.supplierId, "Supplier ID"),
+      }),
   },
 ];
 
@@ -664,11 +722,11 @@ function App() {
       let result: ApiResult<unknown>;
 
       if (manualUploadEndpoint === "products") {
-        result = await uploadProductFiles({ files: selectedFiles });
+        result = await importUploadProductFiles({ files: selectedFiles });
       } else if (manualUploadEndpoint === "supplier") {
-        result = await uploadSupplierFile({ file: selectedFiles[0] });
+        result = await importUploadSupplierFile({ file: selectedFiles[0] });
       } else {
-        result = await uploadMixedImport({
+        result = await importUploadMixedImport({
           files: selectedFiles,
           importName: "Manual frontend upload",
           validateOnly: false,

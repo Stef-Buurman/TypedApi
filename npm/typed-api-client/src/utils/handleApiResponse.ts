@@ -1,41 +1,47 @@
-import type { ApiResult } from "../interfaces/ApiResult";
-
-import type {
-  ApiErrorHandler,
-  ApiSuccessHandler,
-} from "../types/ApiCallOptions";
-
+import type { ApiClientError, ApiHttpError, ApiHttpErrorBody, ApiResult } from "../interfaces/ApiResult";
+import type { ApiErrorHandler, ApiSuccessHandler } from "../types/ApiCallOptions";
 import type { HttpResponse } from "../httpClient";
 
 export type HandleApiResponseOptions<TResponse, TError = unknown> = {
   onSuccess?: ApiSuccessHandler<TResponse>;
   onError?: ApiErrorHandler<TResponse, TError>;
+  transformResponse?: (value: unknown) => TResponse;
+  transformError?: (value: unknown, response: Response) => TError;
 };
+
+class ResponseParseError extends Error {
+  constructor(
+    readonly status: number,
+    readonly rawBody: string,
+    readonly parseCause: unknown,
+  ) {
+    super(`Could not parse JSON response with status ${status}.`);
+    this.name = "ResponseParseError";
+  }
+}
 
 async function readResponseBody<T>(
   response: Response,
 ): Promise<T | string | Blob | undefined> {
-  if (response.status === 204 || response.status === 205) {
-    return undefined;
-  }
+  if (response.status === 204 || response.status === 205) return undefined;
 
-  const contentType = response.headers.get("content-type") ?? "";
-
-  if (contentType.includes("application/octet-stream")) {
+  const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
+  if (
+    contentType.includes("application/octet-stream") ||
+    contentType.startsWith("image/") ||
+    contentType.includes("application/pdf")
+  ) {
     return response.blob();
   }
 
   const text = await response.text();
-
-  if (!text) {
-    return undefined;
-  }
+  if (!text) return undefined;
 
   if (contentType.includes("json") || contentType.includes("+json")) {
     try {
       return JSON.parse(text) as T;
-    } catch {
-      return text;
+    } catch (error) {
+      throw new ResponseParseError(response.status, text, error);
     }
   }
 
@@ -53,51 +59,97 @@ function isResponseLike(value: unknown): value is Response {
   );
 }
 
+export function createApiHttpError(status: number, body: unknown): ApiHttpError {
+  return {
+    kind: "http",
+    status,
+    body: body as ApiHttpErrorBody,
+  };
+}
+
+function clientError(error: unknown): ApiClientError {
+  if (error instanceof ResponseParseError) {
+    return {
+      kind: "parse",
+      status: error.status,
+      rawBody: error.rawBody,
+      cause: error.parseCause,
+    };
+  }
+
+  const name =
+    typeof error === "object" && error !== null && "name" in error
+      ? String((error as { name?: unknown }).name)
+      : "";
+
+  if (name === "AbortError" || name === "TimeoutError") {
+    return { kind: "aborted", cause: error };
+  }
+
+  return { kind: "network", cause: error };
+}
+
 export async function handleApiResponse<TResponse, TError = unknown>(
   call: () => Promise<HttpResponse<TResponse, TError>>,
   options?: HandleApiResponseOptions<TResponse, TError>,
 ): Promise<ApiResult<TResponse, TError>> {
-  let response: HttpResponse<TResponse, TError> | undefined;
+  let result: ApiResult<TResponse, TError>;
 
   try {
-    response = await call();
-
-    const data = await readResponseBody<TResponse>(response.clone());
-
-    const result: ApiResult<TResponse, TError> = {
-      ok: true,
-      status: response.status,
-      response: data as TResponse,
-    };
-
-    await options?.onSuccess?.(result);
-
-    return result;
+    const response = await call();
+    try {
+      const rawData = await readResponseBody<unknown>(response.clone());
+      const data = options?.transformResponse
+        ? options.transformResponse(rawData)
+        : rawData as TResponse;
+      result = {
+        ok: true,
+        status: response.status,
+        response: data,
+      };
+    } catch (error) {
+      result = {
+        ok: false,
+        status: response.status,
+        response: undefined,
+        error: clientError(error),
+      };
+    }
   } catch (error) {
     if (isResponseLike(error)) {
-      const errorData = await readResponseBody<TError>(error.clone());
-
-      const result: ApiResult<TResponse, TError> = {
+      try {
+        const rawErrorData = await readResponseBody<unknown>(error.clone());
+        const errorData = options?.transformError
+          ? options.transformError(rawErrorData, error)
+          : rawErrorData as TError;
+        result = {
+          ok: false,
+          status: error.status,
+          response: undefined,
+          error: errorData,
+        };
+      } catch (parseError) {
+        result = {
+          ok: false,
+          status: error.status,
+          response: undefined,
+          error: clientError(parseError),
+        };
+      }
+    } else {
+      result = {
         ok: false,
-        status: error.status,
+        status: 0,
         response: undefined,
-        error: errorData as TError,
+        error: clientError(error),
       };
-
-      await options?.onError?.(result);
-
-      return result;
     }
-
-    const result: ApiResult<TResponse, TError> = {
-      ok: false,
-      status: response?.status ?? 0,
-      response: undefined,
-      error: error as TError,
-    };
-
-    await options?.onError?.(result);
-
-    return result;
   }
+
+  // Consumer callbacks intentionally execute outside the request-catching block.
+  // A callback exception is application code failure and should propagate to the caller.
+  if (result.ok) await options?.onSuccess?.(result);
+  else await options?.onError?.(result);
+
+  return result;
 }

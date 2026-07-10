@@ -1,78 +1,14 @@
 const reservedWords = new Set([
-  "abstract",
-  "any",
-  "as",
-  "asserts",
-  "async",
-  "await",
-  "boolean",
-  "break",
-  "case",
-  "catch",
-  "class",
-  "const",
-  "constructor",
-  "continue",
-  "debugger",
-  "declare",
-  "default",
-  "delete",
-  "do",
-  "else",
-  "enum",
-  "export",
-  "extends",
-  "false",
-  "finally",
-  "for",
-  "from",
-  "function",
-  "get",
-  "if",
-  "implements",
-  "import",
-  "in",
-  "infer",
-  "instanceof",
-  "interface",
-  "is",
-  "keyof",
-  "let",
-  "module",
-  "namespace",
-  "never",
-  "new",
-  "null",
-  "number",
-  "object",
-  "of",
-  "package",
-  "private",
-  "protected",
-  "public",
-  "readonly",
-  "require",
-  "return",
-  "set",
-  "static",
-  "string",
-  "super",
-  "switch",
-  "symbol",
-  "this",
-  "throw",
-  "true",
-  "try",
-  "type",
-  "typeof",
-  "undefined",
-  "unique",
-  "unknown",
-  "var",
-  "void",
-  "while",
-  "with",
-  "yield",
+  "abstract", "any", "as", "asserts", "async", "await", "boolean", "break",
+  "case", "catch", "class", "const", "constructor", "continue", "debugger",
+  "declare", "default", "delete", "do", "else", "enum", "export", "extends",
+  "false", "finally", "for", "from", "function", "get", "if", "implements",
+  "import", "in", "infer", "instanceof", "interface", "is", "keyof", "let",
+  "module", "namespace", "never", "new", "null", "number", "object", "of",
+  "package", "private", "protected", "public", "readonly", "require", "return",
+  "set", "static", "string", "super", "switch", "symbol", "this", "throw",
+  "true", "try", "type", "typeof", "undefined", "unique", "unknown", "var",
+  "void", "while", "with", "yield",
 ]);
 
 export function pascalCase(value, fallback = "Anonymous") {
@@ -86,12 +22,14 @@ export function pascalCase(value, fallback = "Anonymous") {
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join("");
 
-  return name || fallback;
+  const resolved = name || fallback;
+  return /^[0-9]/.test(resolved) ? `_${resolved}` : resolved;
 }
 
 export function camelCase(value, fallback = "value") {
   const pascal = pascalCase(value, pascalCase(fallback));
-  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+  const candidate = pascal.charAt(0).toLowerCase() + pascal.slice(1);
+  return sanitizeIdentifier(candidate, fallback);
 }
 
 export function lowerFirst(value) {
@@ -99,22 +37,35 @@ export function lowerFirst(value) {
   return text.charAt(0).toLowerCase() + text.slice(1);
 }
 
+/**
+ * Converts an OpenAPI member name to the public TypeScript member name.
+ * Only the first character is lowercased; the remainder is preserved exactly.
+ */
+export function typePropertyName(value) {
+  return lowerFirst(value);
+}
+
+/** Returns a safe bracket-access expression for a generated member. */
+export function propertyAccess(baseExpression, value) {
+  return `${baseExpression}[${JSON.stringify(typePropertyName(value))}]`;
+}
+
 export function sanitizeIdentifier(value, fallback = "value") {
   let name = String(value ?? "").replace(/[^A-Za-z0-9_$]/g, "_");
 
-  if (!name) {
-    name = fallback;
-  }
-
-  if (/^[0-9]/.test(name)) {
-    name = `_${name}`;
-  }
-
-  if (reservedWords.has(name)) {
-    name = `${name}_`;
-  }
+  if (!name) name = fallback;
+  if (/^[0-9]/.test(name)) name = `_${name}`;
+  if (reservedWords.has(name)) name = `${name}_`;
 
   return name;
+}
+
+export function operationTypeName(value) {
+  return sanitizeIdentifier(pascalCase(value, "Operation"), "Operation");
+}
+
+export function operationMethodName(value) {
+  return camelCase(value, "operation");
 }
 
 export function propertyKey(value) {

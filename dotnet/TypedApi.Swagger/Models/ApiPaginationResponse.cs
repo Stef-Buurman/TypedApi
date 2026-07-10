@@ -1,14 +1,20 @@
 using TypedApi.Swagger.Interfaces;
 
-namespace TypedApi.Swagger.Models
+namespace TypedApi.Swagger.Models;
+
+/// <summary>Paginated response data and paging metadata.</summary>
+public class ApiPaginationResponse<T> : IApiPaginationResponse<T>
 {
-    public class ApiPaginationResponse<T> : IApiPaginationResponse<T>
+    public List<T> Data { get; set; } = new();
+    public int PageNumber { get; set; }
+    public int PageSize { get; set; }
+    public int TotalCount { get; set; }
+    public int TotalPages { get; set; }
+
+    [Obsolete("Use TotalCount. TotalRecords is retained as a compatibility alias.")]
+    public int TotalRecords
     {
-        public List<T> Data { get; set; } = new();
-        public int PageNumber { get; set; }
-        public int PageSize { get; set; }
-        public int TotalCount { get; set; }
-        public int TotalPages { get; set; }
-        public int TotalRecords { get; set; }
+        get => TotalCount;
+        set => TotalCount = value;
     }
 }

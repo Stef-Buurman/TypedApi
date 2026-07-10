@@ -1,33 +1,26 @@
 # TypedApi.Swagger
 
-Reusable Swagger/OpenAPI configuration for ASP.NET Core APIs that are consumed by TypedApi client generation.
+Swagger/OpenAPI conventions for ASP.NET Core APIs consumed by the `typedapi-client-helpers` TypeScript generator.
 
-## What this package includes
+## Version 0.3 highlights
 
-- `AddTypedApiSwagger()`
-- `AddTypedApiSwagger(options => { ... })` for custom Swagger configuration
-- `AddTypedApiJsonOptions()`
-- Required-property schema support
-- Enum-as-string schema support
-- Automatic operation IDs
-- Controller and group-based Swagger tags
-- Swagger UI support through the package dependency
-- OpenAPI generation improvements for TypedApi client generation
+- Adds a root `x-typedapi` contract marker (`contractVersion: 1`).
+- Creates stable, sanitized operation IDs from controller, action, method, and route data.
+- Emits separate controller/action metadata so the frontend can choose concise controller-action method names without weakening operation-ID uniqueness.
+- Respects `JsonSerializerOptions.PropertyNamingPolicy` and `[JsonPropertyName]` when marking required properties.
+- Uses `NullabilityInfoContext` instead of compiler-attribute parsing.
+- Publishes documented HTTP error schemas for typed client errors.
+- Adds `x-typedapi-pagination` metadata to paginated operations.
+- Emits string enum values consistently, including `[EnumMember(Value = "...")]` and JSON enum member names.
+- Validates page number and page size.
 
 ## Installation
 
 ```bash
-dotnet add package TypedApi.Swagger
+dotnet add package TypedApi.Swagger --version 0.3.0
 ```
 
-## Supported frameworks
-
-- .NET 8
-- .NET 10
-
-## Quick start
-
-### Program.cs
+## Setup
 
 ```csharp
 using TypedApi.Swagger;
@@ -39,188 +32,108 @@ builder.Services
     .AddTypedApiJsonOptions();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddTypedApiSwagger();
+builder.Services.AddTypedApiSwagger(options =>
+{
+    // Add normal Swashbuckle options here when needed.
+});
 
 var app = builder.Build();
-
 app.UseSwagger();
 app.UseSwaggerUI();
-
 app.MapControllers();
-
 app.Run();
 ```
 
-## What AddTypedApiSwagger() configures
+## Operation IDs
+
+A named route remains the preferred explicit operation ID:
 
 ```csharp
-builder.Services.AddTypedApiSwagger();
+[HttpGet("{id}", Name = "Products_GetById")]
+public ActionResult<Product> GetById(int id) => ...;
 ```
 
-Features:
+When no route name is supplied, the package derives a sanitized ID from the controller, action, HTTP method, and route. This avoids collisions such as `Get` methods in multiple controllers.
 
-- Uses action names as operation IDs
-- Uses controller names or group names as Swagger tags
-- Detects required properties automatically
-- Exposes enums as strings in Swagger schemas
-- Generates cleaner OpenAPI specifications
-
-## Custom Swagger configuration
-
-Use the optional callback when you want to add normal Swashbuckle options without registering `AddSwaggerGen()` separately.
-
-```csharp
-using Microsoft.OpenApi.Models;
-using TypedApi.Swagger;
-
-builder.Services.AddTypedApiSwagger(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "My API",
-        Version = "v1",
-        Description = "My API documentation"
-    });
-});
-```
-
-## What AddTypedApiJsonOptions() configures
-
-```csharp
-builder.Services
-    .AddControllers()
-    .AddTypedApiJsonOptions();
-```
-
-Configures enums to be serialized as strings:
+Each operation also receives metadata like:
 
 ```json
 {
-  "status": "Approved"
+  "x-typedapi-operation": {
+    "controllerName": "Warehouses",
+    "actionName": "UpdateWarehouse"
+  }
 }
 ```
 
-instead of:
+The npm generator can therefore choose its frontend naming style without changing the unique OpenAPI operation ID:
 
 ```json
 {
-  "status": 2
+  "config": {
+    "typedApiMethodNameStyle": "action"
+  }
 }
 ```
 
-This ensures generated clients use readable enum values.
+This produces `updateWarehouse(...)`. Use `"operationId"` to retain the current controller/action/verb/route-derived frontend name.
 
-## Configuration options
+## JSON property names and required values
 
-### Enable Swagger only during development
+Required-property generation follows the configured System.Text.Json naming policy and respects explicit names:
 
 ```csharp
-if (app.Environment.IsDevelopment())
+public sealed class SearchRequest
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    [JsonPropertyName("snake_case")]
+    public required string SearchText { get; init; }
+
+    public string? OptionalText { get; init; }
 }
 ```
 
-### Custom Swagger route
+The OpenAPI property remains `snake_case`, and the TypeScript generator preserves that exact wire name.
+
+## Typed error responses
+
+Document error bodies so the TypeScript package can generate typed error unions:
 
 ```csharp
-app.UseSwagger(options =>
-{
-    options.RouteTemplate = "docs/{documentName}/swagger.json";
-});
-
-app.UseSwaggerUI(options =>
-{
-    options.SwaggerEndpoint("/docs/v1/swagger.json", "My API");
-    options.RoutePrefix = "docs";
-});
+[HttpPost]
+[ProducesResponseType(typeof(Product), StatusCodes.Status201Created)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+public ActionResult<Product> Create(CreateProductRequest request) => ...;
 ```
 
-### Group controllers
-
-```csharp
-[ApiExplorerSettings(GroupName = "Products")]
-public class ProductsController : ControllerBase
-{
-}
-```
-
-Swagger will display all endpoints under the `Products` section.
-
-### Nullable reference types
-
-Enable nullable reference types in your API project:
-
-```xml
-<PropertyGroup>
-    <Nullable>enable</Nullable>
-</PropertyGroup>
-```
-
-This improves required-property detection in Swagger schemas.
-
-## Example controller
-
-```csharp
-[ApiController]
-[Route("api/[controller]")]
-public class ProductsController : ControllerBase
-{
-    [HttpGet]
-    public ActionResult<List<ProductModel>> GetProducts()
-    {
-        return Ok(new List<ProductModel>());
-    }
-}
-```
-
-## Usage with TypedApi client generation
-
-Once Swagger is configured and exposed:
-
-```text
-https://localhost:7000/swagger/v1/swagger.json
-```
-
-The frontend TypedApi generator can use this endpoint to generate a fully typed TypeScript client.
-
-## Notes
-
-This package should be installed in the ASP.NET Core backend project that exposes the OpenAPI specification.
-
-The generated Swagger document is intended to be consumed by the TypedApi TypeScript client generator.
-
-## Pagination and sorting contracts
-
-The package also contains reusable query and response contracts:
+## Pagination
 
 ```csharp
 using TypedApi.Swagger.Models;
 using TypedApi.Swagger.Models.Filters;
 
 [HttpGet]
-public ActionResult<ApiPaginationSortResponse<ProductModel>> GetProducts(
+public ActionResult<ApiPaginationSortResponse<Product>> GetProducts(
     [FromQuery] PaginationFilter filter)
 {
-    return Ok(new ApiPaginationSortResponse<ProductModel>
+    return Ok(new ApiPaginationSortResponse<Product>
     {
         Data = [],
         PageNumber = filter.PageNumber,
         PageSize = filter.PageSize,
         TotalCount = 0,
         TotalPages = 0,
-        TotalRecords = 0,
         SortBy = filter.SortBy,
         SortDirection = filter.SortDirection
     });
 }
 ```
 
-Available response models:
+`PageNumber` must be at least 1. `TotalRecords` remains available as an obsolete compatibility alias for `TotalCount`.
 
-- `ApiPaginationResponse<T>` for paging metadata and a `Data` collection.
-- `ApiPaginationSortResponse<T>` for paging plus the applied sort field and direction.
-- `ApiSortResponse` for sort metadata without a data collection.
+## Supported frameworks
 
-`PaginationFilter` can be used directly or inherited by an endpoint-specific filter model. Its default page number is `1`, default page size is `100`, and sort direction uses `SortDirection.Default`.
+- .NET 8 with Swashbuckle.AspNetCore 8.x
+- .NET 10 with Swashbuckle.AspNetCore 10.x
+
+The generated document is OpenAPI 3.x and is intended for `typedapi-client-helpers` 0.3 or newer.
