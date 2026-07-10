@@ -23,6 +23,8 @@ export async function generateApi(options) {
   const operations = collectOperations(openApi, {
     generateMissingOperationIds: Boolean(options.generateMissingOperationIds),
     methodNameStyle: options.methodNameStyle ?? "operationId",
+    prefixMethodNamesWithController:
+      options.prefixMethodNamesWithController !== false,
   });
 
   const normalizedOptions = {
@@ -36,6 +38,8 @@ export async function generateApi(options) {
     runtimePackageName: options.runtimePackageName,
     defaultHandlers: options.defaultHandlers,
     methodNameStyle: options.methodNameStyle ?? "operationId",
+    prefixMethodNamesWithController:
+      options.prefixMethodNamesWithController !== false,
   };
 
   const files = new Map();
@@ -90,6 +94,8 @@ export async function generateApi(options) {
         producer: openApi["x-typedapi"] ?? null,
         operationCount: operations.length,
         methodNameStyle: normalizedOptions.methodNameStyle,
+        prefixMethodNamesWithController:
+          normalizedOptions.prefixMethodNamesWithController,
       },
       null,
       2,

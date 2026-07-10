@@ -18,7 +18,8 @@
     "typedApiUseFilterFormValues": true,
     "typedApiGenerateUnionEnums": false,
     "typedApiEnumNamesAsValues": false,
-    "typedApiMethodNameStyle": "action"
+    "typedApiMethodNameStyle": "action",
+    "typedApiPrefixMethodNamesWithController": true
   },
   "dependencies": {
     "react": "^19.2.6",

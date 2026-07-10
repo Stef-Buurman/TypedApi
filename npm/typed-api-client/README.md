@@ -41,7 +41,8 @@ Add settings to the consuming application's `package.json`:
     "typedApiDownloadTimeoutMs": 15000,
     "typedApiCleanOutput": true,
     "typedApiGenerateMissingOperationIds": false,
-    "typedApiMethodNameStyle": "operationId"
+    "typedApiMethodNameStyle": "operationId",
+    "typedApiPrefixMethodNamesWithController": true
   }
 }
 ```
@@ -69,30 +70,37 @@ The Swagger backup belongs to the consuming project, not this npm package.
 
 ## Frontend method names
 
-Choose how generated function names are created with `typedApiMethodNameStyle`:
+Choose the source of generated function names with `typedApiMethodNameStyle`:
 
 ```json
 {
   "config": {
-    "typedApiMethodNameStyle": "operationId"
+    "typedApiMethodNameStyle": "action",
+    "typedApiPrefixMethodNamesWithController": true
   }
 }
 ```
 
-- `"operationId"` is the default and keeps the current unique names derived from the full OpenAPI operation ID.
-- `"action"` uses the original ASP.NET controller action name. For example, an action named `UpdateWarehouse` generates `updateWarehouse(...)` even when its unique operation ID also contains the controller, HTTP verb, and route.
+- `"operationId"` uses the unique OpenAPI operation ID. The controller-prefix setting does not affect this mode.
+- `"action"` uses the original ASP.NET controller action name.
+- `typedApiPrefixMethodNamesWithController: true` is the default in action mode and prefixes the normalized controller name.
+- `typedApiPrefixMethodNamesWithController: false` removes the controller prefix.
 
-```json
-{
-  "config": {
-    "typedApiMethodNameStyle": "action"
-  }
-}
+For an `OrderController` action named `GetOrderById`:
+
+```text
+typedApiPrefixMethodNamesWithController: true  -> orderGetOrderById(...)
+typedApiPrefixMethodNamesWithController: false -> getOrderById(...)
 ```
 
-Action-name mode requires the matching `TypedApi.Swagger` 0.3.0 package, which emits `x-typedapi-operation.actionName`. OpenAPI operation IDs remain unique in both modes. If two controllers contain actions that normalize to the same frontend function name, generation stops with a clear collision error; use `"operationId"` or rename one action.
+Operation-specific types follow the selected name too:
 
-Operation-specific types follow the same naming mode. For example, action mode generates `GetSuppliersQueryParams` instead of a long operation-ID-based type. Generated JSDoc `@name` values also use the action name. Paginated methods pass the result of `buildQuery(...)` directly as the request query object.
+```text
+true  -> OrderGetOrderByIdParams
+false -> GetOrderByIdParams
+```
+
+Action-name mode requires the matching `TypedApi.Swagger` package, which emits `x-typedapi-operation.actionName`. When the prefix is enabled, the controller name is read from `x-typedapi-operation.controllerName`, the first OpenAPI tag, or the route. If disabling the prefix creates duplicate names across controllers, generation stops with a clear collision error; enable the prefix, rename an action, or use `"operationId"`.
 
 
 ## CI consistency check

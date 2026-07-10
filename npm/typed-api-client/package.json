@@ -72,7 +72,8 @@
     "typedApiSwaggerBackupFile": "swagger/swagger.backup.json",
     "typedApiDownloadTimeoutMs": 15000,
     "typedApiGenerateMissingOperationIds": false,
-    "typedApiMethodNameStyle": "operationId"
+    "typedApiMethodNameStyle": "operationId",
+    "typedApiPrefixMethodNamesWithController": true
   },
   "scripts": {
     "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",

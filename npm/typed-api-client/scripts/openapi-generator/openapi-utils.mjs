@@ -237,12 +237,17 @@ function resolveMethodNameSource(
       );
     }
 
+    if (options.prefixMethodNamesWithController === false) {
+      return actionName;
+    }
+
     const controllerName = resolveControllerName(operation, routePath);
 
     if (!controllerName) {
       throw new Error(
-        `Cannot use typedApiMethodNameStyle "action" for ${method.toUpperCase()} ${routePath}: ` +
-          "the controller name could not be determined from x-typedapi-operation.controllerName, the first tag, or the route.",
+        `Cannot prefix the action name for ${method.toUpperCase()} ${routePath}: ` +
+          "the controller name could not be determined from x-typedapi-operation.controllerName, the first tag, or the route. " +
+          "Set typedApiPrefixMethodNamesWithController to false to use only the action name.",
       );
     }
 
@@ -318,7 +323,9 @@ export function collectOperations(openApi, options = {}) {
           `Generated TypeScript method name ${JSON.stringify(methodName)} is duplicated by ` +
             `${JSON.stringify(previous.operationId)} and ${JSON.stringify(rawOperationId)} ` +
             `while typedApiMethodNameStyle is ${JSON.stringify(options.methodNameStyle ?? "operationId")}. ` +
-            'Rename one controller action or use typedApiMethodNameStyle "operationId".',
+            (options.methodNameStyle === "action" && options.prefixMethodNamesWithController === false
+              ? "Enable typedApiPrefixMethodNamesWithController, rename one controller action, or use typedApiMethodNameStyle \"operationId\"."
+              : 'Rename one controller action or use typedApiMethodNameStyle "operationId".'),
         );
       }
       typeNames.set(operationId, rawOperationId);

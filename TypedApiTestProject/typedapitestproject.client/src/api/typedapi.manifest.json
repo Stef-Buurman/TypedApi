@@ -9,5 +9,6 @@
     "producerVersion": "0.3.0"
   },
   "operationCount": 42,
-  "methodNameStyle": "action"
+  "methodNameStyle": "action",
+  "prefixMethodNamesWithController": true
 }

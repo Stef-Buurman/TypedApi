@@ -185,6 +185,12 @@ const generatorOptions = {
     config.typedApiMethodNameStyle,
     "operationId",
   ),
+  prefixMethodNamesWithController: getBooleanSetting(
+    process.env.TYPED_API_PREFIX_METHOD_NAMES_WITH_CONTROLLER,
+    process.env.npm_config_typed_api_prefix_method_names_with_controller,
+    config.typedApiPrefixMethodNamesWithController,
+    true,
+  ),
   check: checkMode,
   baseUrl: getStringSetting(
     process.env.TYPED_API_BASE_URL,

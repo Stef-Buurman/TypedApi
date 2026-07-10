@@ -9,6 +9,20 @@ import { generateApi } from "../scripts/openapi-generator/index.mjs";
 
 const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
+function linkRuntimePackage(root) {
+  const target = path.join(
+    root,
+    "node_modules",
+    "typedapi-client-helpers",
+  );
+
+  fs.symlinkSync(
+    packageRoot,
+    target,
+    process.platform === "win32" ? "junction" : "dir",
+  );
+}
+
 function fixture() {
   return {
     openapi: "3.0.3",
@@ -81,7 +95,7 @@ function fixture() {
 function createConsumer() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "typedapi-generator-test-"));
   fs.mkdirSync(path.join(root, "node_modules"), { recursive: true });
-  fs.symlinkSync(packageRoot, path.join(root, "node_modules", "typedapi-client-helpers"), "dir");
+  linkRuntimePackage(root);
   fs.writeFileSync(path.join(root, "openapi.json"), JSON.stringify(fixture(), null, 2));
   fs.writeFileSync(
     path.join(root, "tsconfig.json"),
@@ -251,7 +265,7 @@ test("body-only operations accept the payload directly without a request wrapper
     }, null, 2),
   );
   fs.mkdirSync(path.join(root, "node_modules"), { recursive: true });
-  fs.symlinkSync(packageRoot, path.join(root, "node_modules", "typedapi-client-helpers"), "dir");
+  linkRuntimePackage(root);
 
   await generateApi({
     input: path.join(root, "openapi.json"),
@@ -319,7 +333,7 @@ test("non-body parameters use grouped params arguments for every parameter locat
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "typedapi-single-param-test-"));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "node_modules"), { recursive: true });
-  fs.symlinkSync(packageRoot, path.join(root, "node_modules", "typedapi-client-helpers"), "dir");
+  linkRuntimePackage(root);
 
   const document = {
     openapi: "3.0.3",
@@ -411,7 +425,7 @@ test("non-body parameters use grouped params arguments for every parameter locat
   assert.equal(compile.status, 0, `${compile.stdout}\n${compile.stderr}`);
 });
 
-test("method name style can use ASP.NET controller action names", async (t) => {
+test("action method names can omit the controller prefix", async (t) => {
   const root = createConsumer();
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const document = fixture();
@@ -428,6 +442,7 @@ test("method name style can use ASP.NET controller action names", async (t) => {
     runtimePackageName: "typedapi-client-helpers",
     generatorVersion: "0.3.0",
     methodNameStyle: "action",
+    prefixMethodNamesWithController: false,
   });
 
   const contracts = fs.readFileSync(path.join(output, "generated", "data-contracts.ts"), "utf8");
@@ -442,13 +457,70 @@ test("method name style can use ASP.NET controller action names", async (t) => {
   assert.match(methods, /\* @name SearchItems/);
   assert.match(methods, /pathParams: SearchItemsParams,\s*data: SearchItemsPayload,/);
   assert.equal(manifest.methodNameStyle, "action");
+  assert.equal(manifest.prefixMethodNamesWithController, false);
+});
+
+test("action method names can include the controller prefix", async (t) => {
+  const root = createConsumer();
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const document = fixture();
+  document.paths["/items/{Id}/search"].post["x-typedapi-operation"] = {
+    controllerName: "ItemsController",
+    actionName: "SearchItems",
+  };
+  fs.writeFileSync(path.join(root, "openapi.json"), JSON.stringify(document));
+
+  const output = path.join(root, "src", "api");
+  await generateApi({
+    input: path.join(root, "openapi.json"),
+    output,
+    runtimePackageName: "typedapi-client-helpers",
+    generatorVersion: "0.3.0",
+    methodNameStyle: "action",
+    prefixMethodNamesWithController: true,
+  });
+
+  const contracts = fs.readFileSync(path.join(output, "generated", "data-contracts.ts"), "utf8");
+  const methods = fs.readFileSync(path.join(output, "methods", "Items.api.ts"), "utf8");
+  const manifest = JSON.parse(fs.readFileSync(path.join(output, "typedapi.manifest.json"), "utf8"));
+
+  assert.match(methods, /export async function itemsSearchItems\(/);
+  assert.match(contracts, /export interface ItemsSearchItemsParams/);
+  assert.match(contracts, /export interface ItemsSearchItemsPayload/);
+  assert.match(methods, /\* @name ItemsSearchItems/);
+  assert.match(methods, /pathParams: ItemsSearchItemsParams,\s*data: ItemsSearchItemsPayload,/);
+  assert.equal(manifest.methodNameStyle, "action");
+  assert.equal(manifest.prefixMethodNamesWithController, true);
+});
+
+test("controller prefix is not duplicated when the action already starts with it", async (t) => {
+  const root = createConsumer();
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const document = fixture();
+  document.paths["/items/{Id}/search"].post["x-typedapi-operation"] = {
+    controllerName: "ItemsController",
+    actionName: "ItemsSearch",
+  };
+  fs.writeFileSync(path.join(root, "openapi.json"), JSON.stringify(document));
+
+  const output = path.join(root, "src", "api");
+  await generateApi({
+    input: path.join(root, "openapi.json"),
+    output,
+    methodNameStyle: "action",
+    prefixMethodNamesWithController: true,
+  });
+
+  const methods = fs.readFileSync(path.join(output, "methods", "Items.api.ts"), "utf8");
+  assert.match(methods, /export async function itemsSearch\(/);
+  assert.doesNotMatch(methods, /itemsItemsSearch/);
 });
 
 test("action naming shortens paginated query types and sends builtQuery directly", async (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "typedapi-action-query-test-"));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "node_modules"), { recursive: true });
-  fs.symlinkSync(packageRoot, path.join(root, "node_modules", "typedapi-client-helpers"), "dir");
+  linkRuntimePackage(root);
 
   const document = {
     openapi: "3.0.3",
@@ -528,6 +600,7 @@ test("action naming shortens paginated query types and sends builtQuery directly
     runtimePackageName: "typedapi-client-helpers",
     generatorVersion: "0.3.0",
     methodNameStyle: "action",
+    prefixMethodNamesWithController: false,
   });
 
   const contracts = fs.readFileSync(path.join(output, "generated", "data-contracts.ts"), "utf8");
@@ -586,6 +659,7 @@ test("action method name style reports duplicate controller action names", async
       input: path.join(root, "openapi.json"),
       output: path.join(root, "src", "api"),
       methodNameStyle: "action",
+      prefixMethodNamesWithController: false,
     }),
     /Generated TypeScript method name "get_" is duplicated/,
   );
