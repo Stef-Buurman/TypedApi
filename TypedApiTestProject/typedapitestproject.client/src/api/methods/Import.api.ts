@@ -18,8 +18,13 @@ import type {
   ImportUploadSupplierFilePayload,
   UploadResult,
 } from "../generated/data-contracts";
-import { fromWireValue, handleApiResponse, toWireValue } from "typedapi-client-helpers";
-import type { ApiMethodOptions, ApiResult } from "typedapi-client-helpers";
+import {
+  createApiHttpError,
+  fromWireValue,
+  handleApiResponse,
+  toWireValue,
+} from "typedapi-client-helpers";
+import type { ApiHttpError, ApiMethodOptions, ApiResult } from "typedapi-client-helpers";
 import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler } from "../../utils/defaultApiFunctions";
 
 /**
@@ -31,12 +36,12 @@ import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as type
  */
 export async function importUploadProductFiles(
   data: ImportUploadProductFilesPayload,
-  options: ApiMethodOptions<UploadResult, unknown, RequestParams> = {}
-): Promise<ApiResult<UploadResult, unknown>> {
+  options: ApiMethodOptions<UploadResult, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<UploadResult, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<UploadResult, unknown>(
-    () => request<UploadResult, unknown>({
+  return handleApiResponse<UploadResult, ApiHttpError>(
+    () => request<UploadResult, ApiHttpError>({
       ...params,
       path: `/api/imports/products`,
       method: "POST",
@@ -48,6 +53,7 @@ export async function importUploadProductFiles(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ImportUploadProductFilesPOSTApiImportsProducts:response"], typedApiWireSchemas) as UploadResult,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -61,12 +67,12 @@ export async function importUploadProductFiles(
  */
 export async function importUploadSupplierFile(
   data: ImportUploadSupplierFilePayload,
-  options: ApiMethodOptions<UploadResult, unknown, RequestParams> = {}
-): Promise<ApiResult<UploadResult, unknown>> {
+  options: ApiMethodOptions<UploadResult, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<UploadResult, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<UploadResult, unknown>(
-    () => request<UploadResult, unknown>({
+  return handleApiResponse<UploadResult, ApiHttpError>(
+    () => request<UploadResult, ApiHttpError>({
       ...params,
       path: `/api/imports/supplier`,
       method: "POST",
@@ -78,6 +84,7 @@ export async function importUploadSupplierFile(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ImportUploadSupplierFilePOSTApiImportsSupplier:response"], typedApiWireSchemas) as UploadResult,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -91,12 +98,12 @@ export async function importUploadSupplierFile(
  */
 export async function importUploadMixedImport(
   data: ImportUploadMixedImportPayload,
-  options: ApiMethodOptions<UploadResult, unknown, RequestParams> = {}
-): Promise<ApiResult<UploadResult, unknown>> {
+  options: ApiMethodOptions<UploadResult, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<UploadResult, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<UploadResult, unknown>(
-    () => request<UploadResult, unknown>({
+  return handleApiResponse<UploadResult, ApiHttpError>(
+    () => request<UploadResult, ApiHttpError>({
       ...params,
       path: `/api/imports/mixed`,
       method: "POST",
@@ -108,6 +115,7 @@ export async function importUploadMixedImport(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ImportUploadMixedImportPOSTApiImportsMixed:response"], typedApiWireSchemas) as UploadResult,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }

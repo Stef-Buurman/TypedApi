@@ -25,11 +25,13 @@ import type {
 } from "../generated/data-contracts";
 import {
   buildQuery,
+  createApiHttpError,
   fromWireValue,
   handleApiResponse,
   toWireValue,
 } from "typedapi-client-helpers";
 import type {
+  ApiHttpError,
   ApiMethodOptions,
   ApiResult,
   ExtractDataIfPaginated,
@@ -53,16 +55,16 @@ export async function orderGetOrders(
   pageSize = 100,
   sortBy: SortableKeys<OrderModelApiPaginationSortResponse> | null = null,
   sortDirection?: SortDirection,
-  options: ApiMethodOptions<OrderModelApiPaginationSortResponse, unknown, RequestParams> = {},
-): Promise<ApiResult<OrderModelApiPaginationSortResponse, unknown>> {
+  options: ApiMethodOptions<OrderModelApiPaginationSortResponse, ApiHttpError, RequestParams> = {},
+): Promise<ApiResult<OrderModelApiPaginationSortResponse, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
   const builtQuery = buildQuery<
     OrderGetOrdersQueryParams,
     UnwrapArray<ExtractDataIfPaginated<OrderModelApiPaginationSortResponse>>
   >(filters, page, pageSize, sortBy, sortDirection);
 
-  return handleApiResponse<OrderModelApiPaginationSortResponse, unknown>(
-    () => request<OrderModelApiPaginationSortResponse, unknown>({
+  return handleApiResponse<OrderModelApiPaginationSortResponse, ApiHttpError>(
+    () => request<OrderModelApiPaginationSortResponse, ApiHttpError>({
       ...params,
       path: `/api/orders`,
       method: "GET",
@@ -73,6 +75,7 @@ export async function orderGetOrders(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:OrderGetOrdersGETApiOrders:response"], typedApiWireSchemas) as OrderModelApiPaginationSortResponse,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -86,12 +89,12 @@ export async function orderGetOrders(
  */
 export async function orderCreateOrder(
   data: OrderRequest,
-  options: ApiMethodOptions<OrderModel, unknown, RequestParams> = {}
-): Promise<ApiResult<OrderModel, unknown>> {
+  options: ApiMethodOptions<OrderModel, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<OrderModel, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<OrderModel, unknown>(
-    () => request<OrderModel, unknown>({
+  return handleApiResponse<OrderModel, ApiHttpError>(
+    () => request<OrderModel, ApiHttpError>({
       ...params,
       path: `/api/orders`,
       method: "POST",
@@ -103,6 +106,7 @@ export async function orderCreateOrder(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:OrderCreateOrderPOSTApiOrders:response"], typedApiWireSchemas) as OrderModel,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -116,12 +120,12 @@ export async function orderCreateOrder(
  */
 export async function orderGetOrderById(
   pathParams: OrderGetOrderByIdParams,
-  options: ApiMethodOptions<OrderModel, unknown, RequestParams> = {}
-): Promise<ApiResult<OrderModel, unknown>> {
+  options: ApiMethodOptions<OrderModel, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<OrderModel, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<OrderModel, unknown>(
-    () => request<OrderModel, unknown>({
+  return handleApiResponse<OrderModel, ApiHttpError>(
+    () => request<OrderModel, ApiHttpError>({
       ...params,
       path: `/api/orders/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "GET",
@@ -131,6 +135,7 @@ export async function orderGetOrderById(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:OrderGetOrderByIdGETApiOrdersId:response"], typedApiWireSchemas) as OrderModel,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -145,12 +150,12 @@ export async function orderGetOrderById(
 export async function orderUpdateOrder(
   pathParams: OrderUpdateOrderParams,
   data: OrderRequest,
-  options: ApiMethodOptions<OrderModel, unknown, RequestParams> = {}
-): Promise<ApiResult<OrderModel, unknown>> {
+  options: ApiMethodOptions<OrderModel, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<OrderModel, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<OrderModel, unknown>(
-    () => request<OrderModel, unknown>({
+  return handleApiResponse<OrderModel, ApiHttpError>(
+    () => request<OrderModel, ApiHttpError>({
       ...params,
       path: `/api/orders/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "PUT",
@@ -162,6 +167,7 @@ export async function orderUpdateOrder(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:OrderUpdateOrderPUTApiOrdersId:response"], typedApiWireSchemas) as OrderModel,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -175,17 +181,21 @@ export async function orderUpdateOrder(
  */
 export async function orderDeleteOrder(
   pathParams: OrderDeleteOrderParams,
-  options: ApiMethodOptions<void, unknown, RequestParams> = {}
-): Promise<ApiResult<void, unknown>> {
+  options: ApiMethodOptions<void, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<void, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<void, unknown>(
-    () => request<void, unknown>({
+  return handleApiResponse<void, ApiHttpError>(
+    () => request<void, ApiHttpError>({
       ...params,
       path: `/api/orders/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "DELETE",
     }),
-    { onSuccess: onSuccess ?? typedApiDefaultSuccessHandler, onError: onError ?? typedApiDefaultErrorHandler },
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler,
+      transformError: (value, response) => createApiHttpError(response.status, value),
+    },
   );
 }
 
@@ -198,12 +208,12 @@ export async function orderDeleteOrder(
  */
 export async function orderApproveOrder(
   pathParams: OrderApproveOrderParams,
-  options: ApiMethodOptions<OrderModel, unknown, RequestParams> = {}
-): Promise<ApiResult<OrderModel, unknown>> {
+  options: ApiMethodOptions<OrderModel, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<OrderModel, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<OrderModel, unknown>(
-    () => request<OrderModel, unknown>({
+  return handleApiResponse<OrderModel, ApiHttpError>(
+    () => request<OrderModel, ApiHttpError>({
       ...params,
       path: `/api/orders/${encodeURIComponent(String(pathParams["id"]))}/approve`,
       method: "POST",
@@ -213,6 +223,7 @@ export async function orderApproveOrder(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:OrderApproveOrderPOSTApiOrdersIdApprove:response"], typedApiWireSchemas) as OrderModel,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -226,12 +237,12 @@ export async function orderApproveOrder(
  */
 export async function orderCancelOrder(
   pathParams: OrderCancelOrderParams,
-  options: ApiMethodOptions<OrderModel, unknown, RequestParams> = {}
-): Promise<ApiResult<OrderModel, unknown>> {
+  options: ApiMethodOptions<OrderModel, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<OrderModel, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<OrderModel, unknown>(
-    () => request<OrderModel, unknown>({
+  return handleApiResponse<OrderModel, ApiHttpError>(
+    () => request<OrderModel, ApiHttpError>({
       ...params,
       path: `/api/orders/${encodeURIComponent(String(pathParams["id"]))}/cancel`,
       method: "POST",
@@ -242,6 +253,7 @@ export async function orderCancelOrder(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:OrderCancelOrderPOSTApiOrdersIdCancel:response"], typedApiWireSchemas) as OrderModel,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }

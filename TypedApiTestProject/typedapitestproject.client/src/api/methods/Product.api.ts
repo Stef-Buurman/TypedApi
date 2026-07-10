@@ -27,11 +27,13 @@ import type {
 } from "../generated/data-contracts";
 import {
   buildQuery,
+  createApiHttpError,
   fromWireValue,
   handleApiResponse,
   toWireValue,
 } from "typedapi-client-helpers";
 import type {
+  ApiHttpError,
   ApiMethodOptions,
   ApiResult,
   ExtractDataIfPaginated,
@@ -55,16 +57,16 @@ export async function productGetProducts(
   pageSize = 100,
   sortBy: SortableKeys<ProductTableRowApiPaginationSortResponse> | null = null,
   sortDirection?: SortDirection,
-  options: ApiMethodOptions<ProductTableRowApiPaginationSortResponse, unknown, RequestParams> = {},
-): Promise<ApiResult<ProductTableRowApiPaginationSortResponse, unknown>> {
+  options: ApiMethodOptions<ProductTableRowApiPaginationSortResponse, ApiHttpError, RequestParams> = {},
+): Promise<ApiResult<ProductTableRowApiPaginationSortResponse, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
   const builtQuery = buildQuery<
     ProductGetProductsQueryParams,
     UnwrapArray<ExtractDataIfPaginated<ProductTableRowApiPaginationSortResponse>>
   >(filters, page, pageSize, sortBy, sortDirection);
 
-  return handleApiResponse<ProductTableRowApiPaginationSortResponse, unknown>(
-    () => request<ProductTableRowApiPaginationSortResponse, unknown>({
+  return handleApiResponse<ProductTableRowApiPaginationSortResponse, ApiHttpError>(
+    () => request<ProductTableRowApiPaginationSortResponse, ApiHttpError>({
       ...params,
       path: `/api/products`,
       method: "GET",
@@ -75,6 +77,7 @@ export async function productGetProducts(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ProductGetProductsGETApiProducts:response"], typedApiWireSchemas) as ProductTableRowApiPaginationSortResponse,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -88,12 +91,12 @@ export async function productGetProducts(
  */
 export async function productCreateProduct(
   data: ProductRequest,
-  options: ApiMethodOptions<ProductModel, unknown, RequestParams> = {}
-): Promise<ApiResult<ProductModel, unknown>> {
+  options: ApiMethodOptions<ProductModel, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<ProductModel, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<ProductModel, unknown>(
-    () => request<ProductModel, unknown>({
+  return handleApiResponse<ProductModel, ApiHttpError>(
+    () => request<ProductModel, ApiHttpError>({
       ...params,
       path: `/api/products`,
       method: "POST",
@@ -105,6 +108,7 @@ export async function productCreateProduct(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ProductCreateProductPOSTApiProducts:response"], typedApiWireSchemas) as ProductModel,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -118,12 +122,12 @@ export async function productCreateProduct(
  */
 export async function productGetProductSortState(
   query: ProductGetProductSortStateParams = {},
-  options: ApiMethodOptions<ApiSortResponse, unknown, RequestParams> = {}
-): Promise<ApiResult<ApiSortResponse, unknown>> {
+  options: ApiMethodOptions<ApiSortResponse, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<ApiSortResponse, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<ApiSortResponse, unknown>(
-    () => request<ApiSortResponse, unknown>({
+  return handleApiResponse<ApiSortResponse, ApiHttpError>(
+    () => request<ApiSortResponse, ApiHttpError>({
       ...params,
       path: `/api/products/sort-state`,
       method: "GET",
@@ -134,6 +138,7 @@ export async function productGetProductSortState(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ProductGetProductSortStateGETApiProductsSortState:response"], typedApiWireSchemas) as ApiSortResponse,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -147,12 +152,12 @@ export async function productGetProductSortState(
  */
 export async function productGetProductById(
   pathParams: ProductGetProductByIdParams,
-  options: ApiMethodOptions<ProductModel, unknown, RequestParams> = {}
-): Promise<ApiResult<ProductModel, unknown>> {
+  options: ApiMethodOptions<ProductModel, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<ProductModel, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<ProductModel, unknown>(
-    () => request<ProductModel, unknown>({
+  return handleApiResponse<ProductModel, ApiHttpError>(
+    () => request<ProductModel, ApiHttpError>({
       ...params,
       path: `/api/products/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "GET",
@@ -162,6 +167,7 @@ export async function productGetProductById(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ProductGetProductByIdGETApiProductsId:response"], typedApiWireSchemas) as ProductModel,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -176,12 +182,12 @@ export async function productGetProductById(
 export async function productUpdateProduct(
   pathParams: ProductUpdateProductParams,
   data: ProductRequest,
-  options: ApiMethodOptions<ProductModel, unknown, RequestParams> = {}
-): Promise<ApiResult<ProductModel, unknown>> {
+  options: ApiMethodOptions<ProductModel, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<ProductModel, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<ProductModel, unknown>(
-    () => request<ProductModel, unknown>({
+  return handleApiResponse<ProductModel, ApiHttpError>(
+    () => request<ProductModel, ApiHttpError>({
       ...params,
       path: `/api/products/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "PUT",
@@ -193,6 +199,7 @@ export async function productUpdateProduct(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ProductUpdateProductPUTApiProductsId:response"], typedApiWireSchemas) as ProductModel,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -206,17 +213,21 @@ export async function productUpdateProduct(
  */
 export async function productDeleteProduct(
   pathParams: ProductDeleteProductParams,
-  options: ApiMethodOptions<void, unknown, RequestParams> = {}
-): Promise<ApiResult<void, unknown>> {
+  options: ApiMethodOptions<void, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<void, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<void, unknown>(
-    () => request<void, unknown>({
+  return handleApiResponse<void, ApiHttpError>(
+    () => request<void, ApiHttpError>({
       ...params,
       path: `/api/products/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "DELETE",
     }),
-    { onSuccess: onSuccess ?? typedApiDefaultSuccessHandler, onError: onError ?? typedApiDefaultErrorHandler },
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler,
+      transformError: (value, response) => createApiHttpError(response.status, value),
+    },
   );
 }
 
@@ -229,12 +240,12 @@ export async function productDeleteProduct(
  */
 export async function productToggleProductActive(
   pathParams: ProductToggleProductActiveParams,
-  options: ApiMethodOptions<ProductModel, unknown, RequestParams> = {}
-): Promise<ApiResult<ProductModel, unknown>> {
+  options: ApiMethodOptions<ProductModel, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<ProductModel, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<ProductModel, unknown>(
-    () => request<ProductModel, unknown>({
+  return handleApiResponse<ProductModel, ApiHttpError>(
+    () => request<ProductModel, ApiHttpError>({
       ...params,
       path: `/api/products/${encodeURIComponent(String(pathParams["id"]))}/toggle-active`,
       method: "POST",
@@ -244,6 +255,7 @@ export async function productToggleProductActive(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ProductToggleProductActivePOSTApiProductsIdToggleActive:response"], typedApiWireSchemas) as ProductModel,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -257,12 +269,12 @@ export async function productToggleProductActive(
  */
 export async function productExportProducts(
   query: ProductExportProductsParams = {},
-  options: ApiMethodOptions<void, unknown, RequestParams> = {}
-): Promise<ApiResult<void, unknown>> {
+  options: ApiMethodOptions<void, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<void, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<void, unknown>(
-    () => request<void, unknown>({
+  return handleApiResponse<void, ApiHttpError>(
+    () => request<void, ApiHttpError>({
       ...params,
       path: `/api/products/export`,
       method: "GET",
@@ -272,6 +284,10 @@ export async function productExportProducts(
           "productIds": query["productIds"],
         },
     }),
-    { onSuccess: onSuccess ?? typedApiDefaultSuccessHandler, onError: onError ?? typedApiDefaultErrorHandler },
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler,
+      transformError: (value, response) => createApiHttpError(response.status, value),
+    },
   );
 }

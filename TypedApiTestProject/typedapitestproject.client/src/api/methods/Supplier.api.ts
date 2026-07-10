@@ -24,11 +24,13 @@ import type {
 } from "../generated/data-contracts";
 import {
   buildQuery,
+  createApiHttpError,
   fromWireValue,
   handleApiResponse,
   toWireValue,
 } from "typedapi-client-helpers";
 import type {
+  ApiHttpError,
   ApiMethodOptions,
   ApiResult,
   ExtractDataIfPaginated,
@@ -52,16 +54,16 @@ export async function supplierGetSuppliers(
   pageSize = 100,
   sortBy: SortableKeys<SupplierModelApiPaginationResponse> | null = null,
   sortDirection?: SortDirection,
-  options: ApiMethodOptions<SupplierModelApiPaginationResponse, unknown, RequestParams> = {},
-): Promise<ApiResult<SupplierModelApiPaginationResponse, unknown>> {
+  options: ApiMethodOptions<SupplierModelApiPaginationResponse, ApiHttpError, RequestParams> = {},
+): Promise<ApiResult<SupplierModelApiPaginationResponse, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
   const builtQuery = buildQuery<
     SupplierGetSuppliersQueryParams,
     UnwrapArray<ExtractDataIfPaginated<SupplierModelApiPaginationResponse>>
   >(filters, page, pageSize, sortBy, sortDirection);
 
-  return handleApiResponse<SupplierModelApiPaginationResponse, unknown>(
-    () => request<SupplierModelApiPaginationResponse, unknown>({
+  return handleApiResponse<SupplierModelApiPaginationResponse, ApiHttpError>(
+    () => request<SupplierModelApiPaginationResponse, ApiHttpError>({
       ...params,
       path: `/api/suppliers`,
       method: "GET",
@@ -72,6 +74,7 @@ export async function supplierGetSuppliers(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:SupplierGetSuppliersGETApiSuppliers:response"], typedApiWireSchemas) as SupplierModelApiPaginationResponse,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -85,12 +88,12 @@ export async function supplierGetSuppliers(
  */
 export async function supplierCreateSupplier(
   data: SupplierRequest,
-  options: ApiMethodOptions<SupplierModel, unknown, RequestParams> = {}
-): Promise<ApiResult<SupplierModel, unknown>> {
+  options: ApiMethodOptions<SupplierModel, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<SupplierModel, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<SupplierModel, unknown>(
-    () => request<SupplierModel, unknown>({
+  return handleApiResponse<SupplierModel, ApiHttpError>(
+    () => request<SupplierModel, ApiHttpError>({
       ...params,
       path: `/api/suppliers`,
       method: "POST",
@@ -102,6 +105,7 @@ export async function supplierCreateSupplier(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:SupplierCreateSupplierPOSTApiSuppliers:response"], typedApiWireSchemas) as SupplierModel,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -115,12 +119,12 @@ export async function supplierCreateSupplier(
  */
 export async function supplierGetSupplierById(
   pathParams: SupplierGetSupplierByIdParams,
-  options: ApiMethodOptions<SupplierModel, unknown, RequestParams> = {}
-): Promise<ApiResult<SupplierModel, unknown>> {
+  options: ApiMethodOptions<SupplierModel, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<SupplierModel, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<SupplierModel, unknown>(
-    () => request<SupplierModel, unknown>({
+  return handleApiResponse<SupplierModel, ApiHttpError>(
+    () => request<SupplierModel, ApiHttpError>({
       ...params,
       path: `/api/suppliers/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "GET",
@@ -130,6 +134,7 @@ export async function supplierGetSupplierById(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:SupplierGetSupplierByIdGETApiSuppliersId:response"], typedApiWireSchemas) as SupplierModel,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -144,12 +149,12 @@ export async function supplierGetSupplierById(
 export async function supplierUpdateSupplier(
   pathParams: SupplierUpdateSupplierParams,
   data: SupplierRequest,
-  options: ApiMethodOptions<SupplierModel, unknown, RequestParams> = {}
-): Promise<ApiResult<SupplierModel, unknown>> {
+  options: ApiMethodOptions<SupplierModel, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<SupplierModel, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<SupplierModel, unknown>(
-    () => request<SupplierModel, unknown>({
+  return handleApiResponse<SupplierModel, ApiHttpError>(
+    () => request<SupplierModel, ApiHttpError>({
       ...params,
       path: `/api/suppliers/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "PUT",
@@ -161,6 +166,7 @@ export async function supplierUpdateSupplier(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:SupplierUpdateSupplierPUTApiSuppliersId:response"], typedApiWireSchemas) as SupplierModel,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -174,17 +180,21 @@ export async function supplierUpdateSupplier(
  */
 export async function supplierDeleteSupplier(
   pathParams: SupplierDeleteSupplierParams,
-  options: ApiMethodOptions<void, unknown, RequestParams> = {}
-): Promise<ApiResult<void, unknown>> {
+  options: ApiMethodOptions<void, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<void, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<void, unknown>(
-    () => request<void, unknown>({
+  return handleApiResponse<void, ApiHttpError>(
+    () => request<void, ApiHttpError>({
       ...params,
       path: `/api/suppliers/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "DELETE",
     }),
-    { onSuccess: onSuccess ?? typedApiDefaultSuccessHandler, onError: onError ?? typedApiDefaultErrorHandler },
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler,
+      transformError: (value, response) => createApiHttpError(response.status, value),
+    },
   );
 }
 
@@ -197,12 +207,12 @@ export async function supplierDeleteSupplier(
  */
 export async function supplierVerifySupplier(
   pathParams: SupplierVerifySupplierParams,
-  options: ApiMethodOptions<SupplierModel, unknown, RequestParams> = {}
-): Promise<ApiResult<SupplierModel, unknown>> {
+  options: ApiMethodOptions<SupplierModel, ApiHttpError, RequestParams> = {}
+): Promise<ApiResult<SupplierModel, ApiHttpError>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<SupplierModel, unknown>(
-    () => request<SupplierModel, unknown>({
+  return handleApiResponse<SupplierModel, ApiHttpError>(
+    () => request<SupplierModel, ApiHttpError>({
       ...params,
       path: `/api/suppliers/${encodeURIComponent(String(pathParams["id"]))}/verify`,
       method: "POST",
@@ -212,6 +222,7 @@ export async function supplierVerifySupplier(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:SupplierVerifySupplierPOSTApiSuppliersIdVerify:response"], typedApiWireSchemas) as SupplierModel,
+      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
