@@ -28,7 +28,7 @@ public sealed class RequireAllPropertiesSchemaFilter : ISchemaFilter
     }
 
 #if NET10_0_OR_GREATER
-    public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
+    void ISchemaFilter.Apply(IOpenApiSchema schema, SchemaFilterContext context)
     {
         if (schema is not OpenApiSchema concreteSchema) return;
         ApplyCore(concreteSchema, context);
@@ -36,7 +36,7 @@ public sealed class RequireAllPropertiesSchemaFilter : ISchemaFilter
 
     private void ApplyCore(OpenApiSchema schema, SchemaFilterContext context)
 #else
-    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    void ISchemaFilter.Apply(OpenApiSchema schema, SchemaFilterContext context)
 #endif
     {
         if (schema.Properties is null || context.Type is null) return;

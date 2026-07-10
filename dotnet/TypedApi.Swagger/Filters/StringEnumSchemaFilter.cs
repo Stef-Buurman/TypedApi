@@ -16,7 +16,7 @@ namespace TypedApi.Swagger.Filters;
 public sealed class StringEnumSchemaFilter : ISchemaFilter
 {
 #if NET10_0_OR_GREATER
-    public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
+    void ISchemaFilter.Apply(IOpenApiSchema schema, SchemaFilterContext context)
     {
         if (schema is not OpenApiSchema concreteSchema) return;
         ApplyCore(concreteSchema, context);
@@ -24,7 +24,7 @@ public sealed class StringEnumSchemaFilter : ISchemaFilter
 
     private static void ApplyCore(OpenApiSchema schema, SchemaFilterContext context)
 #else
-    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    void ISchemaFilter.Apply(OpenApiSchema schema, SchemaFilterContext context)
 #endif
     {
         var enumType = Nullable.GetUnderlyingType(context.Type) ?? context.Type;

@@ -14,7 +14,7 @@ namespace TypedApi.Swagger.Filters;
 /// <summary>Marks paginated endpoints so the TypeScript generator need not infer them by type name.</summary>
 public sealed class TypedApiPaginationOperationFilter : IOperationFilter
 {
-    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    void IOperationFilter.Apply(OpenApiOperation operation, OperationFilterContext context)
     {
         var isPaginated = context.ApiDescription.SupportedResponseTypes
             .Select(response => response.Type)

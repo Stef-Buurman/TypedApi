@@ -19,7 +19,7 @@ public sealed class TypedApiOperationMetadataFilter : IOperationFilter
 {
     public const string ExtensionName = "x-typedapi-operation";
 
-    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    void IOperationFilter.Apply(OpenApiOperation operation, OperationFilterContext context)
     {
         context.ApiDescription.ActionDescriptor.RouteValues.TryGetValue("controller", out var controllerName);
         context.ApiDescription.ActionDescriptor.RouteValues.TryGetValue("action", out var actionName);

@@ -16,7 +16,7 @@ public sealed class TypedApiContractDocumentFilter : IDocumentFilter
 {
     public const int ContractVersion = 1;
 
-    public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
+    void IDocumentFilter.Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
         var producerVersion = typeof(TypedApiContractDocumentFilter)
             .Assembly
