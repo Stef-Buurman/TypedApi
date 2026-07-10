@@ -73,15 +73,6 @@ export async function generateApi(options) {
     );
   }
 
-  const indexLines = [
-    'export * from "./generated/data-contracts";',
-    'export * from "./generated/http-client";',
-    ...controllerNames.map(
-      (controllerName) => `export * from "./methods/${methodFileNameForController(controllerName).replace(/\.ts$/, "")}";`,
-    ),
-  ];
-  files.set("index.ts", `${indexLines.join("\n")}\n`);
-
   const schemaHash = crypto.createHash("sha256").update(source).digest("hex");
   files.set(
     "typedapi.manifest.json",

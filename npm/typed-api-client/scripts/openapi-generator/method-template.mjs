@@ -23,7 +23,7 @@ function extractTopLevelTypeNames(type) {
   return matches.filter(
     (name) => ![
       "Array", "Record", "Promise", "HttpResponse", "Blob", "File", "ApiResult",
-      "RequestParams", "FormData", "ApiClientError",
+      "RequestParams", "FormData", "ApiClientError", "ApiHttpError",
     ].includes(name),
   );
 }
@@ -185,6 +185,10 @@ function callbackOptions(operationTypes, defaultHandlers) {
         operationTypes.errorWireSchemaKey,
       )}], typedApiWireSchemas) as ${operationTypes.errorType}`,
     );
+  } else if (operationTypes.usesHttpErrorFallback) {
+    items.push(
+      "transformError: (value, response) => createApiHttpError(response.status, value)",
+    );
   }
 
   return items.length <= 2
@@ -343,6 +347,10 @@ export function generateMethodFile(openApi, controllerName, operations, options 
     }
     if (!isPrimitiveType(operationTypes.errorType)) {
       dataContractImports.push(...extractTopLevelTypeNames(operationTypes.errorType));
+    }
+    if (operationTypes.usesHttpErrorFallback) {
+      helperTypeImports.push("ApiHttpError");
+      helperValueImports.push("createApiHttpError");
     }
 
     if (contentTypeEnum(operationTypes.contentType)) needsContentType = true;

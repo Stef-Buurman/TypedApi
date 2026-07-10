@@ -1,3 +1,20 @@
+export type ApiHttpErrorBody =
+  | string
+  | number
+  | boolean
+  | null
+  | Blob
+  | undefined
+  | ApiHttpErrorBody[]
+  | { [key: string]: ApiHttpErrorBody };
+
+/** An HTTP error response without a documented OpenAPI error schema. */
+export type ApiHttpError = {
+  kind: "http";
+  status: number;
+  body: ApiHttpErrorBody;
+};
+
 /** Errors created by the TypedApi runtime before a typed HTTP error body is available. */
 export type ApiClientError =
   | {

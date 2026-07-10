@@ -154,6 +154,7 @@ test("generator lowercases only the first character and preserves wire names", a
   assert.match(methods, /ApiResult<Derived, ProblemDetails>/);
   assert.equal(manifest.contractVersion, 1);
   assert.equal(manifest.operationCount, 1);
+  assert.equal(fs.existsSync(path.join(output, "index.ts")), false);
 
   const compile = spawnSync(
     process.execPath,
@@ -179,7 +180,7 @@ test("generator lowercases only the first character and preserves wire names", a
       generatorVersion: "0.3.0",
       check: true,
     }),
-    /index\.ts differs/,
+    /index\.ts is stale/,
   );
 });
 
@@ -232,7 +233,7 @@ test("generator falls back to Windows-safe managed-file synchronization", async 
     "export const custom = true;\n",
   );
   assert.equal(fs.existsSync(path.join(output, "methods", "Stale.api.ts")), false);
-  assert.doesNotMatch(fs.readFileSync(path.join(output, "index.ts"), "utf8"), /old generated content/);
+  assert.equal(fs.existsSync(path.join(output, "index.ts")), false);
 
   await generateApi({
     input: path.join(root, "openapi.json"),
@@ -293,6 +294,11 @@ test("body-only operations accept the payload directly without a request wrapper
   assert.match(orderMethods, /path: `\/api\/orders\/\$\{encodeURIComponent\(String\(pathParams\["id"\]\)\)\}`/);
   assert.match(contracts, /export interface CancelOrderParams/);
   assert.doesNotMatch(contracts, /CancelOrder(?:Path|Query)Params|CancelOrderRequest/);
+  assert.match(orderMethods, /ApiMethodOptions<OrderModel, ApiHttpError, RequestParams>/);
+  assert.match(orderMethods, /Promise<ApiResult<OrderModel, ApiHttpError>>/);
+  assert.match(orderMethods, /transformError: \(value, response\) => createApiHttpError\(response.status, value\)/);
+  assert.doesNotMatch(orderMethods, /ApiMethodOptions<OrderModel, unknown/);
+  assert.doesNotMatch(orderMethods, /ApiResult<OrderModel, unknown>/);
 
   assert.match(contracts, /export interface DeleteSupplierParams \{\s*\/\*\* @format uuid \*\/\s*id: string;/);
   assert.match(supplierMethods, /export async function deleteSupplier\(\s*pathParams: DeleteSupplierParams,/);

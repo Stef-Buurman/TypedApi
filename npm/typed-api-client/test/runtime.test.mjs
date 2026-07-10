@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   createApiClient,
+  createApiHttpError,
   handleApiResponse,
   fromWireValue,
   mergeHeaders,
@@ -122,4 +123,12 @@ test("handleApiResponse applies generated response and error transforms", async 
   );
   assert.equal(failure.ok, false);
   assert.deepEqual(failure.error, { title: "Bad" });
+});
+
+test("undocumented HTTP errors use a structured fallback type", () => {
+  assert.deepEqual(createApiHttpError(409, { message: "Conflict" }), {
+    kind: "http",
+    status: 409,
+    body: { message: "Conflict" },
+  });
 });

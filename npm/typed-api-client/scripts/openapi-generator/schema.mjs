@@ -576,7 +576,8 @@ export function getOperationTypes(
       ),
     )
     .filter(Boolean);
-  const errorType = unionTypes(errorTypes, "unknown");
+  const usesHttpErrorFallback = errorTypes.length === 0;
+  const errorType = unionTypes(errorTypes, "ApiHttpError");
   const responseSchema = responseContent?.mediaType?.schema;
   const errorSchemas = errorResponses
     .map(({ response }) => getResponseContent(response)?.mediaType?.schema)
@@ -625,6 +626,7 @@ export function getOperationTypes(
       ? operationWireSchemaKey(operationId, "response")
       : undefined,
     errorType,
+    usesHttpErrorFallback,
     errorWireSchemaKey:
       errorSchemas.length > 0
         ? operationWireSchemaKey(operationId, "error")

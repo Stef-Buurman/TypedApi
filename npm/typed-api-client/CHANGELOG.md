@@ -11,12 +11,12 @@ All notable changes to `typedapi-client-helpers` are documented in this file.
 * Added support for path, query, header, cookie, and request-body inputs in the same operation.
 * Added typed unions for documented non-success response bodies.
 * Added structured client errors for network failures, aborted requests, and malformed responses.
+* Added `ApiHttpError` for operations without a documented OpenAPI error schema.
 * Added support for local OpenAPI `$ref` values in schemas, parameters, path items, request bodies, and responses.
 * Added support for `allOf` schemas with additional local properties.
 * Added configurable frontend method naming through `typedApiMethodNameStyle`.
 * Added `typedApiPrefixMethodNamesWithController` for controller-prefixed action names.
 * Added controller-name fallback detection from TypedApi metadata, OpenAPI tags, and route paths.
-* Added generated root `index.ts` barrel exports.
 * Added `typedapi.manifest.json` containing generator, contract, source, and naming information.
 * Added `--check`, `--strict`, `--offline`, and `--verbose` generator modes.
 * Added configurable Swagger download timeouts.
@@ -34,6 +34,8 @@ All notable changes to `typedapi-client-helpers` are documented in this file.
 * Action-based names can include the controller name by default, preventing collisions between actions with the same name in different controllers.
 * Controller prefixes are not duplicated when an action name already begins with the controller name.
 * Generated method signatures now keep non-body parameters, request bodies, and request options in predictable argument groups.
+* Generated methods now use `ApiHttpError` instead of `unknown` when no backend error schema is documented.
+* Generated API output no longer contains a root `index.ts`; methods and contracts are imported directly from their generated files.
 * Body-only operations now accept their payload directly without an additional request wrapper.
 * Query-only and paginated operations now use more specific generated query types.
 * Documented backend errors are returned alongside structured TypedApi client errors.
@@ -51,6 +53,7 @@ All notable changes to `typedapi-client-helpers` are documented in this file.
 * Added rollback-protected managed-file synchronization when `src/api` cannot be renamed because an editor, TypeScript watcher, antivirus scanner, or development server holds a directory handle.
 * Preserved unmanaged files during fallback synchronization.
 * Removed stale TypedApi-generated files during fallback synchronization.
+* Removed previously generated root `index.ts` files during regeneration.
 * Fixed handling of cancel token `0`.
 * Fixed abort-controller cleanup after completed requests.
 * Fixed URLs that already contain query strings.
@@ -65,4 +68,5 @@ All notable changes to `typedapi-client-helpers` are documented in this file.
 * Projects using `typedApiMethodNameStyle: "action"` receive controller-prefixed names by default.
 * Set `typedApiPrefixMethodNamesWithController` to `false` to generate action-only names.
 * Set `typedApiGenerateMissingOperationIds` to `true` only when operation IDs cannot be supplied by the backend.
-* Regenerate and review committed API files after upgrading.
+* Import methods from `src/api/methods/*.api.ts` and contracts from `src/api/generated/data-contracts.ts` instead of using `src/api/index.ts`.
+* Regenerate and review committed API files after upgrading; regeneration removes the old generated root `index.ts`.

@@ -11,7 +11,8 @@ A small Fetch runtime and OpenAPI 3 TypeScript generator designed to work with `
 - Resolves local OpenAPI references for schemas, parameters, request bodies, and responses.
 - Supports `allOf` composition with local properties.
 - Generates typed unions for documented non-success responses.
-- Produces `index.ts` and `typedapi.manifest.json`.
+- Uses a structured `ApiHttpError` when an operation has no documented error schema.
+- Produces `typedapi.manifest.json` without creating a root API barrel file.
 - Writes generated output transactionally, with a Windows-safe in-place fallback when directory renames are blocked by editors or file watchers.
 - Adds `--check`, `--strict`, `--offline`, and `--verbose` CLI modes.
 - Improves cancellation, timeouts, header merging, SSR safety, and malformed-response handling.
@@ -62,11 +63,17 @@ src/api/
 │   └── http-client.ts
 ├── methods/
 │   └── Products.api.ts
-├── index.ts
 └── typedapi.manifest.json
 ```
 
-The Swagger backup belongs to the consuming project, not this npm package.
+The generator intentionally does not create `src/api/index.ts`. Import generated methods and contracts directly from their files:
+
+```ts
+import { getProducts } from "./api/methods/Product.api";
+import type { ProductModel } from "./api/generated/data-contracts";
+```
+
+When upgrading from an earlier 0.3.0 build, the next generation removes the old generated `src/api/index.ts`. The Swagger backup belongs to the consuming project, not this npm package.
 
 ## Frontend method names
 
@@ -150,8 +157,8 @@ The generated signature is:
 export async function updateWarehouse(
   pathParams: UpdateWarehouseParams,
   data: WarehouseRequest,
-  options: ApiMethodOptions<WarehouseModel, unknown, RequestParams> = {},
-): Promise<ApiResult<WarehouseModel, unknown>>;
+  options: ApiMethodOptions<WarehouseModel, ApiHttpError, RequestParams> = {},
+): Promise<ApiResult<WarehouseModel, ApiHttpError>>;
 ```
 
 Path operations without a body use only the params object:
@@ -184,15 +191,18 @@ await updateWarehouse(pathParams, data, {
 
 ## Typed errors
 
-When the OpenAPI document describes error response bodies, generated methods expose their union:
+When the OpenAPI document describes error response bodies, generated methods expose their generated type or union. When no error schema is documented, the method uses `ApiHttpError` instead of `unknown`:
 
 ```ts
-const result = await createProduct(body);
+const result = await cancelOrder({ id, reason });
 
 if (!result.ok) {
-  // Documented backend error type or a TypedApi client error:
-  // network, aborted, or parse.
-  console.error(result.error);
+  if (result.error.kind === "http") {
+    console.error(result.error.status, result.error.body);
+  } else {
+    // Structured TypedApi client error: network, aborted, or parse.
+    console.error(result.error);
+  }
 }
 ```
 

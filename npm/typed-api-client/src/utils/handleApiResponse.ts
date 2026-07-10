@@ -1,4 +1,4 @@
-import type { ApiClientError, ApiResult } from "../interfaces/ApiResult";
+import type { ApiClientError, ApiHttpError, ApiHttpErrorBody, ApiResult } from "../interfaces/ApiResult";
 import type { ApiErrorHandler, ApiSuccessHandler } from "../types/ApiCallOptions";
 import type { HttpResponse } from "../httpClient";
 
@@ -6,7 +6,7 @@ export type HandleApiResponseOptions<TResponse, TError = unknown> = {
   onSuccess?: ApiSuccessHandler<TResponse>;
   onError?: ApiErrorHandler<TResponse, TError>;
   transformResponse?: (value: unknown) => TResponse;
-  transformError?: (value: unknown) => TError;
+  transformError?: (value: unknown, response: Response) => TError;
 };
 
 class ResponseParseError extends Error {
@@ -57,6 +57,14 @@ function isResponseLike(value: unknown): value is Response {
     "headers" in value &&
     typeof (value as Response).text === "function"
   );
+}
+
+export function createApiHttpError(status: number, body: unknown): ApiHttpError {
+  return {
+    kind: "http",
+    status,
+    body: body as ApiHttpErrorBody,
+  };
 }
 
 function clientError(error: unknown): ApiClientError {
@@ -112,7 +120,7 @@ export async function handleApiResponse<TResponse, TError = unknown>(
       try {
         const rawErrorData = await readResponseBody<unknown>(error.clone());
         const errorData = options?.transformError
-          ? options.transformError(rawErrorData)
+          ? options.transformError(rawErrorData, error)
           : rawErrorData as TError;
         result = {
           ok: false,
