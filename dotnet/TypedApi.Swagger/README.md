@@ -129,7 +129,7 @@ public ActionResult<ApiPaginationSortResponse<Product>> GetProducts(
 }
 ```
 
-`PageNumber` must be at least 1. `PageSize` must be between 1 and 500. `TotalRecords` remains available as an obsolete compatibility alias for `TotalCount`.
+`PageNumber` must be at least 1. `TotalRecords` remains available as an obsolete compatibility alias for `TotalCount`.
 
 ## Supported frameworks
 
