@@ -1,5 +1,5 @@
-import { ApiErrorHandler, ApiSuccessHandler } from "./ApiCallOptions";
-import { RuntimeRequestParams } from "./HttpResponse";
+import type { ApiErrorHandler, ApiSuccessHandler } from "./ApiCallOptions";
+import type { RuntimeRequestParams } from "./httpClientTypes";
 
 export type ApiMethodOptions<
   TResponse,

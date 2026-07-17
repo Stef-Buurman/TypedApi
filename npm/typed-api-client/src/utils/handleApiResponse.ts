@@ -2,11 +2,14 @@ import type { ApiClientError, ApiHttpError, ApiHttpErrorBody, ApiResult } from "
 import type { ApiErrorHandler, ApiSuccessHandler } from "../types/ApiCallOptions";
 import type { HttpResponse } from "../httpClient";
 
+const defaultUnknownErrorMessage = "An unknown error occurred.";
+
 export type HandleApiResponseOptions<TResponse, TError = unknown> = {
   onSuccess?: ApiSuccessHandler<TResponse>;
   onError?: ApiErrorHandler<TResponse, TError>;
   transformResponse?: (value: unknown) => TResponse;
   transformError?: (value: unknown, response: Response) => TError;
+  fallbackErrorMessage?: string;
 };
 
 class ResponseParseError extends Error {
@@ -67,7 +70,7 @@ export function createApiHttpError(status: number, body: unknown): ApiHttpError 
   };
 }
 
-function clientError(error: unknown): ApiClientError {
+function clientError(error: unknown, fallbackErrorMessage?: string): ApiClientError | string {
   if (error instanceof ResponseParseError) {
     return {
       kind: "parse",
@@ -86,7 +89,7 @@ function clientError(error: unknown): ApiClientError {
     return { kind: "aborted", cause: error };
   }
 
-  return { kind: "network", cause: error };
+  return fallbackErrorMessage ?? defaultUnknownErrorMessage;
 }
 
 export async function handleApiResponse<TResponse, TError = unknown>(
@@ -112,16 +115,19 @@ export async function handleApiResponse<TResponse, TError = unknown>(
         ok: false,
         status: response.status,
         response: undefined,
-        error: clientError(error),
+        error: clientError(error, options?.fallbackErrorMessage),
       };
     }
   } catch (error) {
     if (isResponseLike(error)) {
       try {
         const rawErrorData = await readResponseBody<unknown>(error.clone());
-        const errorData = options?.transformError
+        const transformedError = options?.transformError
           ? options.transformError(rawErrorData, error)
           : rawErrorData as TError;
+        const errorData = transformedError === undefined
+          ? options?.fallbackErrorMessage ?? defaultUnknownErrorMessage
+          : transformedError;
         result = {
           ok: false,
           status: error.status,
@@ -133,7 +139,7 @@ export async function handleApiResponse<TResponse, TError = unknown>(
           ok: false,
           status: error.status,
           response: undefined,
-          error: clientError(parseError),
+          error: clientError(parseError, options?.fallbackErrorMessage),
         };
       }
     } else {
@@ -141,7 +147,7 @@ export async function handleApiResponse<TResponse, TError = unknown>(
         ok: false,
         status: 0,
         response: undefined,
-        error: clientError(error),
+        error: clientError(error, options?.fallbackErrorMessage),
       };
     }
   }

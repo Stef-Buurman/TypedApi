@@ -44,7 +44,7 @@ export type ApiResult<TResponse, TError = unknown> =
       ok: false;
       status: number;
       response?: undefined;
-      error: TError | ApiClientError;
+      error: TError | ApiClientError | string;
     };
 
 export type ApiSuccessResult<TResponse, TError = unknown> = Extract<

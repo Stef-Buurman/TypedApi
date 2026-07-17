@@ -8,8 +8,6 @@ This folder contains runtime helper functions used by generated wrapper methods 
 | ------------------------------------- | -------- | -------------------------------------------------------------------------------------------------- |
 | `buildQuery<TQuery, TSortModel>()`    | function | Builds a query object from filter values, pagination, and sorting.                                 |
 | `SortDirection`                       | type     | Sort direction value accepted by generated query objects. Supports string and numeric enum values. |
-| `extractArgsCallbacksAndParams()`     | function | Backwards-compatible helper for older generated files that used positional callbacks.              |
-| `extractArgsToastsAndParams()`        | function | Backwards-compatible argument extractor with the same callback/request-param behavior.             |
 | `handleApiResponse()`                 | function | Executes a generated HTTP call and returns `ApiResult<TResponse>`.                                 |
 | `HandleApiResponseOptions<TResponse>` | type     | Options object for `handleApiResponse`, containing optional success and error callbacks.           |
 | `getSortTypeFromSortDirection()`      | function | Converts an API sort direction to a UI `SortType`.                                                 |
@@ -78,43 +76,7 @@ await getSuppliers(
 
 The generated wrapper passes `onSuccess` and `onError` to `handleApiResponse`, and forwards `params` to the raw generated HTTP client.
 
-## `extractArgsCallbacksAndParams`
 
-`extractArgsCallbacksAndParams` is kept for backwards compatibility with older generated files that used positional callback arguments.
-
-Older generated files could call methods like this:
-
-```ts
-await updateSupplier(id, body, onSuccess, onError, { headers });
-```
-
-`extractArgsCallbacksAndParams` separates that tuple into:
-
-```ts
-{
-  args,
-  onSuccess,
-  onError,
-  params,
-}
-```
-
-New generated wrapper methods should use the method options object instead.
-
-## `extractArgsToastsAndParams`
-
-`extractArgsToastsAndParams` is kept for backwards compatibility with older generated files that used toast-oriented naming. New generated code should use method options instead of positional callbacks.
-
-It returns the same shape as `extractArgsCallbacksAndParams`:
-
-```ts
-{
-  args,
-  onSuccess,
-  onError,
-  params,
-}
-```
 
 ## `handleApiResponse`
 
