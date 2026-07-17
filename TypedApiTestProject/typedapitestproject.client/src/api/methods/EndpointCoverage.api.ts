@@ -11,7 +11,6 @@
  */
 import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
-import { typedApiWireSchemas } from "../generated/data-contracts";
 import type {
   EndpointCoverageDeleteNoContentParams,
   EndpointCoverageGetPathAndQueryParams,
@@ -21,14 +20,9 @@ import type {
   EndpointCoveragePostUrlEncodedPayload,
   EndpointCoverageRequest,
 } from "../generated/data-contracts";
-import {
-  createApiHttpError,
-  fromWireValue,
-  handleApiResponse,
-  toWireValue,
-} from "typedapi-client-helpers";
+import { createApiHttpError, handleApiResponse } from "typedapi-client-helpers";
 import type { ApiHttpError, ApiMethodOptions, ApiResult } from "typedapi-client-helpers";
-import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler } from "../../utils/defaultApiFunctions";
+import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler, unknownErrorMessage as typedApiDefaultErrorMessage } from "../../utils/defaultApiFunctions";
 
 /**
  * No description
@@ -52,7 +46,7 @@ export async function endpointCoverageGetObject(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:EndpointCoverageGetObjectGETApiEndpointCoverageObject:response"], typedApiWireSchemas) as EndpointCoverageModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -80,7 +74,7 @@ export async function endpointCoverageGetArray(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:EndpointCoverageGetArrayGETApiEndpointCoverageArray:response"], typedApiWireSchemas) as EndpointCoverageModel[],
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -108,7 +102,7 @@ export async function endpointCoverageGetPrimitive(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:EndpointCoverageGetPrimitiveGETApiEndpointCoveragePrimitive:response"], typedApiWireSchemas) as number,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -136,7 +130,7 @@ export async function endpointCoverageGetDictionary(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:EndpointCoverageGetDictionaryGETApiEndpointCoverageDictionary:response"], typedApiWireSchemas) as Record<string, number>,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -163,6 +157,7 @@ export async function endpointCoverageGetText(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -189,6 +184,7 @@ export async function endpointCoverageDownloadFile(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -218,7 +214,7 @@ export async function endpointCoverageGetPathAndQuery(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:EndpointCoverageGetPathAndQueryGETApiEndpointCoverageIdDetails:response"], typedApiWireSchemas) as EndpointCoverageModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -242,14 +238,14 @@ export async function endpointCoveragePostJson(
       ...params,
       path: `/api/endpoint-coverage/json`,
       method: "POST",
-      body: toWireValue(data, typedApiWireSchemas["operation:EndpointCoveragePostJsonPOSTApiEndpointCoverageJson:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.Json,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:EndpointCoveragePostJsonPOSTApiEndpointCoverageJson:response"], typedApiWireSchemas) as EndpointCoverageModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -273,14 +269,14 @@ export async function endpointCoveragePostPrimitiveBody(
       ...params,
       path: `/api/endpoint-coverage/primitive-body`,
       method: "POST",
-      body: toWireValue(data, typedApiWireSchemas["operation:EndpointCoveragePostPrimitiveBodyPOSTApiEndpointCoveragePrimitiveBody:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.Json,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:EndpointCoveragePostPrimitiveBodyPOSTApiEndpointCoveragePrimitiveBody:response"], typedApiWireSchemas) as string,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -304,14 +300,14 @@ export async function endpointCoveragePostUrlEncoded(
       ...params,
       path: `/api/endpoint-coverage/url-encoded`,
       method: "POST",
-      body: toWireValue(data, typedApiWireSchemas["operation:EndpointCoveragePostUrlEncodedPOSTApiEndpointCoverageUrlEncoded:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.UrlEncoded,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:EndpointCoveragePostUrlEncodedPOSTApiEndpointCoverageUrlEncoded:response"], typedApiWireSchemas) as EndpointCoverageModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -335,14 +331,14 @@ export async function endpointCoveragePostAccepted(
       ...params,
       path: `/api/endpoint-coverage/accepted`,
       method: "POST",
-      body: toWireValue(data, typedApiWireSchemas["operation:EndpointCoveragePostAcceptedPOSTApiEndpointCoverageAccepted:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.Json,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:EndpointCoveragePostAcceptedPOSTApiEndpointCoverageAccepted:response"], typedApiWireSchemas) as EndpointCoverageModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -367,14 +363,14 @@ export async function endpointCoveragePatchJson(
       ...params,
       path: `/api/endpoint-coverage/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "PATCH",
-      body: toWireValue(data, typedApiWireSchemas["operation:EndpointCoveragePatchJsonPATCHApiEndpointCoverageId:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.Json,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:EndpointCoveragePatchJsonPATCHApiEndpointCoverageId:response"], typedApiWireSchemas) as EndpointCoverageModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -402,6 +398,7 @@ export async function endpointCoverageDeleteNoContent(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );

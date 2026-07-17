@@ -11,7 +11,6 @@
  */
 import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
-import { typedApiWireSchemas } from "../generated/data-contracts";
 import type {
   OrderApproveOrderParams,
   OrderCancelOrderParams,
@@ -23,13 +22,7 @@ import type {
   OrderRequest,
   OrderUpdateOrderParams,
 } from "../generated/data-contracts";
-import {
-  buildQuery,
-  createApiHttpError,
-  fromWireValue,
-  handleApiResponse,
-  toWireValue,
-} from "typedapi-client-helpers";
+import { buildQuery, createApiHttpError, handleApiResponse } from "typedapi-client-helpers";
 import type {
   ApiHttpError,
   ApiMethodOptions,
@@ -40,7 +33,7 @@ import type {
   SortDirection,
   UnwrapArray,
 } from "typedapi-client-helpers";
-import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler } from "../../utils/defaultApiFunctions";
+import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler, unknownErrorMessage as typedApiDefaultErrorMessage } from "../../utils/defaultApiFunctions";
 
 /**
  * No description
@@ -74,7 +67,7 @@ export async function orderGetOrders(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:OrderGetOrdersGETApiOrders:response"], typedApiWireSchemas) as OrderModelApiPaginationSortResponse,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -98,14 +91,14 @@ export async function orderCreateOrder(
       ...params,
       path: `/api/orders`,
       method: "POST",
-      body: toWireValue(data, typedApiWireSchemas["operation:OrderCreateOrderPOSTApiOrders:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.Json,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:OrderCreateOrderPOSTApiOrders:response"], typedApiWireSchemas) as OrderModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -134,7 +127,7 @@ export async function orderGetOrderById(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:OrderGetOrderByIdGETApiOrdersId:response"], typedApiWireSchemas) as OrderModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -159,14 +152,14 @@ export async function orderUpdateOrder(
       ...params,
       path: `/api/orders/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "PUT",
-      body: toWireValue(data, typedApiWireSchemas["operation:OrderUpdateOrderPUTApiOrdersId:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.Json,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:OrderUpdateOrderPUTApiOrdersId:response"], typedApiWireSchemas) as OrderModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -194,6 +187,7 @@ export async function orderDeleteOrder(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -222,7 +216,7 @@ export async function orderApproveOrder(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:OrderApproveOrderPOSTApiOrdersIdApprove:response"], typedApiWireSchemas) as OrderModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -252,7 +246,7 @@ export async function orderCancelOrder(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:OrderCancelOrderPOSTApiOrdersIdCancel:response"], typedApiWireSchemas) as OrderModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );

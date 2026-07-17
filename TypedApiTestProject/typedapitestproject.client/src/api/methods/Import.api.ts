@@ -11,21 +11,15 @@
  */
 import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
-import { typedApiWireSchemas } from "../generated/data-contracts";
 import type {
   ImportUploadMixedImportPayload,
   ImportUploadProductFilesPayload,
   ImportUploadSupplierFilePayload,
   UploadResult,
 } from "../generated/data-contracts";
-import {
-  createApiHttpError,
-  fromWireValue,
-  handleApiResponse,
-  toWireValue,
-} from "typedapi-client-helpers";
+import { createApiHttpError, handleApiResponse } from "typedapi-client-helpers";
 import type { ApiHttpError, ApiMethodOptions, ApiResult } from "typedapi-client-helpers";
-import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler } from "../../utils/defaultApiFunctions";
+import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler, unknownErrorMessage as typedApiDefaultErrorMessage } from "../../utils/defaultApiFunctions";
 
 /**
  * No description
@@ -45,14 +39,14 @@ export async function importUploadProductFiles(
       ...params,
       path: `/api/imports/products`,
       method: "POST",
-      body: toWireValue(data, typedApiWireSchemas["operation:ImportUploadProductFilesPOSTApiImportsProducts:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.FormData,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ImportUploadProductFilesPOSTApiImportsProducts:response"], typedApiWireSchemas) as UploadResult,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -76,14 +70,14 @@ export async function importUploadSupplierFile(
       ...params,
       path: `/api/imports/supplier`,
       method: "POST",
-      body: toWireValue(data, typedApiWireSchemas["operation:ImportUploadSupplierFilePOSTApiImportsSupplier:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.FormData,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ImportUploadSupplierFilePOSTApiImportsSupplier:response"], typedApiWireSchemas) as UploadResult,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -107,14 +101,14 @@ export async function importUploadMixedImport(
       ...params,
       path: `/api/imports/mixed`,
       method: "POST",
-      body: toWireValue(data, typedApiWireSchemas["operation:ImportUploadMixedImportPOSTApiImportsMixed:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.FormData,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ImportUploadMixedImportPOSTApiImportsMixed:response"], typedApiWireSchemas) as UploadResult,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );

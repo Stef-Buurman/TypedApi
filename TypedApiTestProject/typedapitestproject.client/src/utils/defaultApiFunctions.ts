@@ -11,3 +11,5 @@ export function handleErrors<T>(
 ): void | Promise<void> {
   console.error("API call failed:", _error);
 }
+
+export const unknownErrorMessage = "An unknown error occurred.";

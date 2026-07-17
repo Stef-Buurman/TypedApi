@@ -11,7 +11,6 @@
  */
 import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
-import { typedApiWireSchemas } from "../generated/data-contracts";
 import type {
   ApiSortResponse,
   ProductDeleteProductParams,
@@ -25,13 +24,7 @@ import type {
   ProductToggleProductActiveParams,
   ProductUpdateProductParams,
 } from "../generated/data-contracts";
-import {
-  buildQuery,
-  createApiHttpError,
-  fromWireValue,
-  handleApiResponse,
-  toWireValue,
-} from "typedapi-client-helpers";
+import { buildQuery, createApiHttpError, handleApiResponse } from "typedapi-client-helpers";
 import type {
   ApiHttpError,
   ApiMethodOptions,
@@ -42,7 +35,7 @@ import type {
   SortDirection,
   UnwrapArray,
 } from "typedapi-client-helpers";
-import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler } from "../../utils/defaultApiFunctions";
+import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler, unknownErrorMessage as typedApiDefaultErrorMessage } from "../../utils/defaultApiFunctions";
 
 /**
  * No description
@@ -76,7 +69,7 @@ export async function productGetProducts(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ProductGetProductsGETApiProducts:response"], typedApiWireSchemas) as ProductTableRowApiPaginationSortResponse,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -100,14 +93,14 @@ export async function productCreateProduct(
       ...params,
       path: `/api/products`,
       method: "POST",
-      body: toWireValue(data, typedApiWireSchemas["operation:ProductCreateProductPOSTApiProducts:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.Json,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ProductCreateProductPOSTApiProducts:response"], typedApiWireSchemas) as ProductModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -131,13 +124,13 @@ export async function productGetProductSortState(
       ...params,
       path: `/api/products/sort-state`,
       method: "GET",
-      query: { "sortBy": query["sortBy"], "sortDirection": query["sortDirection"] },
+      query: query,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ProductGetProductSortStateGETApiProductsSortState:response"], typedApiWireSchemas) as ApiSortResponse,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -166,7 +159,7 @@ export async function productGetProductById(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ProductGetProductByIdGETApiProductsId:response"], typedApiWireSchemas) as ProductModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -191,14 +184,14 @@ export async function productUpdateProduct(
       ...params,
       path: `/api/products/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "PUT",
-      body: toWireValue(data, typedApiWireSchemas["operation:ProductUpdateProductPUTApiProductsId:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.Json,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ProductUpdateProductPUTApiProductsId:response"], typedApiWireSchemas) as ProductModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -226,6 +219,7 @@ export async function productDeleteProduct(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -254,7 +248,7 @@ export async function productToggleProductActive(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:ProductToggleProductActivePOSTApiProductsIdToggleActive:response"], typedApiWireSchemas) as ProductModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -278,15 +272,12 @@ export async function productExportProducts(
       ...params,
       path: `/api/products/export`,
       method: "GET",
-      query: {
-          "search": query["search"],
-          "active": query["active"],
-          "productIds": query["productIds"],
-        },
+      query: query,
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );

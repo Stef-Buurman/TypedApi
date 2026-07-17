@@ -11,7 +11,6 @@
  */
 import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
-import { typedApiWireSchemas } from "../generated/data-contracts";
 import type {
   WarehouseDeleteWarehouseParams,
   WarehouseGetWarehouseByIdParams,
@@ -21,13 +20,7 @@ import type {
   WarehouseRequest,
   WarehouseUpdateWarehouseParams,
 } from "../generated/data-contracts";
-import {
-  buildQuery,
-  createApiHttpError,
-  fromWireValue,
-  handleApiResponse,
-  toWireValue,
-} from "typedapi-client-helpers";
+import { buildQuery, createApiHttpError, handleApiResponse } from "typedapi-client-helpers";
 import type {
   ApiHttpError,
   ApiMethodOptions,
@@ -38,7 +31,7 @@ import type {
   SortDirection,
   UnwrapArray,
 } from "typedapi-client-helpers";
-import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler } from "../../utils/defaultApiFunctions";
+import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler, unknownErrorMessage as typedApiDefaultErrorMessage } from "../../utils/defaultApiFunctions";
 
 /**
  * No description
@@ -72,7 +65,7 @@ export async function warehouseGetWarehouses(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:WarehouseGetWarehousesGETApiWarehouses:response"], typedApiWireSchemas) as WarehouseModelApiPaginationResponse,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -96,14 +89,14 @@ export async function warehouseCreateWarehouse(
       ...params,
       path: `/api/warehouses`,
       method: "POST",
-      body: toWireValue(data, typedApiWireSchemas["operation:WarehouseCreateWarehousePOSTApiWarehouses:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.Json,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:WarehouseCreateWarehousePOSTApiWarehouses:response"], typedApiWireSchemas) as WarehouseModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -132,7 +125,7 @@ export async function warehouseGetWarehouseById(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:WarehouseGetWarehouseByIdGETApiWarehousesId:response"], typedApiWireSchemas) as WarehouseModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -157,14 +150,14 @@ export async function warehouseUpdateWarehouse(
       ...params,
       path: `/api/warehouses/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "PUT",
-      body: toWireValue(data, typedApiWireSchemas["operation:WarehouseUpdateWarehousePUTApiWarehousesId:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.Json,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:WarehouseUpdateWarehousePUTApiWarehousesId:response"], typedApiWireSchemas) as WarehouseModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -192,6 +185,7 @@ export async function warehouseDeleteWarehouse(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );

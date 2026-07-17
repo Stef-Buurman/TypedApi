@@ -11,7 +11,6 @@
  */
 import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
-import { typedApiWireSchemas } from "../generated/data-contracts";
 import type {
   SupplierDeleteSupplierParams,
   SupplierGetSupplierByIdParams,
@@ -22,13 +21,7 @@ import type {
   SupplierUpdateSupplierParams,
   SupplierVerifySupplierParams,
 } from "../generated/data-contracts";
-import {
-  buildQuery,
-  createApiHttpError,
-  fromWireValue,
-  handleApiResponse,
-  toWireValue,
-} from "typedapi-client-helpers";
+import { buildQuery, createApiHttpError, handleApiResponse } from "typedapi-client-helpers";
 import type {
   ApiHttpError,
   ApiMethodOptions,
@@ -39,7 +32,7 @@ import type {
   SortDirection,
   UnwrapArray,
 } from "typedapi-client-helpers";
-import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler } from "../../utils/defaultApiFunctions";
+import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler, unknownErrorMessage as typedApiDefaultErrorMessage } from "../../utils/defaultApiFunctions";
 
 /**
  * No description
@@ -73,7 +66,7 @@ export async function supplierGetSuppliers(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:SupplierGetSuppliersGETApiSuppliers:response"], typedApiWireSchemas) as SupplierModelApiPaginationResponse,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -97,14 +90,14 @@ export async function supplierCreateSupplier(
       ...params,
       path: `/api/suppliers`,
       method: "POST",
-      body: toWireValue(data, typedApiWireSchemas["operation:SupplierCreateSupplierPOSTApiSuppliers:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.Json,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:SupplierCreateSupplierPOSTApiSuppliers:response"], typedApiWireSchemas) as SupplierModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -133,7 +126,7 @@ export async function supplierGetSupplierById(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:SupplierGetSupplierByIdGETApiSuppliersId:response"], typedApiWireSchemas) as SupplierModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -158,14 +151,14 @@ export async function supplierUpdateSupplier(
       ...params,
       path: `/api/suppliers/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "PUT",
-      body: toWireValue(data, typedApiWireSchemas["operation:SupplierUpdateSupplierPUTApiSuppliersId:body"], typedApiWireSchemas),
+      body: data,
       type: ContentType.Json,
       format: "json",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:SupplierUpdateSupplierPUTApiSuppliersId:response"], typedApiWireSchemas) as SupplierModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -193,6 +186,7 @@ export async function supplierDeleteSupplier(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
@@ -221,7 +215,7 @@ export async function supplierVerifySupplier(
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
-      transformResponse: (value) => fromWireValue(value, typedApiWireSchemas["operation:SupplierVerifySupplierPOSTApiSuppliersIdVerify:response"], typedApiWireSchemas) as SupplierModel,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
       transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
