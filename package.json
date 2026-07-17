@@ -20,7 +20,7 @@
     "test-client-build-package": "cd ./npm/typed-api-client && npm run build",
     "test-client-pack-package": "cd ./npm/typed-api-client && npm pack",
     "test-client-remove-local-package": "cd ./TypedApiTestProject/typedapitestproject.client && npm uninstall typedapi-client-helpers",
-    "test-client-install-local-package": "cd ./TypedApiTestProject/typedapitestproject.client && npm install ../../npm/typed-api-client/typedapi-client-helpers-0.3.0.tgz",
+    "test-client-install-local-package": "cd ./TypedApiTestProject/typedapitestproject.client && npm install ../../npm/typed-api-client/typedapi-client-helpers-0.3.1.tgz",
     "test-client-update-local-package": "npm run test-client-remove-local-package && npm run test-client-build-package && npm run test-client-pack-package && npm run test-client-install-local-package",
     "test-client-generate-api": "cd ./TypedApiTestProject/typedapitestproject.client && npm run generate:api",
     "test-client-build": "cd ./TypedApiTestProject/typedapitestproject.client && npm run build",

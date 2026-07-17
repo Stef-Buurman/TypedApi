@@ -70,144 +70,6 @@ function assertUniqueTypePropertyNames(entries, contextName) {
   }
 }
 
-function escapeJsonPointerPart(value) {
-  return String(value).replace(/~/g, "~0").replace(/\//g, "~1");
-}
-
-function componentWireSchemaKey(rawName) {
-  return `#/components/schemas/${escapeJsonPointerPart(rawName)}`;
-}
-
-function operationWireSchemaKey(operationId, kind) {
-  return `operation:${operationId}:${kind}`;
-}
-
-function wireSchemaDescriptor(openApi, schemaOrRef) {
-  if (!schemaOrRef) return { kind: "identity" };
-  if (schemaOrRef.$ref) return { kind: "ref", ref: String(schemaOrRef.$ref) };
-
-  const schema =
-    dereference(openApi, schemaOrRef, "Wire schema reference") ?? schemaOrRef;
-
-  if (schema.allOf) {
-    const schemas = schema.allOf.map((item) =>
-      wireSchemaDescriptor(openApi, item),
-    );
-    const localSchema = schemaWithoutComposition(schema);
-    if (hasObjectShape(localSchema))
-      schemas.push(wireSchemaDescriptor(openApi, localSchema));
-    return { kind: "allOf", schemas };
-  }
-
-  if (schema.oneOf || schema.anyOf) {
-    return {
-      kind: "union",
-      schemas: (schema.oneOf ?? schema.anyOf).map((item) =>
-        wireSchemaDescriptor(openApi, item),
-      ),
-    };
-  }
-
-  const schemaType = Array.isArray(schema.type)
-    ? schema.type.find((item) => item !== "null")
-    : schema.type;
-
-  if (schemaType === "array") {
-    return {
-      kind: "array",
-      items: wireSchemaDescriptor(openApi, schema.items ?? {}),
-    };
-  }
-
-  if (
-    schemaType === "object" ||
-    schema.properties ||
-    schema.additionalProperties
-  ) {
-    const rawPropertyNames = Object.keys(schema.properties ?? {});
-    assertUniqueTypePropertyNames(rawPropertyNames, "an OpenAPI object schema");
-    const properties = {};
-
-    for (const [wireName, propertySchema] of Object.entries(
-      schema.properties ?? {},
-    )) {
-      const localName = typePropertyName(wireName);
-      const nested = wireSchemaDescriptor(openApi, propertySchema);
-      properties[localName] = {
-        wireName,
-        ...(nested.kind === "identity" ? {} : { schema: nested }),
-      };
-    }
-
-    let additionalProperties;
-    if (schema.additionalProperties === true) additionalProperties = true;
-    else if (schema.additionalProperties) {
-      additionalProperties = wireSchemaDescriptor(
-        openApi,
-        schema.additionalProperties,
-      );
-    }
-
-    return {
-      kind: "object",
-      ...(Object.keys(properties).length > 0 ? { properties } : {}),
-      ...(additionalProperties !== undefined ? { additionalProperties } : {}),
-    };
-  }
-
-  return { kind: "identity" };
-}
-
-function generateWireSchemaRegistry(openApi, operations, options = {}) {
-  const registry = {};
-
-  for (const [rawName, schema] of Object.entries(
-    openApi.components?.schemas ?? {},
-  )) {
-    registry[componentWireSchemaKey(rawName)] = wireSchemaDescriptor(
-      openApi,
-      schema,
-    );
-  }
-
-  for (const operationInfo of operations) {
-    const operationId = operationInfo.operationId;
-    const requestBody = getRequestBodyContent(
-      openApi,
-      operationInfo.operation.requestBody,
-    );
-    const requestSchema = requestBody?.mediaType?.schema;
-    if (requestSchema) {
-      registry[operationWireSchemaKey(operationId, "body")] =
-        wireSchemaDescriptor(openApi, requestSchema);
-    }
-
-    const successResponse = getSuccessResponse(
-      openApi,
-      operationInfo.operation,
-      options.defaultResponseAsSuccess,
-    );
-    const responseSchema = getResponseContent(successResponse?.response)
-      ?.mediaType?.schema;
-    if (responseSchema) {
-      registry[operationWireSchemaKey(operationId, "response")] =
-        wireSchemaDescriptor(openApi, responseSchema);
-    }
-
-    const errorSchemas = getErrorResponses(openApi, operationInfo.operation)
-      .map(({ response }) => getResponseContent(response)?.mediaType?.schema)
-      .filter(Boolean)
-      .map((schema) => wireSchemaDescriptor(openApi, schema));
-    if (errorSchemas.length > 0) {
-      registry[operationWireSchemaKey(operationId, "error")] =
-        errorSchemas.length === 1
-          ? errorSchemas[0]
-          : { kind: "union", schemas: errorSchemas };
-    }
-  }
-
-  return registry;
-}
 
 export class TypeResolver {
   constructor(openApi, options = {}) {
@@ -578,10 +440,6 @@ export function getOperationTypes(
     .filter(Boolean);
   const usesHttpErrorFallback = errorTypes.length === 0;
   const errorType = unionTypes(errorTypes, "ApiHttpError");
-  const responseSchema = responseContent?.mediaType?.schema;
-  const errorSchemas = errorResponses
-    .map(({ response }) => getResponseContent(response)?.mediaType?.schema)
-    .filter(Boolean);
 
   const hasNonBodyInput = parameters.length > 0;
   const paginated =
@@ -618,19 +476,9 @@ export function getOperationTypes(
     ),
     bodyType,
     bodyRequired: Boolean(requestBodyContent?.requestBody?.required),
-    bodyWireSchemaKey: requestBodySchema
-      ? operationWireSchemaKey(operationId, "body")
-      : undefined,
     responseType,
-    responseWireSchemaKey: responseSchema
-      ? operationWireSchemaKey(operationId, "response")
-      : undefined,
     errorType,
     usesHttpErrorFallback,
-    errorWireSchemaKey:
-      errorSchemas.length > 0
-        ? operationWireSchemaKey(operationId, "error")
-        : undefined,
     contentType: requestBodyContent?.contentType,
     responseContentType: responseContent?.contentType,
     hasPathParams: parametersByLocation.path.length > 0,
@@ -714,10 +562,6 @@ export function generateDataContracts(openApi, operations, options = {}) {
       declarations.push(resolver.createDeclaration(name, schema));
   }
 
-  const wireSchemas = generateWireSchemaRegistry(openApi, operations, options);
-  declarations.push(
-    `export const typedApiWireSchemas = ${JSON.stringify(wireSchemas, null, 2)} as const;`,
-  );
 
   return `${generatedFileHeader()}\n\n${declarations.join("\n\n")}\n`;
 }

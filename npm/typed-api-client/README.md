@@ -4,7 +4,7 @@ A small Fetch runtime and OpenAPI 3 TypeScript generator designed to work with `
 
 ## Version 0.3 highlights
 
-- Lowercases only the first character of generated TypeScript members while preserving exact OpenAPI names on the wire.
+- Lowercases only the first character of generated TypeScript members.
 - Sanitizes operation IDs and rejects duplicates before writing output.
 - Can name frontend functions from either the unique OpenAPI operation ID or the original ASP.NET controller action name.
 - Supports path, query, header, cookie, and request-body inputs in the same operation.
@@ -12,7 +12,7 @@ A small Fetch runtime and OpenAPI 3 TypeScript generator designed to work with `
 - Supports `allOf` composition with local properties.
 - Generates typed unions for documented non-success responses.
 - Uses a structured `ApiHttpError` when an operation has no documented error schema.
-- Produces `typedapi.manifest.json` without creating a root API barrel file.
+- Generates API contracts and controller method files without creating a root API barrel file.
 - Writes generated output transactionally, with a Windows-safe in-place fallback when directory renames are blocked by editors or file watchers.
 - Adds `--check`, `--strict`, `--offline`, and `--verbose` CLI modes.
 - Improves cancellation, timeouts, header merging, SSR safety, and malformed-response handling.
@@ -61,9 +61,8 @@ src/api/
 ├── generated/
 │   ├── data-contracts.ts
 │   └── http-client.ts
-├── methods/
-│   └── Products.api.ts
-└── typedapi.manifest.json
+└── methods/
+    └── Products.api.ts
 ```
 
 The generator intentionally does not create `src/api/index.ts`. Import generated methods and contracts directly from their files:
@@ -224,7 +223,7 @@ configureApiClient({
 setSecurityData("access-token");
 ```
 
-The runtime also exports `createApiClient`, `request`, `abortRequest`, `mergeHeaders`, `toRequestHeaders`, `toCookieHeader`, `handleApiResponse`, `buildQuery`, `toFormData`, `toWireValue`, and `fromWireValue`.
+The runtime also exports `createApiClient`, `request`, `abortRequest`, `mergeHeaders`, `toRequestHeaders`, `toCookieHeader`, `handleApiResponse`, `buildQuery`, `toFormData`.
 
 ## Backend pairing
 

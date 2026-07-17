@@ -1,4 +1,3 @@
-import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -11,7 +10,8 @@ import {
   methodFileNameForController,
 } from "./method-template.mjs";
 
-const MANAGED_TOP_LEVEL = ["generated", "methods", "index.ts", "typedapi.manifest.json"];
+const MANAGED_TOP_LEVEL = ["generated", "methods", "index.ts"];
+const LEGACY_MANAGED_TOP_LEVEL = ["typedapi.manifest.json"];
 
 export async function generateApi(options) {
   const inputPath = path.resolve(options.input);
@@ -73,25 +73,6 @@ export async function generateApi(options) {
     );
   }
 
-  const schemaHash = crypto.createHash("sha256").update(source).digest("hex");
-  files.set(
-    "typedapi.manifest.json",
-    `${JSON.stringify(
-      {
-        contractVersion: 1,
-        generator: options.runtimePackageName ?? "typedapi-client-helpers",
-        generatorVersion: options.generatorVersion ?? "unknown",
-        schemaSha256: schemaHash,
-        producer: openApi["x-typedapi"] ?? null,
-        operationCount: operations.length,
-        methodNameStyle: normalizedOptions.methodNameStyle,
-        prefixMethodNamesWithController:
-          normalizedOptions.prefixMethodNamesWithController,
-      },
-      null,
-      2,
-    )}\n`,
-  );
 
   const changes = compareOutput(output, files);
   if (options.check) {
@@ -135,7 +116,7 @@ function compareOutput(output, files) {
 
 function listManagedFiles(output) {
   const result = [];
-  for (const topLevel of MANAGED_TOP_LEVEL) {
+  for (const topLevel of [...MANAGED_TOP_LEVEL, ...LEGACY_MANAGED_TOP_LEVEL]) {
     const target = path.join(output, topLevel);
     if (!fs.existsSync(target)) continue;
     if (fs.statSync(target).isFile()) {
@@ -156,7 +137,7 @@ function walk(directory, callback) {
 }
 
 function removeManagedOutput(root) {
-  for (const item of MANAGED_TOP_LEVEL) {
+  for (const item of [...MANAGED_TOP_LEVEL, ...LEGACY_MANAGED_TOP_LEVEL]) {
     fs.rmSync(path.join(root, item), { recursive: true, force: true });
   }
 }
@@ -244,14 +225,14 @@ function writeManagedOutputInPlace(output, staging) {
   const originallyPresent = new Set();
 
   try {
-    for (const item of MANAGED_TOP_LEVEL) {
+    for (const item of [...MANAGED_TOP_LEVEL, ...LEGACY_MANAGED_TOP_LEVEL]) {
       const current = path.join(output, item);
       if (!fs.existsSync(current)) continue;
       originallyPresent.add(item);
       syncPath(current, path.join(managedBackup, item));
     }
 
-    for (const item of MANAGED_TOP_LEVEL) {
+    for (const item of [...MANAGED_TOP_LEVEL, ...LEGACY_MANAGED_TOP_LEVEL]) {
       const source = path.join(staging, item);
       const target = path.join(output, item);
       if (fs.existsSync(source)) syncPath(source, target);
@@ -259,7 +240,7 @@ function writeManagedOutputInPlace(output, staging) {
     }
   } catch (error) {
     try {
-      for (const item of MANAGED_TOP_LEVEL) {
+      for (const item of [...MANAGED_TOP_LEVEL, ...LEGACY_MANAGED_TOP_LEVEL]) {
         const target = path.join(output, item);
         const saved = path.join(managedBackup, item);
         if (originallyPresent.has(item)) syncPath(saved, target);

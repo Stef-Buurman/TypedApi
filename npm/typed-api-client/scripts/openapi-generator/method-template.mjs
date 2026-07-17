@@ -98,10 +98,6 @@ function contentTypeEnum(contentType) {
   }
 }
 
-function toWireExpression(valueExpression, schemaKey) {
-  if (!schemaKey) return valueExpression;
-  return `toWireValue(${valueExpression}, typedApiWireSchemas[${JSON.stringify(schemaKey)}], typedApiWireSchemas)`;
-}
 
 function requestItems(operationInfo, operationTypes, options = {}) {
   const inputName = options.inputName ?? "input";
@@ -118,17 +114,21 @@ function requestItems(operationInfo, operationTypes, options = {}) {
   if (options.queryValueName) {
     items.push(`query: ${options.queryValueName}`);
   } else if (operationTypes.hasQueryParams) {
-    items.push(
-      `query: ${parameterObjectExpression(
-        inputName,
-        operationTypes.parametersByLocation.query,
-      )}`,
-    );
+    if (!operationTypes.hasPathParams && !operationTypes.hasHeaderParams && !operationTypes.hasCookieParams) {
+      items.push(`query: ${inputName}`);
+    } else {
+      items.push(
+        `query: ${parameterObjectExpression(
+          inputName,
+          operationTypes.parametersByLocation.query,
+        )}`,
+      );
+    }
   }
 
   if (operationTypes.bodyType) {
     const bodyExpression = options.bodyValueName ?? "data";
-    items.push(`body: ${toWireExpression(bodyExpression, operationTypes.bodyWireSchemaKey)}`);
+    items.push(`body: ${bodyExpression}`);
   }
 
   if (operationTypes.hasHeaderParams || operationTypes.hasCookieParams) {
@@ -167,25 +167,13 @@ function callbackOptions(operationTypes, defaultHandlers) {
   if (defaultHandlers) {
     items.push("onSuccess: onSuccess ?? typedApiDefaultSuccessHandler");
     items.push("onError: onError ?? typedApiDefaultErrorHandler");
+    items.push("fallbackErrorMessage: typedApiDefaultErrorMessage");
   } else {
     items.push("onSuccess");
     items.push("onError");
   }
 
-  if (operationTypes.responseWireSchemaKey) {
-    items.push(
-      `transformResponse: (value) => fromWireValue(value, typedApiWireSchemas[${JSON.stringify(
-        operationTypes.responseWireSchemaKey,
-      )}], typedApiWireSchemas) as ${operationTypes.responseType}`,
-    );
-  }
-  if (operationTypes.errorWireSchemaKey) {
-    items.push(
-      `transformError: (value) => fromWireValue(value, typedApiWireSchemas[${JSON.stringify(
-        operationTypes.errorWireSchemaKey,
-      )}], typedApiWireSchemas) as ${operationTypes.errorType}`,
-    );
-  } else if (operationTypes.usesHttpErrorFallback) {
+  if (operationTypes.usesHttpErrorFallback) {
     items.push(
       "transformError: (value, response) => createApiHttpError(response.status, value)",
     );
@@ -325,14 +313,12 @@ export function controllerNameForOperation(operationInfo, options = {}) {
 
 export function generateMethodFile(openApi, controllerName, operations, options = {}) {
   const dataContractImports = [];
-  const dataContractValueImports = [];
   const helperTypeImports = ["ApiResult", "ApiMethodOptions"];
   const helperValueImports = ["handleApiResponse"];
   const methods = [];
   let needsContentType = false;
   let needsPaginationTypes = false;
   let needsHeaderHelpers = false;
-  let needsWireMappings = false;
 
   for (const operationInfo of operations) {
     const operationTypes = getOperationTypes(openApi, operationInfo, options);
@@ -356,13 +342,6 @@ export function generateMethodFile(openApi, controllerName, operations, options 
     if (contentTypeEnum(operationTypes.contentType)) needsContentType = true;
     if (operationTypes.hasHeaderParams || operationTypes.hasCookieParams) needsHeaderHelpers = true;
     if (
-      operationTypes.bodyWireSchemaKey ||
-      operationTypes.responseWireSchemaKey ||
-      operationTypes.errorWireSchemaKey
-    ) {
-      needsWireMappings = true;
-    }
-    if (
       operationTypes.hasQueryParams &&
       !operationTypes.hasPathParams && !operationTypes.bodyType &&
       !operationTypes.hasHeaderParams && !operationTypes.hasCookieParams &&
@@ -375,10 +354,6 @@ export function generateMethodFile(openApi, controllerName, operations, options 
   }
 
   if (needsHeaderHelpers) helperValueImports.push("mergeHeaders", "toCookieHeader", "toRequestHeaders");
-  if (needsWireMappings) {
-    dataContractValueImports.push("typedApiWireSchemas");
-    helperValueImports.push("fromWireValue", "toWireValue");
-  }
   if (needsPaginationTypes) {
     helperValueImports.push("buildQuery");
     helperTypeImports.push(
@@ -392,12 +367,11 @@ export function generateMethodFile(openApi, controllerName, operations, options 
     generatedFileHeader(),
     createImport(["request", ...(needsContentType ? ["ContentType"] : [])], "../generated/http-client"),
     createImport(["RequestParams"], "../generated/http-client", useTypeOnlyImports),
-    createImport(dataContractValueImports, "../generated/data-contracts"),
     createImport(dataContractImports, "../generated/data-contracts", useTypeOnlyImports),
     createImport(helperValueImports, options.runtimePackageName ?? "typedapi-client-helpers"),
     createImport(helperTypeImports, options.runtimePackageName ?? "typedapi-client-helpers", useTypeOnlyImports),
     defaultHandlers
-      ? `import { ${defaultHandlers.success} as typedApiDefaultSuccessHandler, ${defaultHandlers.error} as typedApiDefaultErrorHandler } from ${JSON.stringify(defaultHandlers.path)};`
+      ? `import { ${defaultHandlers.success} as typedApiDefaultSuccessHandler, ${defaultHandlers.error} as typedApiDefaultErrorHandler, ${defaultHandlers.errorMessage} as typedApiDefaultErrorMessage } from ${JSON.stringify(defaultHandlers.path)};`
       : "",
   ].filter(Boolean);
 

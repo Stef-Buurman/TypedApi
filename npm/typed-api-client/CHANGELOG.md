@@ -17,7 +17,6 @@ All notable changes to `typedapi-client-helpers` are documented in this file.
 * Added configurable frontend method naming through `typedApiMethodNameStyle`.
 * Added `typedApiPrefixMethodNamesWithController` for controller-prefixed action names.
 * Added controller-name fallback detection from TypedApi metadata, OpenAPI tags, and route paths.
-* Added `typedapi.manifest.json` containing generator, contract, source, and naming information.
 * Added `--check`, `--strict`, `--offline`, and `--verbose` generator modes.
 * Added configurable Swagger download timeouts.
 * Added global and per-request timeout support.

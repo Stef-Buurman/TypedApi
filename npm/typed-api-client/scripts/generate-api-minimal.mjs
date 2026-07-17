@@ -118,6 +118,13 @@ const defaultErrorHandlerName = getStringSetting(
   "handleErrors",
 );
 
+const defaultErrorMessageName = getStringSetting(
+  process.env.TYPED_API_DEFAULT_ERROR_MESSAGE,
+  process.env.npm_config_typed_api_default_error_message,
+  config.typedApiDefaultErrorMessage,
+  "unknownErrorMessage",
+);
+
 const generatorOptions = {
   cleanOutput: getBooleanSetting(
     process.env.TYPED_API_CLEAN_OUTPUT,
@@ -408,6 +415,7 @@ function createDefaultFunctionsFileIfMissing(filePath) {
   const resolvedFilePath = extension ? filePath : `${filePath}.ts`;
 
   if (fs.existsSync(resolvedFilePath)) {
+    addDefaultErrorMessageIfMissing(resolvedFilePath);
     return resolvedFilePath;
   }
 
@@ -432,6 +440,8 @@ export function ${defaultErrorHandlerName}<T>(
 ): void | Promise<void> {
   // Add your default error handling here.
 }
+
+export const ${defaultErrorMessageName} = "An unknown error occurred.";
 `,
   );
 
@@ -440,6 +450,22 @@ export function ${defaultErrorHandlerName}<T>(
   );
 
   return resolvedFilePath;
+}
+
+
+function addDefaultErrorMessageIfMissing(filePath) {
+  const source = fs.readFileSync(filePath, "utf8");
+  if (fileExportsName(source, defaultErrorMessageName)) return;
+
+  const separator = source.endsWith("\n") ? "\n" : "\n\n";
+  fs.appendFileSync(
+    filePath,
+    `${separator}export const ${defaultErrorMessageName} = "An unknown error occurred.";\n`,
+  );
+
+  console.log(
+    `Added default API error message to: ${path.relative(process.cwd(), filePath)}`,
+  );
 }
 
 function toRelativeImportPath(fromDirectory, filePath) {
@@ -508,11 +534,13 @@ function resolveDefaultHandlers() {
   const source = fs.readFileSync(defaultFunctionsFile, "utf8");
   const hasSuccessHandler = fileExportsName(source, defaultSuccessHandlerName);
   const hasErrorHandler = fileExportsName(source, defaultErrorHandlerName);
+  const hasErrorMessage = fileExportsName(source, defaultErrorMessageName);
 
-  if (!hasSuccessHandler || !hasErrorHandler) {
+  if (!hasSuccessHandler || !hasErrorHandler || !hasErrorMessage) {
     const missingNames = [
       ...(!hasSuccessHandler ? [defaultSuccessHandlerName] : []),
       ...(!hasErrorHandler ? [defaultErrorHandlerName] : []),
+      ...(!hasErrorMessage ? [defaultErrorMessageName] : []),
     ];
 
     console.warn(
@@ -529,6 +557,7 @@ function resolveDefaultHandlers() {
     path: toRelativeImportPath(methodsDir, defaultFunctionsFile),
     success: defaultSuccessHandlerName,
     error: defaultErrorHandlerName,
+    errorMessage: defaultErrorMessageName,
   };
 }
 

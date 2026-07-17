@@ -66,6 +66,7 @@
     "typedApiDefaultFunctionsPath": "src/defaultApiFunctions",
     "typedApiDefaultSuccessHandler": "handleGoodResult",
     "typedApiDefaultErrorHandler": "handleErrors",
+    "typedApiDefaultErrorMessage": "unknownErrorMessage",
     "typedApiDefaultResponseAsSuccess": false,
     "typedApiGenerateUnionEnums": false,
     "typedApiEnumNamesAsValues": false,
