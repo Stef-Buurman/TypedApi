@@ -20,7 +20,7 @@ A small Fetch runtime and OpenAPI 3 TypeScript generator designed to work with `
 ## Install
 
 ```bash
-npm install typedapi-client-helpers@0.3.0
+npm install typedapi-client-helpers@0.3.3
 ```
 
 The generator expects an OpenAPI 3.x document. Swagger 2.0 documents are rejected with a clear error.
