@@ -14,8 +14,8 @@ using Microsoft.OpenApi.Models;
 namespace TypedApi.Swagger;
 
 /// <summary>
-/// Marks non-nullable serialized properties as required while respecting the
-/// configured System.Text.Json naming policy and JSON property attributes.
+/// Describes JSON presence requirements and nullability independently, using nullable
+/// reference metadata, the C# required keyword, and serializer/validation attributes.
 /// </summary>
 public sealed class RequireAllPropertiesSchemaFilter : ISchemaFilter
 {
@@ -39,38 +39,68 @@ public sealed class RequireAllPropertiesSchemaFilter : ISchemaFilter
     void ISchemaFilter.Apply(OpenApiSchema schema, SchemaFilterContext context)
 #endif
     {
-        if (schema.Properties is null || context.Type is null) return;
-        schema.Required ??= new HashSet<string>();
+        if (context.Type is null) return;
 
         foreach (var property in context.Type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
             if (property.GetIndexParameters().Length > 0 || IsAlwaysIgnored(property)) continue;
 
-            var schemaPropertyName = GetSerializedPropertyName(property);
-            if (!schema.Properties.TryGetValue(schemaPropertyName, out var propertySchema))
+            var serializedName = GetSerializedPropertyName(property);
+            var schemaProperty = FindProperty(schema, serializedName);
+            if (schemaProperty is null) continue;
+
+            if (IsRequired(property))
             {
-                var matchingName = schema.Properties.Keys.FirstOrDefault(key =>
-                    string.Equals(key, schemaPropertyName, StringComparison.OrdinalIgnoreCase));
-                if (matchingName is null) continue;
-                schemaPropertyName = matchingName;
-                propertySchema = schema.Properties[matchingName];
+                schemaProperty.Value.Owner.Required ??= new HashSet<string>();
+                schemaProperty.Value.Owner.Required.Add(schemaProperty.Value.Name);
             }
 
-            if (IsOptional(property)) continue;
-            schema.Required.Add(schemaPropertyName);
-
-#if NET10_0_OR_GREATER
-            if (propertySchema is OpenApiSchema concretePropertySchema
-                && concretePropertySchema.Type.HasValue)
-            {
-                concretePropertySchema.Type =
-                    concretePropertySchema.Type.GetValueOrDefault() & ~JsonSchemaType.Null;
-            }
-#else
-            propertySchema.Nullable = false;
-#endif
+            SetAllowsNull(schemaProperty.Value.Schema, AllowsNull(property));
         }
     }
+
+#if NET10_0_OR_GREATER
+    private static SchemaProperty? FindProperty(OpenApiSchema schema, string propertyName)
+    {
+        if (schema.Properties is not null)
+        {
+            var matchingName = schema.Properties.Keys.FirstOrDefault(key =>
+                string.Equals(key, propertyName, StringComparison.OrdinalIgnoreCase));
+            if (matchingName is not null)
+                return new SchemaProperty(schema, matchingName, schema.Properties[matchingName]);
+        }
+
+        if (schema.AllOf is null) return null;
+        foreach (var item in schema.AllOf)
+        {
+            if (item is not OpenApiSchema concreteItem) continue;
+            var result = FindProperty(concreteItem, propertyName);
+            if (result is not null) return result;
+        }
+
+        return null;
+    }
+#else
+    private static SchemaProperty? FindProperty(OpenApiSchema schema, string propertyName)
+    {
+        if (schema.Properties is not null)
+        {
+            var matchingName = schema.Properties.Keys.FirstOrDefault(key =>
+                string.Equals(key, propertyName, StringComparison.OrdinalIgnoreCase));
+            if (matchingName is not null)
+                return new SchemaProperty(schema, matchingName, schema.Properties[matchingName]);
+        }
+
+        if (schema.AllOf is null) return null;
+        foreach (var item in schema.AllOf)
+        {
+            var result = FindProperty(item, propertyName);
+            if (result is not null) return result;
+        }
+
+        return null;
+    }
+#endif
 
     private string GetSerializedPropertyName(PropertyInfo property)
     {
@@ -81,18 +111,44 @@ public sealed class RequireAllPropertiesSchemaFilter : ISchemaFilter
             ?? property.Name;
     }
 
-    private bool IsOptional(PropertyInfo property)
+    private bool IsRequired(PropertyInfo property)
     {
         if (property.GetCustomAttribute<RequiredAttribute>() is not null
-            || HasAttribute(property, "System.Text.Json.Serialization.JsonRequiredAttribute"))
+            || HasAttribute(property, "System.Text.Json.Serialization.JsonRequiredAttribute")
+            || HasAttribute(property, "System.Runtime.CompilerServices.RequiredMemberAttribute"))
         {
-            return false;
+            return true;
         }
 
+        return !AllowsNull(property);
+    }
+
+    private bool AllowsNull(PropertyInfo property)
+    {
+        if (property.GetCustomAttribute<RequiredAttribute>() is not null) return false;
         if (Nullable.GetUnderlyingType(property.PropertyType) is not null) return true;
         if (property.PropertyType.IsValueType) return false;
         return _nullability.Create(property).WriteState == NullabilityState.Nullable;
     }
+
+#if NET10_0_OR_GREATER
+    private static void SetAllowsNull(IOpenApiSchema propertySchema, bool allowsNull)
+    {
+        if (propertySchema is not OpenApiSchema concreteSchema || !concreteSchema.Type.HasValue) return;
+        concreteSchema.Type = allowsNull
+            ? concreteSchema.Type.GetValueOrDefault() | JsonSchemaType.Null
+            : concreteSchema.Type.GetValueOrDefault() & ~JsonSchemaType.Null;
+    }
+
+    private readonly record struct SchemaProperty(OpenApiSchema Owner, string Name, IOpenApiSchema Schema);
+#else
+    private static void SetAllowsNull(OpenApiSchema propertySchema, bool allowsNull)
+    {
+        propertySchema.Nullable = allowsNull;
+    }
+
+    private readonly record struct SchemaProperty(OpenApiSchema Owner, string Name, OpenApiSchema Schema);
+#endif
 
     private static bool IsAlwaysIgnored(PropertyInfo property)
     {

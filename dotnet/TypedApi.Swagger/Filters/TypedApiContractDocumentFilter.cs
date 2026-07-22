@@ -14,7 +14,7 @@ namespace TypedApi.Swagger.Filters;
 /// <summary>Adds the TypedApi producer and contract version to the OpenAPI root.</summary>
 public sealed class TypedApiContractDocumentFilter : IDocumentFilter
 {
-    public const int ContractVersion = 1;
+    public const int ContractVersion = 2;
 
     void IDocumentFilter.Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {

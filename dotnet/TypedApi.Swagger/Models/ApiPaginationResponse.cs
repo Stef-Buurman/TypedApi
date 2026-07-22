@@ -1,8 +1,10 @@
+using TypedApi.Swagger.Attributes;
 using TypedApi.Swagger.Interfaces;
 
 namespace TypedApi.Swagger.Models;
 
 /// <summary>Paginated response data and paging metadata.</summary>
+[TypedApiGeneric]
 public class ApiPaginationResponse<T> : IApiPaginationResponse<T>
 {
     public List<T> Data { get; set; } = new();

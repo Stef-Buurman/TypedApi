@@ -6,13 +6,35 @@ All notable changes to `TypedApi.Swagger` are documented in this file.
 
 ### Added
 
+* Added `[TypedApiGeneric]` and `x-typedapi-generic` metadata for reconstructing closed .NET generic contracts as reusable TypeScript generics.
+* Added exact generic bindings for direct values, arrays and collections, and dictionary values.
+* Added readable generic schema IDs such as `ApiPaginationResponseOfProjectModel`.
+* Added attribute-driven discriminator names and values from `[JsonPolymorphic]` and `[JsonDerivedType]`.
+* Added typed default `400` (`HttpValidationProblemDetails`) and `500` (`ProblemDetails`) response schemas.
+* Added schema completion for explicitly declared error responses that do not specify a body type.
 * Enabled OpenAPI `allOf` schemas for normal .NET inheritance by default.
 * Enabled OpenAPI `oneOf` schemas for polymorphic base models by default.
 * Added automatic discovery of concrete subclasses from the base type assembly.
 * Added safe subtype discovery when an assembly raises `ReflectionTypeLoadException`.
 
+### Changed
+
+* Required-property presence and nullable values are now described independently.
+* Required detection now supports `[Required]`, `[JsonRequired]`, and the C# `required` keyword without incorrectly removing null from required nullable properties.
+* Explicit `[JsonDerivedType]` declarations are preferred over assembly scanning for subtype discovery.
+* `ApiPaginationResponse<T>` and `ApiPaginationSortResponse<T>` now opt in to frontend generic reconstruction.
+* The TypedApi OpenAPI contract version is now `2`.
+
+### Fixed
+
+* Fixed inherited generic properties such as `ApiPaginationSortResponse<T>.Data` not receiving a generic binding when Swagger flattens inheritance.
+* Added explicit generic-base metadata so the frontend can reconstruct `ApiPaginationSortResponse<T>` from `ApiPaginationResponse<T>` even when Swagger flattens all inherited properties.
+
 ### Compatibility notes
 
+* Pair this package with `typedapi-client-helpers` 0.3.4 or newer.
+* OpenAPI component names for closed generic types are now readable `...Of...` names and therefore differ from earlier 0.3.x output.
+* Regenerate committed frontend API files after upgrading.
 * Projects only need to call `builder.Services.AddTypedApiSwagger()` to enable these conventions.
 * The optional configuration callback still runs after the package defaults and can override subtype selection.
 

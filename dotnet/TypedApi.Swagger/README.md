@@ -1,21 +1,15 @@
 # TypedApi.Swagger
 
-Swagger/OpenAPI conventions for ASP.NET Core APIs consumed by the `typedapi-client-helpers` TypeScript generator.
+Swagger/OpenAPI conventions for ASP.NET Core APIs consumed by `typedapi-client-helpers`.
 
 ## Version 0.3.1 highlights
 
-- Adds a root `x-typedapi` contract marker (`contractVersion: 1`).
-- Creates stable, sanitized operation IDs from controller, action, method, and route data.
-- Emits separate controller/action metadata so the frontend can choose concise controller-action method names without weakening operation-ID uniqueness.
-- Respects `JsonSerializerOptions.PropertyNamingPolicy` and `[JsonPropertyName]` when marking required properties.
-- Uses `NullabilityInfoContext` instead of compiler-attribute parsing.
-- Publishes documented HTTP error schemas for typed client errors.
-- Adds `x-typedapi-pagination` metadata to paginated operations.
-- Emits string enum values consistently, including `[EnumMember(Value = "...")]` and JSON enum member names.
-- Validates page number and page size.
-- Preserves .NET inheritance with OpenAPI `allOf`.
-- Emits polymorphic base contracts with OpenAPI `oneOf`.
-- Automatically discovers concrete subclasses from the base type assembly.
+- Reconstructs opted-in closed .NET generic contracts as real TypeScript generics.
+- Describes property presence and nullability independently.
+- Uses `JsonPolymorphic` and `JsonDerivedType` metadata for discriminated frontend unions.
+- Generates readable generic schema IDs such as `ApiPaginationResponseOfProjectModel`.
+- Adds concrete `HttpValidationProblemDetails` and `ProblemDetails` response schemas.
+- Preserves normal inheritance through OpenAPI `allOf` and polymorphism through `oneOf`.
 
 ## Installation
 
@@ -36,116 +30,185 @@ builder.Services
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddTypedApiSwagger();
-
-var app = builder.Build();
-app.UseSwagger();
-app.UseSwaggerUI();
-app.MapControllers();
-app.Run();
 ```
 
-## Inheritance and polymorphism
+The optional callback still configures the underlying `SwaggerGenOptions` after the TypedApi defaults:
 
-`AddTypedApiSwagger()` automatically enables:
+```csharp
+builder.Services.AddTypedApiSwagger(options =>
+{
+    options.IncludeXmlComments(xmlPath);
+});
+```
+
+## Generic frontend contracts
+
+OpenAPI has no reusable generic schema definitions. Mark wrappers whose type parameters affect their JSON shape with `[TypedApiGeneric]`:
+
+```csharp
+using TypedApi.Swagger.Attributes;
+
+[TypedApiGeneric]
+public sealed class ApiEnvelope<T>
+{
+    public required T Data { get; set; }
+    public List<T> RelatedItems { get; set; } = [];
+    public Dictionary<string, T> ItemsByKey { get; set; } = [];
+    public required string CorrelationId { get; set; }
+}
+```
+
+The NuGet package emits `x-typedapi-generic` metadata with exact JSON-pointer bindings. `typedapi-client-helpers` 0.3.4 reconstructs that metadata as:
+
+```ts
+export interface ApiEnvelope<T> {
+  data: T;
+  relatedItems: T[];
+  itemsByKey: Record<string, T>;
+  correlationId: string;
+}
+```
+
+`ApiPaginationResponse<T>` and `ApiPaginationSortResponse<T>` are already opted in. The package records both generic property bindings and the generic base relationship, so the frontend produces:
+
+```ts
+export type ApiPaginationSortResponse<T> = ApiPaginationResponse<T> & {
+  sortBy?: string | null;
+  sortDirection: SortDirection;
+};
+```
+
+This remains true whether Swagger represents inheritance with `allOf` or flattens all inherited properties into the derived schema. Do not add the attribute to a generic type when its type parameters do not affect the serialized contract.
+
+An optional frontend name can be supplied:
+
+```csharp
+[TypedApiGeneric("PagedResult")]
+public sealed class InternalPagedResponse<T> { }
+```
+
+## Requiredness and nullability
+
+Presence and nullability are emitted independently:
+
+```csharp
+public sealed class ExampleRequest
+{
+    public required string RequiredText { get; set; }
+    public required string? RequiredNullableText { get; set; }
+
+    [JsonRequired]
+    public string? JsonRequiredNullableText { get; set; }
+
+    [Required]
+    public string? ValidationRequiredText { get; set; }
+
+    public string? OptionalNullableText { get; set; }
+}
+```
+
+The generated contract is:
+
+```ts
+export interface ExampleRequest {
+  requiredText: string;
+  requiredNullableText: string | null;
+  jsonRequiredNullableText: string | null;
+  validationRequiredText: string;
+  optionalNullableText?: string | null;
+}
+```
+
+The package respects the configured System.Text.Json naming policy, `[JsonPropertyName]`, `[JsonIgnore(Condition = JsonIgnoreCondition.Always)]`, nullable reference metadata, nullable value types, `[Required]`, `[JsonRequired]`, and the C# `required` keyword.
+
+## Discriminated polymorphism
+
+Prefer explicit serializer metadata so runtime JSON, OpenAPI, and TypeScript use the same discriminator:
+
+```csharp
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+[JsonDerivedType(typeof(EmailNotification), "email")]
+[JsonDerivedType(typeof(SmsNotification), "sms")]
+public abstract class Notification
+{
+    public required string Message { get; set; }
+}
+
+public sealed class EmailNotification : Notification
+{
+    public required string EmailAddress { get; set; }
+}
+
+public sealed class SmsNotification : Notification
+{
+    public required string PhoneNumber { get; set; }
+}
+```
+
+The frontend generator creates a narrowing union:
+
+```ts
+export type Notification = EmailNotification | SmsNotification;
+
+export type EmailNotification = NotificationBase & {
+  emailAddress: string;
+  kind: "email";
+};
+```
+
+Declared `[JsonDerivedType]` entries are preferred. Assembly scanning remains a fallback for bases without explicit declarations.
+
+## Readable schema IDs
+
+Generic schema IDs use stable readable names:
+
+```text
+ApiPaginationResponse<ProjectModel> -> ApiPaginationResponseOfProjectModel
+Dictionary<string, ProjectModel>    -> DictionaryOfStringAndProjectModel
+```
+
+These IDs make OpenAPI easier to inspect and allow the TypeScript generator to associate closed schemas with their generic definition.
+
+## Typed errors
+
+The operation filter:
+
+- adds a typed `400` response using `HttpValidationProblemDetails` when absent;
+- adds a typed `500` response using `ProblemDetails` when absent;
+- fills explicit error responses that have a status but no response schema;
+- preserves explicitly declared response bodies and descriptions.
+
+Explicit endpoint metadata remains supported:
+
+```csharp
+[ProducesResponseType<ProjectResponse>(StatusCodes.Status200OK)]
+[ProducesResponseType<HttpValidationProblemDetails>(StatusCodes.Status400BadRequest)]
+[ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+public ActionResult<ProjectResponse> GetProject(Guid id) => ...;
+```
+
+The generated frontend method can then use:
+
+```ts
+ApiResult<ProjectResponse, HttpValidationProblemDetails | ProblemDetails>
+```
+
+## Inheritance
+
+`AddTypedApiSwagger()` enables:
 
 ```csharp
 options.UseAllOfForInheritance();
 options.UseOneOfForPolymorphism();
-options.SelectSubTypesUsing(...);
 ```
 
-This preserves normal .NET inheritance in OpenAPI and discovers concrete subclasses from the assembly containing the base type. Referenced property models continue to be emitted as separate schemas. A configuration callback can still be supplied when a project needs additional Swashbuckle options or wants to override these defaults.
+Normal base models stay as intersections in TypeScript, while polymorphic base values become unions.
 
-## Operation IDs
+## Contract compatibility
 
-A named route remains the preferred explicit operation ID:
-
-```csharp
-[HttpGet("{id}", Name = "Products_GetById")]
-public ActionResult<Product> GetById(int id) => ...;
-```
-
-When no route name is supplied, the package derives a sanitized ID from the controller, action, HTTP method, and route. This avoids collisions such as `Get` methods in multiple controllers.
-
-Each operation also receives metadata like:
-
-```json
-{
-  "x-typedapi-operation": {
-    "controllerName": "Warehouses",
-    "actionName": "UpdateWarehouse"
-  }
-}
-```
-
-The npm generator can therefore choose its frontend naming style without changing the unique OpenAPI operation ID:
-
-```json
-{
-  "config": {
-    "typedApiMethodNameStyle": "action"
-  }
-}
-```
-
-This produces `updateWarehouse(...)`. Use `"operationId"` to retain the current controller/action/verb/route-derived frontend name.
-
-## JSON property names and required values
-
-Required-property generation follows the configured System.Text.Json naming policy and respects explicit names:
-
-```csharp
-public sealed class SearchRequest
-{
-    [JsonPropertyName("snake_case")]
-    public required string SearchText { get; init; }
-
-    public string? OptionalText { get; init; }
-}
-```
-
-The OpenAPI property remains `snake_case`, and the TypeScript generator preserves that exact wire name.
-
-## Typed error responses
-
-Document error bodies so the TypeScript package can generate typed error unions:
-
-```csharp
-[HttpPost]
-[ProducesResponseType(typeof(Product), StatusCodes.Status201Created)]
-[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
-public ActionResult<Product> Create(CreateProductRequest request) => ...;
-```
-
-## Pagination
-
-```csharp
-using TypedApi.Swagger.Models;
-using TypedApi.Swagger.Models.Filters;
-
-[HttpGet]
-public ActionResult<ApiPaginationSortResponse<Product>> GetProducts(
-    [FromQuery] PaginationFilter filter)
-{
-    return Ok(new ApiPaginationSortResponse<Product>
-    {
-        Data = [],
-        PageNumber = filter.PageNumber,
-        PageSize = filter.PageSize,
-        TotalCount = 0,
-        TotalPages = 0,
-        SortBy = filter.SortBy,
-        SortDirection = filter.SortDirection
-    });
-}
-```
-
-`PageNumber` must be at least 1. `TotalRecords` remains available as an obsolete compatibility alias for `TotalCount`.
+Version 0.3.1 emits root metadata with `x-typedapi.contractVersion = 2`. Pair it with `typedapi-client-helpers` 0.3.4 or newer.
 
 ## Supported frameworks
 
 - .NET 8 with Swashbuckle.AspNetCore 8.x
 - .NET 10 with Swashbuckle.AspNetCore 10.x
-
-The generated document is OpenAPI 3.x and is intended for `typedapi-client-helpers` 0.3 or newer.

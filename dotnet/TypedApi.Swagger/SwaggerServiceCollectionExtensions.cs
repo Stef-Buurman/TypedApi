@@ -1,10 +1,12 @@
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using TypedApi.Swagger.Filters;
+using TypedApi.Swagger.Internal;
 
 namespace TypedApi.Swagger;
 
@@ -23,14 +25,20 @@ public static class SwaggerServiceCollectionExtensions
         {
             options.TagActionsBy(api => new[] { GetSwaggerTag(api) });
             options.CustomOperationIds(GetOperationId);
+            options.CustomSchemaIds(TypedApiSchemaId.Get);
+            options.SupportNonNullableReferenceTypes();
             options.UseAllOfForInheritance();
             options.UseOneOfForPolymorphism();
             options.SelectSubTypesUsing(GetDerivedTypes);
+            options.SelectDiscriminatorNameUsing(GetDiscriminatorName);
+            options.SelectDiscriminatorValueUsing(GetDiscriminatorValue);
             options.SchemaFilter<RequireAllPropertiesSchemaFilter>();
             options.SchemaFilter<StringEnumSchemaFilter>();
+            options.SchemaFilter<TypedApiGenericSchemaFilter>();
             options.DocumentFilter<TypedApiContractDocumentFilter>();
             options.OperationFilter<TypedApiOperationMetadataFilter>();
             options.OperationFilter<TypedApiPaginationOperationFilter>();
+            options.OperationFilter<TypedApiErrorResponseOperationFilter>();
             configure?.Invoke(options);
         });
 
@@ -52,6 +60,13 @@ public static class SwaggerServiceCollectionExtensions
 
     private static IEnumerable<Type> GetDerivedTypes(Type baseType)
     {
+        var declaredTypes = baseType
+            .GetCustomAttributes<JsonDerivedTypeAttribute>(inherit: false)
+            .Select(attribute => attribute.DerivedType)
+            .Distinct()
+            .ToArray();
+        if (declaredTypes.Length > 0) return declaredTypes;
+
         try
         {
             return baseType.Assembly
@@ -64,6 +79,30 @@ public static class SwaggerServiceCollectionExtensions
                 .Where(type => type is not null && type.IsClass && !type.IsAbstract && type.IsSubclassOf(baseType))
                 .Cast<Type>();
         }
+    }
+
+    private static string GetDiscriminatorName(Type baseType)
+    {
+        var polymorphic = baseType.GetCustomAttribute<JsonPolymorphicAttribute>(inherit: false);
+        if (polymorphic is not null)
+            return polymorphic.TypeDiscriminatorPropertyName ?? "$type";
+
+        return null!;
+    }
+
+    private static string GetDiscriminatorValue(Type subType)
+    {
+        for (var baseType = subType.BaseType; baseType is not null; baseType = baseType.BaseType)
+        {
+            var attribute = baseType
+                .GetCustomAttributes<JsonDerivedTypeAttribute>(inherit: false)
+                .FirstOrDefault(candidate => candidate.DerivedType == subType);
+            if (attribute?.TypeDiscriminator is string stringValue) return stringValue;
+            if (attribute?.TypeDiscriminator is not null)
+                return Convert.ToString(attribute.TypeDiscriminator, CultureInfo.InvariantCulture) ?? subType.Name;
+        }
+
+        return subType.Name;
     }
 
     private static string GetSwaggerTag(ApiDescription api)

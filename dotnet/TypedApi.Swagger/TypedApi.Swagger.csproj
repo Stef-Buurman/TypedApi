@@ -20,7 +20,7 @@
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <PackageReleaseNotes>Adds automatic allOf inheritance, oneOf polymorphism, and concrete subtype discovery to AddTypedApiSwagger.</PackageReleaseNotes>
+    <PackageReleaseNotes>Adds frontend generics, correct required/nullability metadata, attribute-driven discriminators, readable schema IDs, and typed ProblemDetails responses.</PackageReleaseNotes>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EnablePackageValidation>true</EnablePackageValidation>
