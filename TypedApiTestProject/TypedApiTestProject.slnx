@@ -3,5 +3,6 @@
     <Build />
     <Deploy />
   </Project>
+  <Project Path="TypedApi.Swagger/TypedApi.Swagger.csproj" />
   <Project Path="TypedApiTestProject.Server/TypedApiTestProject.Server.csproj" />
 </Solution>

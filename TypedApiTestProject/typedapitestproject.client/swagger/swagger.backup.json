@@ -756,6 +756,125 @@
         }
       }
     },
+    "/api/inheritance/team-member": {
+      "get": {
+        "tags": [
+          "Inheritance"
+        ],
+        "operationId": "Inheritance_GetTeamMember_GET_api_inheritance_team_member",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamMemberModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamMemberModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeamMemberModel"
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Inheritance",
+          "actionName": "GetTeamMember"
+        }
+      }
+    },
+    "/api/inheritance/project": {
+      "get": {
+        "tags": [
+          "Inheritance"
+        ],
+        "operationId": "Inheritance_GetProject_GET_api_inheritance_project",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectModel"
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Inheritance",
+          "actionName": "GetProject"
+        }
+      },
+      "post": {
+        "tags": [
+          "Inheritance"
+        ],
+        "operationId": "Inheritance_EchoProject_POST_api_inheritance_project",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectModel"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectModel"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectModel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectModel"
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "Inheritance",
+          "actionName": "EchoProject"
+        }
+      }
+    },
     "/api/orders": {
       "get": {
         "tags": [
@@ -2784,6 +2903,172 @@
         },
         "additionalProperties": false
       },
+      "ProjectMilestoneModel": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ProjectMilestoneModelAuditableModel"
+          },
+          {
+            "required": [
+              "title"
+            ],
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "nullable": true
+              },
+              "dueAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "completed": {
+                "type": "boolean"
+              },
+              "notes": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ProjectMilestoneModelAuditableModel": {
+        "required": [
+          "createdAt",
+          "createdBy",
+          "id",
+          "isActive",
+          "revision"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ProjectModel": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ProjectModelAuditableModel"
+          },
+          {
+            "required": [
+              "code",
+              "name",
+              "owner"
+            ],
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "nullable": true
+              },
+              "name": {
+                "type": "string",
+                "nullable": true
+              },
+              "ownerId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "owner": {
+                "$ref": "#/components/schemas/TeamMemberModel"
+              },
+              "members": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/TeamMemberModel"
+                },
+                "nullable": true
+              },
+              "milestones": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ProjectMilestoneModel"
+                },
+                "nullable": true
+              },
+              "budget": {
+                "type": "number",
+                "format": "double"
+              },
+              "plannedReleaseAt": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "ProjectModelAuditableModel": {
+        "required": [
+          "createdAt",
+          "createdBy",
+          "id",
+          "isActive",
+          "revision"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "SortDirection": {
         "enum": [
           "Default",
@@ -2889,6 +3174,75 @@
           },
           "verified": {
             "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TeamMemberModel": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TeamMemberModelAuditableModel"
+          },
+          {
+            "required": [
+              "displayName",
+              "email"
+            ],
+            "type": "object",
+            "properties": {
+              "displayName": {
+                "type": "string",
+                "nullable": true
+              },
+              "email": {
+                "type": "string",
+                "nullable": true
+              },
+              "department": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "TeamMemberModelAuditableModel": {
+        "required": [
+          "createdAt",
+          "createdBy",
+          "id",
+          "isActive",
+          "revision"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -3039,6 +3393,9 @@
       "name": "Import"
     },
     {
+      "name": "Inheritance"
+    },
+    {
       "name": "Order"
     },
     {
@@ -3054,6 +3411,6 @@
   "x-typedapi": {
     "contractVersion": 1,
     "producer": "TypedApi.Swagger",
-    "producerVersion": "0.3.0"
+    "producerVersion": "0.3.1"
   }
 }

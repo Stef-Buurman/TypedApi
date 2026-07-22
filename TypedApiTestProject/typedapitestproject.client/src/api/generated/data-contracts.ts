@@ -164,6 +164,38 @@ export interface ProductTableRowApiPaginationSortResponse {
   sortDirection: SortDirection;
 }
 
+export type ProjectMilestoneModel = ProjectMilestoneModelAuditableModel & ProjectMilestoneModel2;
+
+export interface ProjectMilestoneModelAuditableModel {
+  /** @format uuid */
+  id: string;
+  createdBy: string;
+  /** @format date-time */
+  createdAt: string;
+  updatedBy?: string | null;
+  /** @format date-time */
+  updatedAt?: string | null;
+  isActive: boolean;
+  /** @format int32 */
+  revision: number;
+}
+
+export type ProjectModel = ProjectModelAuditableModel & ProjectModel2;
+
+export interface ProjectModelAuditableModel {
+  /** @format uuid */
+  id: string;
+  createdBy: string;
+  /** @format date-time */
+  createdAt: string;
+  updatedBy?: string | null;
+  /** @format date-time */
+  updatedAt?: string | null;
+  isActive: boolean;
+  /** @format int32 */
+  revision: number;
+}
+
 export const SortDirection = {
   Default: "Default",
   Neutral: "Neutral",
@@ -205,6 +237,22 @@ export interface SupplierRequest {
   contactEmail: string;
   countryCode: string;
   verified: boolean;
+}
+
+export type TeamMemberModel = TeamMemberModelAuditableModel & TeamMemberModel2;
+
+export interface TeamMemberModelAuditableModel {
+  /** @format uuid */
+  id: string;
+  createdBy: string;
+  /** @format date-time */
+  createdAt: string;
+  updatedBy?: string | null;
+  /** @format date-time */
+  updatedAt?: string | null;
+  isActive: boolean;
+  /** @format int32 */
+  revision: number;
 }
 
 export interface UploadResult {
@@ -472,4 +520,32 @@ export interface WarehouseUpdateWarehouseParams {
 export interface WarehouseDeleteWarehouseParams {
   /** @format uuid */
   id: string;
+}
+
+export interface ProjectMilestoneModel2 {
+  title: string | null;
+  /** @format date-time */
+  dueAt?: string;
+  completed?: boolean;
+  notes?: string | null;
+}
+
+export interface ProjectModel2 {
+  code: string | null;
+  name: string | null;
+  /** @format uuid */
+  ownerId?: string;
+  owner: TeamMemberModel;
+  members?: TeamMemberModel[] | null;
+  milestones?: ProjectMilestoneModel[] | null;
+  /** @format double */
+  budget?: number;
+  /** @format date-time */
+  plannedReleaseAt?: string;
+}
+
+export interface TeamMemberModel2 {
+  displayName: string | null;
+  email: string | null;
+  department?: string | null;
 }

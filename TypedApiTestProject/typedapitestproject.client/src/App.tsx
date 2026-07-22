@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import "./App.css";
 import type { ApiResult } from "typedapi-client-helpers";
-import { OrderStatus } from "./api/generated/data-contracts";
+import { OrderStatus, type ProjectModel } from "./api/generated/data-contracts";
 import {
   importUploadMixedImport,
   importUploadProductFiles,
@@ -56,6 +56,11 @@ import {
   endpointCoveragePostPrimitiveBody,
   endpointCoveragePostUrlEncoded,
 } from "./api/methods/EndpointCoverage.api";
+import {
+  inheritanceEchoProject,
+  inheritanceGetProject,
+  inheritanceGetTeamMember,
+} from "./api/methods/Inheritance.api";
 
 type TestStatus = "idle" | "running" | "passed" | "failed";
 
@@ -122,6 +127,58 @@ const orderBody = (productId: string, supplierId: string) => ({
   status: OrderStatus.Draft,
 });
 
+const inheritanceProjectBody: ProjectModel = {
+  id: "33333333-3333-3333-3333-333333333333",
+  createdBy: "project-service",
+  createdAt: "2026-07-01T08:30:00+00:00",
+  updatedBy: "release-manager",
+  updatedAt: "2026-07-20T14:15:00+00:00",
+  isActive: true,
+  revision: 7,
+  code: "TYPED-API",
+  name: "Typed API test project",
+  ownerId: "11111111-1111-1111-1111-111111111111",
+  owner: {
+    id: "11111111-1111-1111-1111-111111111111",
+    createdBy: "identity-service",
+    createdAt: "2026-06-10T09:00:00+00:00",
+    updatedBy: "admin-user",
+    updatedAt: "2026-07-10T11:45:00+00:00",
+    isActive: true,
+    revision: 3,
+    displayName: "Alex Morgan",
+    email: "alex.morgan@example.com",
+    department: "Engineering",
+  },
+  members: [
+    {
+      id: "22222222-2222-2222-2222-222222222222",
+      createdBy: "identity-service",
+      createdAt: "2026-06-12T13:30:00+00:00",
+      isActive: true,
+      revision: 1,
+      displayName: "Jamie Lee",
+      email: "jamie.lee@example.com",
+      department: "Quality Assurance",
+    },
+  ],
+  milestones: [
+    {
+      id: "44444444-4444-4444-4444-444444444444",
+      createdBy: "project-service",
+      createdAt: "2026-07-02T10:00:00+00:00",
+      isActive: true,
+      revision: 1,
+      title: "Verify generated inheritance",
+      dueAt: "2026-08-01T16:00:00+00:00",
+      completed: false,
+      notes: "Confirm inherited and nested properties are strongly typed.",
+    },
+  ],
+  budget: 12500.5,
+  plannedReleaseAt: "2026-08-15T09:00:00+00:00",
+};
+
 function testFiles(count = 1) {
   return Array.from(
     { length: count },
@@ -150,6 +207,31 @@ function errorMessage(error: unknown) {
 }
 
 const tests: TestDefinition[] = [
+  {
+    id: "inheritance-team-member",
+    group: "Inheritance",
+    name: "Model with multiple inherited fields",
+    method: "GET",
+    path: "/api/inheritance/team-member",
+    run: () => inheritanceGetTeamMember(),
+  },
+  {
+    id: "inheritance-project",
+    group: "Inheritance",
+    name: "Inherited model with nested inherited models",
+    method: "GET",
+    path: "/api/inheritance/project",
+    run: () => inheritanceGetProject(),
+  },
+  {
+    id: "inheritance-project-body",
+    group: "Inheritance",
+    name: "Inherited request and response model",
+    method: "POST",
+    path: "/api/inheritance/project",
+    run: () => inheritanceEchoProject(inheritanceProjectBody),
+  },
+
   {
     id: "import-products",
     group: "Imports",
