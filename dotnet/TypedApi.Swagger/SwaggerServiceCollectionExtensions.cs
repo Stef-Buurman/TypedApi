@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -12,7 +13,7 @@ public static class SwaggerServiceCollectionExtensions
 {
     /// <summary>
     /// Adds Swagger generation with stable operation IDs, serializer-aware schemas,
-    /// string enums, and TypedApi contract metadata.
+    /// string enums, inheritance, polymorphism, and TypedApi contract metadata.
     /// </summary>
     public static IServiceCollection AddTypedApiSwagger(
         this IServiceCollection services,
@@ -22,6 +23,9 @@ public static class SwaggerServiceCollectionExtensions
         {
             options.TagActionsBy(api => new[] { GetSwaggerTag(api) });
             options.CustomOperationIds(GetOperationId);
+            options.UseAllOfForInheritance();
+            options.UseOneOfForPolymorphism();
+            options.SelectSubTypesUsing(GetDerivedTypes);
             options.SchemaFilter<RequireAllPropertiesSchemaFilter>();
             options.SchemaFilter<StringEnumSchemaFilter>();
             options.DocumentFilter<TypedApiContractDocumentFilter>();
@@ -44,6 +48,22 @@ public static class SwaggerServiceCollectionExtensions
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             }
         });
+    }
+
+    private static IEnumerable<Type> GetDerivedTypes(Type baseType)
+    {
+        try
+        {
+            return baseType.Assembly
+                .GetTypes()
+                .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(baseType));
+        }
+        catch (ReflectionTypeLoadException exception)
+        {
+            return exception.Types
+                .Where(type => type is not null && type.IsClass && !type.IsAbstract && type.IsSubclassOf(baseType))
+                .Cast<Type>();
+        }
     }
 
     private static string GetSwaggerTag(ApiDescription api)

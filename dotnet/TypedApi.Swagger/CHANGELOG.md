@@ -2,6 +2,20 @@
 
 All notable changes to `TypedApi.Swagger` are documented in this file.
 
+## [0.3.1] - 2026-07-22
+
+### Added
+
+* Enabled OpenAPI `allOf` schemas for normal .NET inheritance by default.
+* Enabled OpenAPI `oneOf` schemas for polymorphic base models by default.
+* Added automatic discovery of concrete subclasses from the base type assembly.
+* Added safe subtype discovery when an assembly raises `ReflectionTypeLoadException`.
+
+### Compatibility notes
+
+* Projects only need to call `builder.Services.AddTypedApiSwagger()` to enable these conventions.
+* The optional configuration callback still runs after the package defaults and can override subtype selection.
+
 ## [0.3.0] - 2026-07-10
 
 ### Added

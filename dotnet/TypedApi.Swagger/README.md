@@ -2,7 +2,7 @@
 
 Swagger/OpenAPI conventions for ASP.NET Core APIs consumed by the `typedapi-client-helpers` TypeScript generator.
 
-## Version 0.3 highlights
+## Version 0.3.1 highlights
 
 - Adds a root `x-typedapi` contract marker (`contractVersion: 1`).
 - Creates stable, sanitized operation IDs from controller, action, method, and route data.
@@ -13,11 +13,14 @@ Swagger/OpenAPI conventions for ASP.NET Core APIs consumed by the `typedapi-clie
 - Adds `x-typedapi-pagination` metadata to paginated operations.
 - Emits string enum values consistently, including `[EnumMember(Value = "...")]` and JSON enum member names.
 - Validates page number and page size.
+- Preserves .NET inheritance with OpenAPI `allOf`.
+- Emits polymorphic base contracts with OpenAPI `oneOf`.
+- Automatically discovers concrete subclasses from the base type assembly.
 
 ## Installation
 
 ```bash
-dotnet add package TypedApi.Swagger --version 0.3.0
+dotnet add package TypedApi.Swagger --version 0.3.1
 ```
 
 ## Setup
@@ -32,10 +35,7 @@ builder.Services
     .AddTypedApiJsonOptions();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddTypedApiSwagger(options =>
-{
-    // Add normal Swashbuckle options here when needed.
-});
+builder.Services.AddTypedApiSwagger();
 
 var app = builder.Build();
 app.UseSwagger();
@@ -43,6 +43,18 @@ app.UseSwaggerUI();
 app.MapControllers();
 app.Run();
 ```
+
+## Inheritance and polymorphism
+
+`AddTypedApiSwagger()` automatically enables:
+
+```csharp
+options.UseAllOfForInheritance();
+options.UseOneOfForPolymorphism();
+options.SelectSubTypesUsing(...);
+```
+
+This preserves normal .NET inheritance in OpenAPI and discovers concrete subclasses from the assembly containing the base type. Referenced property models continue to be emitted as separate schemas. A configuration callback can still be supplied when a project needs additional Swashbuckle options or wants to override these defaults.
 
 ## Operation IDs
 
