@@ -12,13 +12,15 @@
 import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
 import type {
+  HttpValidationProblemDetails,
   ImportUploadMixedImportPayload,
   ImportUploadProductFilesPayload,
   ImportUploadSupplierFilePayload,
+  ProblemDetails,
   UploadResult,
 } from "../generated/data-contracts";
-import { createApiHttpError, handleApiResponse } from "typedapi-client-helpers";
-import type { ApiHttpError, ApiMethodOptions, ApiResult } from "typedapi-client-helpers";
+import { handleApiResponse } from "typedapi-client-helpers";
+import type { ApiMethodOptions, ApiResult } from "typedapi-client-helpers";
 import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler, unknownErrorMessage as typedApiDefaultErrorMessage } from "../../utils/defaultApiFunctions";
 
 /**
@@ -30,12 +32,12 @@ import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as type
  */
 export async function importUploadProductFiles(
   data: ImportUploadProductFilesPayload,
-  options: ApiMethodOptions<UploadResult, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<UploadResult, ApiHttpError>> {
+  options: ApiMethodOptions<UploadResult, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<UploadResult, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<UploadResult, ApiHttpError>(
-    () => request<UploadResult, ApiHttpError>({
+  return handleApiResponse<UploadResult, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<UploadResult, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/imports/products`,
       method: "POST",
@@ -47,7 +49,6 @@ export async function importUploadProductFiles(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -61,12 +62,12 @@ export async function importUploadProductFiles(
  */
 export async function importUploadSupplierFile(
   data: ImportUploadSupplierFilePayload,
-  options: ApiMethodOptions<UploadResult, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<UploadResult, ApiHttpError>> {
+  options: ApiMethodOptions<UploadResult, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<UploadResult, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<UploadResult, ApiHttpError>(
-    () => request<UploadResult, ApiHttpError>({
+  return handleApiResponse<UploadResult, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<UploadResult, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/imports/supplier`,
       method: "POST",
@@ -78,7 +79,6 @@ export async function importUploadSupplierFile(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -92,12 +92,12 @@ export async function importUploadSupplierFile(
  */
 export async function importUploadMixedImport(
   data: ImportUploadMixedImportPayload,
-  options: ApiMethodOptions<UploadResult, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<UploadResult, ApiHttpError>> {
+  options: ApiMethodOptions<UploadResult, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<UploadResult, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<UploadResult, ApiHttpError>(
-    () => request<UploadResult, ApiHttpError>({
+  return handleApiResponse<UploadResult, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<UploadResult, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/imports/mixed`,
       method: "POST",
@@ -109,7 +109,6 @@ export async function importUploadMixedImport(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }

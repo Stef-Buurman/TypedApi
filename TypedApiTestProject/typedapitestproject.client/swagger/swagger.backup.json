@@ -31,6 +31,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -74,6 +101,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -108,6 +162,33 @@
                 "schema": {
                   "type": "integer",
                   "format": "int32"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -157,6 +238,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -174,6 +282,33 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -191,6 +326,33 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -251,6 +413,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -304,6 +493,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -354,6 +570,33 @@
               "text/json": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -423,6 +666,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -473,6 +743,33 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/EndpointCoverageModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -540,6 +837,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -568,6 +892,33 @@
         "responses": {
           "204": {
             "description": "No Content"
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -625,6 +976,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -676,6 +1054,33 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UploadResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -748,6 +1153,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -782,6 +1214,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -813,6 +1272,33 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -864,6 +1350,33 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProjectModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -1020,17 +1533,44 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrderModelApiPaginationSortResponse"
+                  "$ref": "#/components/schemas/ApiPaginationSortResponseOfOrderModel"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrderModelApiPaginationSortResponse"
+                  "$ref": "#/components/schemas/ApiPaginationSortResponseOfOrderModel"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrderModelApiPaginationSortResponse"
+                  "$ref": "#/components/schemas/ApiPaginationSortResponseOfOrderModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -1092,6 +1632,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -1134,6 +1701,33 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrderModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -1199,6 +1793,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -1225,6 +1846,33 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -1267,6 +1915,33 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrderModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -1319,6 +1994,33 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/OrderModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -1467,17 +2169,44 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProductTableRowApiPaginationSortResponse"
+                  "$ref": "#/components/schemas/ApiPaginationSortResponseOfProductTableRow"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProductTableRowApiPaginationSortResponse"
+                  "$ref": "#/components/schemas/ApiPaginationSortResponseOfProductTableRow"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProductTableRowApiPaginationSortResponse"
+                  "$ref": "#/components/schemas/ApiPaginationSortResponseOfProductTableRow"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -1539,6 +2268,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -1589,6 +2345,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -1631,6 +2414,33 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProductModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -1696,6 +2506,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -1722,6 +2559,33 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -1764,6 +2628,33 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProductModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -1811,6 +2702,33 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -1916,17 +2834,44 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/SupplierModelApiPaginationResponse"
+                  "$ref": "#/components/schemas/ApiPaginationResponseOfSupplierModel"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SupplierModelApiPaginationResponse"
+                  "$ref": "#/components/schemas/ApiPaginationResponseOfSupplierModel"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SupplierModelApiPaginationResponse"
+                  "$ref": "#/components/schemas/ApiPaginationResponseOfSupplierModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -1988,6 +2933,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -2030,6 +3002,33 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SupplierModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -2095,6 +3094,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -2121,6 +3147,33 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -2166,11 +3219,631 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
           "controllerName": "Supplier",
           "actionName": "VerifySupplier"
+        }
+      }
+    },
+    "/api/typed-api-features/projects": {
+      "get": {
+        "tags": [
+          "TypedApiFeatures"
+        ],
+        "operationId": "TypedApiFeatures_GetProjects_GET_api_typed_api_features_projects",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiPaginationSortResponseOfProjectModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiPaginationSortResponseOfProjectModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiPaginationSortResponseOfProjectModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "TypedApiFeatures",
+          "actionName": "GetProjects"
+        },
+        "x-typedapi-pagination": {
+          "pageProperty": "pageNumber",
+          "pageSizeProperty": "pageSize",
+          "sortProperty": "sortBy",
+          "directionProperty": "sortDirection",
+          "dataProperty": "data"
+        }
+      }
+    },
+    "/api/typed-api-features/team-member-envelope": {
+      "get": {
+        "tags": [
+          "TypedApiFeatures"
+        ],
+        "operationId": "TypedApiFeatures_GetTeamMemberEnvelope_GET_api_typed_api_features_team_member_envelope",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelopeOfTeamMemberModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelopeOfTeamMemberModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiEnvelopeOfTeamMemberModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "TypedApiFeatures",
+          "actionName": "GetTeamMemberEnvelope"
+        }
+      }
+    },
+    "/api/typed-api-features/nullability": {
+      "get": {
+        "tags": [
+          "TypedApiFeatures"
+        ],
+        "operationId": "TypedApiFeatures_GetNullability_GET_api_typed_api_features_nullability",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/NullabilityContract"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NullabilityContract"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NullabilityContract"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "TypedApiFeatures",
+          "actionName": "GetNullability"
+        }
+      },
+      "post": {
+        "tags": [
+          "TypedApiFeatures"
+        ],
+        "operationId": "TypedApiFeatures_EchoNullability_POST_api_typed_api_features_nullability",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NullabilityContract"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NullabilityContract"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/NullabilityContract"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/NullabilityContract"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NullabilityContract"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NullabilityContract"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "TypedApiFeatures",
+          "actionName": "EchoNullability"
+        }
+      }
+    },
+    "/api/typed-api-features/notification": {
+      "get": {
+        "tags": [
+          "TypedApiFeatures"
+        ],
+        "operationId": "TypedApiFeatures_GetNotification_GET_api_typed_api_features_notification",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/EmailNotificationModel"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SmsNotificationModel"
+                    }
+                  ]
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/EmailNotificationModel"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SmsNotificationModel"
+                    }
+                  ]
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/EmailNotificationModel"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SmsNotificationModel"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "TypedApiFeatures",
+          "actionName": "GetNotification"
+        }
+      },
+      "post": {
+        "tags": [
+          "TypedApiFeatures"
+        ],
+        "operationId": "TypedApiFeatures_EchoNotification_POST_api_typed_api_features_notification",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/EmailNotificationModel"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SmsNotificationModel"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/EmailNotificationModel"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SmsNotificationModel"
+                  }
+                ]
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/EmailNotificationModel"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SmsNotificationModel"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/EmailNotificationModel"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SmsNotificationModel"
+                    }
+                  ]
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/EmailNotificationModel"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SmsNotificationModel"
+                    }
+                  ]
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/EmailNotificationModel"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SmsNotificationModel"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "TypedApiFeatures",
+          "actionName": "EchoNotification"
+        }
+      }
+    },
+    "/api/typed-api-features/projects/{id}": {
+      "get": {
+        "tags": [
+          "TypedApiFeatures"
+        ],
+        "operationId": "TypedApiFeatures_GetProjectWithTypedErrors_GET_api_typed_api_features_projects_id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProjectModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "TypedApiFeatures",
+          "actionName": "GetProjectWithTypedErrors"
         }
       }
     },
@@ -2260,17 +3933,44 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/WarehouseModelApiPaginationResponse"
+                  "$ref": "#/components/schemas/ApiPaginationResponseOfWarehouseModel"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WarehouseModelApiPaginationResponse"
+                  "$ref": "#/components/schemas/ApiPaginationResponseOfWarehouseModel"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/WarehouseModelApiPaginationResponse"
+                  "$ref": "#/components/schemas/ApiPaginationResponseOfWarehouseModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -2332,6 +4032,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -2374,6 +4101,33 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/WarehouseModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
                 }
               }
             }
@@ -2439,6 +4193,33 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -2465,6 +4246,33 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
           }
         },
         "x-typedapi-operation": {
@@ -2476,6 +4284,475 @@
   },
   "components": {
     "schemas": {
+      "ApiEnvelopeOfTeamMemberModel": {
+        "required": [
+          "correlationId",
+          "data",
+          "itemsByKey",
+          "relatedItems",
+          "warnings"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TeamMemberModel"
+          },
+          "relatedItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeamMemberModel"
+            }
+          },
+          "itemsByKey": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TeamMemberModel"
+            }
+          },
+          "correlationId": {
+            "type": "string"
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "x-typedapi-generic": {
+          "version": 1,
+          "definition": "ApiEnvelope",
+          "parameters": [
+            "T"
+          ],
+          "arguments": [
+            {
+              "parameter": "T",
+              "schemaId": "TeamMemberModel",
+              "primitive": null
+            }
+          ],
+          "bindings": [
+            {
+              "parameter": "T",
+              "path": "/properties/data"
+            },
+            {
+              "parameter": "T",
+              "path": "/properties/itemsByKey/additionalProperties"
+            },
+            {
+              "parameter": "T",
+              "path": "/properties/relatedItems/items"
+            }
+          ]
+        }
+      },
+      "ApiPaginationResponseOfSupplierModel": {
+        "required": [
+          "data",
+          "pageNumber",
+          "pageSize",
+          "totalCount",
+          "totalPages",
+          "totalRecords"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SupplierModel"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRecords": {
+            "type": "integer",
+            "format": "int32",
+            "deprecated": true
+          }
+        },
+        "additionalProperties": false,
+        "x-typedapi-generic": {
+          "version": 1,
+          "definition": "ApiPaginationResponse",
+          "parameters": [
+            "T"
+          ],
+          "arguments": [
+            {
+              "parameter": "T",
+              "schemaId": "SupplierModel",
+              "primitive": null
+            }
+          ],
+          "bindings": [
+            {
+              "parameter": "T",
+              "path": "/properties/data/items"
+            }
+          ]
+        }
+      },
+      "ApiPaginationResponseOfWarehouseModel": {
+        "required": [
+          "data",
+          "pageNumber",
+          "pageSize",
+          "totalCount",
+          "totalPages",
+          "totalRecords"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WarehouseModel"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRecords": {
+            "type": "integer",
+            "format": "int32",
+            "deprecated": true
+          }
+        },
+        "additionalProperties": false,
+        "x-typedapi-generic": {
+          "version": 1,
+          "definition": "ApiPaginationResponse",
+          "parameters": [
+            "T"
+          ],
+          "arguments": [
+            {
+              "parameter": "T",
+              "schemaId": "WarehouseModel",
+              "primitive": null
+            }
+          ],
+          "bindings": [
+            {
+              "parameter": "T",
+              "path": "/properties/data/items"
+            }
+          ]
+        }
+      },
+      "ApiPaginationSortResponseOfOrderModel": {
+        "required": [
+          "data",
+          "pageNumber",
+          "pageSize",
+          "sortDirection",
+          "totalCount",
+          "totalPages",
+          "totalRecords"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderModel"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRecords": {
+            "type": "integer",
+            "format": "int32",
+            "deprecated": true
+          },
+          "sortBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortDirection": {
+            "$ref": "#/components/schemas/SortDirection"
+          }
+        },
+        "additionalProperties": false,
+        "x-typedapi-generic": {
+          "version": 1,
+          "definition": "ApiPaginationSortResponse",
+          "parameters": [
+            "T"
+          ],
+          "arguments": [
+            {
+              "parameter": "T",
+              "schemaId": "OrderModel",
+              "primitive": null
+            }
+          ],
+          "bindings": [
+            {
+              "parameter": "T",
+              "path": "/properties/data/items"
+            }
+          ],
+          "base": {
+            "definition": "ApiPaginationResponse",
+            "parameters": [
+              "T"
+            ],
+            "arguments": [
+              {
+                "genericParameter": "T"
+              }
+            ],
+            "properties": [
+              "data",
+              "pageNumber",
+              "pageSize",
+              "totalCount",
+              "totalPages",
+              "totalRecords"
+            ],
+            "bindings": [
+              {
+                "parameter": "T",
+                "path": "/properties/data/items"
+              }
+            ]
+          }
+        }
+      },
+      "ApiPaginationSortResponseOfProductTableRow": {
+        "required": [
+          "data",
+          "pageNumber",
+          "pageSize",
+          "sortDirection",
+          "totalCount",
+          "totalPages",
+          "totalRecords"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductTableRow"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRecords": {
+            "type": "integer",
+            "format": "int32",
+            "deprecated": true
+          },
+          "sortBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortDirection": {
+            "$ref": "#/components/schemas/SortDirection"
+          }
+        },
+        "additionalProperties": false,
+        "x-typedapi-generic": {
+          "version": 1,
+          "definition": "ApiPaginationSortResponse",
+          "parameters": [
+            "T"
+          ],
+          "arguments": [
+            {
+              "parameter": "T",
+              "schemaId": "ProductTableRow",
+              "primitive": null
+            }
+          ],
+          "bindings": [
+            {
+              "parameter": "T",
+              "path": "/properties/data/items"
+            }
+          ],
+          "base": {
+            "definition": "ApiPaginationResponse",
+            "parameters": [
+              "T"
+            ],
+            "arguments": [
+              {
+                "genericParameter": "T"
+              }
+            ],
+            "properties": [
+              "data",
+              "pageNumber",
+              "pageSize",
+              "totalCount",
+              "totalPages",
+              "totalRecords"
+            ],
+            "bindings": [
+              {
+                "parameter": "T",
+                "path": "/properties/data/items"
+              }
+            ]
+          }
+        }
+      },
+      "ApiPaginationSortResponseOfProjectModel": {
+        "required": [
+          "data",
+          "pageNumber",
+          "pageSize",
+          "sortDirection",
+          "totalCount",
+          "totalPages",
+          "totalRecords"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectModel"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRecords": {
+            "type": "integer",
+            "format": "int32",
+            "deprecated": true
+          },
+          "sortBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortDirection": {
+            "$ref": "#/components/schemas/SortDirection"
+          }
+        },
+        "additionalProperties": false,
+        "x-typedapi-generic": {
+          "version": 1,
+          "definition": "ApiPaginationSortResponse",
+          "parameters": [
+            "T"
+          ],
+          "arguments": [
+            {
+              "parameter": "T",
+              "schemaId": "ProjectModel",
+              "primitive": null
+            }
+          ],
+          "bindings": [
+            {
+              "parameter": "T",
+              "path": "/properties/data/items"
+            }
+          ],
+          "base": {
+            "definition": "ApiPaginationResponse",
+            "parameters": [
+              "T"
+            ],
+            "arguments": [
+              {
+                "genericParameter": "T"
+              }
+            ],
+            "properties": [
+              "data",
+              "pageNumber",
+              "pageSize",
+              "totalCount",
+              "totalPages",
+              "totalRecords"
+            ],
+            "bindings": [
+              {
+                "parameter": "T",
+                "path": "/properties/data/items"
+              }
+            ]
+          }
+        }
+      },
       "ApiSortResponse": {
         "required": [
           "sortDirection"
@@ -2491,6 +4768,149 @@
           }
         },
         "additionalProperties": false
+      },
+      "AuditableModelOfProjectMilestoneModel": {
+        "required": [
+          "createdAt",
+          "createdBy",
+          "id",
+          "isActive",
+          "revision"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AuditableModelOfProjectModel": {
+        "required": [
+          "createdAt",
+          "createdBy",
+          "id",
+          "isActive",
+          "revision"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "AuditableModelOfTeamMemberModel": {
+        "required": [
+          "createdAt",
+          "createdBy",
+          "id",
+          "isActive",
+          "revision"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmailNotificationModel": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/NotificationModel"
+          },
+          {
+            "required": [
+              "emailAddress",
+              "subject"
+            ],
+            "type": "object",
+            "properties": {
+              "emailAddress": {
+                "type": "string"
+              },
+              "subject": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
       },
       "EndpointCoverageModel": {
         "required": [
@@ -2592,6 +5012,100 @@
         },
         "additionalProperties": false
       },
+      "HttpValidationProblemDetails": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ProblemDetails"
+          },
+          {
+            "required": [
+              "errors"
+            ],
+            "type": "object",
+            "properties": {
+              "errors": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "additionalProperties": { }
+          }
+        ]
+      },
+      "NotificationModel": {
+        "required": [
+          "createdAt",
+          "kind",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "discriminator": {
+          "propertyName": "kind",
+          "mapping": {
+            "email": "#/components/schemas/EmailNotificationModel",
+            "sms": "#/components/schemas/SmsNotificationModel"
+          }
+        }
+      },
+      "NullabilityContract": {
+        "required": [
+          "jsonRequiredNullableText",
+          "requiredCount",
+          "requiredNullableText",
+          "requiredText",
+          "validatedText"
+        ],
+        "type": "object",
+        "properties": {
+          "requiredText": {
+            "type": "string"
+          },
+          "requiredNullableText": {
+            "type": "string",
+            "nullable": true
+          },
+          "jsonRequiredNullableText": {
+            "type": "string",
+            "nullable": true
+          },
+          "validatedText": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "optionalNullableText": {
+            "type": "string",
+            "nullable": true
+          },
+          "requiredCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "optionalCount": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "OrderModel": {
         "required": [
           "id",
@@ -2634,55 +5148,6 @@
           },
           "status": {
             "$ref": "#/components/schemas/OrderStatus"
-          }
-        },
-        "additionalProperties": false
-      },
-      "OrderModelApiPaginationSortResponse": {
-        "required": [
-          "data",
-          "pageNumber",
-          "pageSize",
-          "sortDirection",
-          "totalCount",
-          "totalPages",
-          "totalRecords"
-        ],
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/OrderModel"
-            }
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalRecords": {
-            "type": "integer",
-            "format": "int32",
-            "deprecated": true
-          },
-          "sortBy": {
-            "type": "string",
-            "nullable": true
-          },
-          "sortDirection": {
-            "$ref": "#/components/schemas/SortDirection"
           }
         },
         "additionalProperties": false
@@ -2738,6 +5203,33 @@
         ],
         "type": "string",
         "x-enumFlags": false
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
       },
       "ProductModel": {
         "required": [
@@ -2854,69 +5346,21 @@
         },
         "additionalProperties": false
       },
-      "ProductTableRowApiPaginationSortResponse": {
-        "required": [
-          "data",
-          "pageNumber",
-          "pageSize",
-          "sortDirection",
-          "totalCount",
-          "totalPages",
-          "totalRecords"
-        ],
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProductTableRow"
-            }
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalRecords": {
-            "type": "integer",
-            "format": "int32",
-            "deprecated": true
-          },
-          "sortBy": {
-            "type": "string",
-            "nullable": true
-          },
-          "sortDirection": {
-            "$ref": "#/components/schemas/SortDirection"
-          }
-        },
-        "additionalProperties": false
-      },
       "ProjectMilestoneModel": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/ProjectMilestoneModelAuditableModel"
+            "$ref": "#/components/schemas/AuditableModelOfProjectMilestoneModel"
           },
           {
             "required": [
+              "completed",
+              "dueAt",
               "title"
             ],
             "type": "object",
             "properties": {
               "title": {
-                "type": "string",
-                "nullable": true
+                "type": "string"
               },
               "dueAt": {
                 "type": "string",
@@ -2934,66 +5378,29 @@
           }
         ]
       },
-      "ProjectMilestoneModelAuditableModel": {
-        "required": [
-          "createdAt",
-          "createdBy",
-          "id",
-          "isActive",
-          "revision"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdBy": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedBy": {
-            "type": "string",
-            "nullable": true
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "revision": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
-      },
       "ProjectModel": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/ProjectModelAuditableModel"
+            "$ref": "#/components/schemas/AuditableModelOfProjectModel"
           },
           {
             "required": [
+              "budget",
               "code",
+              "members",
+              "milestones",
               "name",
-              "owner"
+              "owner",
+              "ownerId",
+              "plannedReleaseAt"
             ],
             "type": "object",
             "properties": {
               "code": {
-                "type": "string",
-                "nullable": true
+                "type": "string"
               },
               "name": {
-                "type": "string",
-                "nullable": true
+                "type": "string"
               },
               "ownerId": {
                 "type": "string",
@@ -3006,15 +5413,13 @@
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/TeamMemberModel"
-                },
-                "nullable": true
+                }
               },
               "milestones": {
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/ProjectMilestoneModel"
-                },
-                "nullable": true
+                }
               },
               "budget": {
                 "type": "number",
@@ -3029,45 +5434,29 @@
           }
         ]
       },
-      "ProjectModelAuditableModel": {
-        "required": [
-          "createdAt",
-          "createdBy",
-          "id",
-          "isActive",
-          "revision"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
+      "SmsNotificationModel": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/NotificationModel"
           },
-          "createdBy": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedBy": {
-            "type": "string",
-            "nullable": true
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "revision": {
-            "type": "integer",
-            "format": "int32"
+          {
+            "required": [
+              "phoneNumber",
+              "segmentCount"
+            ],
+            "type": "object",
+            "properties": {
+              "phoneNumber": {
+                "type": "string"
+              },
+              "segmentCount": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false
           }
-        },
-        "additionalProperties": false
+        ]
       },
       "SortDirection": {
         "enum": [
@@ -3113,47 +5502,6 @@
         },
         "additionalProperties": false
       },
-      "SupplierModelApiPaginationResponse": {
-        "required": [
-          "data",
-          "pageNumber",
-          "pageSize",
-          "totalCount",
-          "totalPages",
-          "totalRecords"
-        ],
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SupplierModel"
-            }
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalRecords": {
-            "type": "integer",
-            "format": "int32",
-            "deprecated": true
-          }
-        },
-        "additionalProperties": false
-      },
       "SupplierRequest": {
         "required": [
           "companyName",
@@ -3181,7 +5529,7 @@
       "TeamMemberModel": {
         "allOf": [
           {
-            "$ref": "#/components/schemas/TeamMemberModelAuditableModel"
+            "$ref": "#/components/schemas/AuditableModelOfTeamMemberModel"
           },
           {
             "required": [
@@ -3191,12 +5539,10 @@
             "type": "object",
             "properties": {
               "displayName": {
-                "type": "string",
-                "nullable": true
+                "type": "string"
               },
               "email": {
-                "type": "string",
-                "nullable": true
+                "type": "string"
               },
               "department": {
                 "type": "string",
@@ -3206,46 +5552,6 @@
             "additionalProperties": false
           }
         ]
-      },
-      "TeamMemberModelAuditableModel": {
-        "required": [
-          "createdAt",
-          "createdBy",
-          "id",
-          "isActive",
-          "revision"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "createdBy": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updatedBy": {
-            "type": "string",
-            "nullable": true
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "revision": {
-            "type": "integer",
-            "format": "int32"
-          }
-        },
-        "additionalProperties": false
       },
       "UploadResult": {
         "required": [
@@ -3309,47 +5615,6 @@
         },
         "additionalProperties": false
       },
-      "WarehouseModelApiPaginationResponse": {
-        "required": [
-          "data",
-          "pageNumber",
-          "pageSize",
-          "totalCount",
-          "totalPages",
-          "totalRecords"
-        ],
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/WarehouseModel"
-            }
-          },
-          "pageNumber": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalRecords": {
-            "type": "integer",
-            "format": "int32",
-            "deprecated": true
-          }
-        },
-        "additionalProperties": false
-      },
       "WarehouseRequest": {
         "required": [
           "capacity",
@@ -3405,11 +5670,14 @@
       "name": "Supplier"
     },
     {
+      "name": "TypedApiFeatures"
+    },
+    {
       "name": "Warehouse"
     }
   ],
   "x-typedapi": {
-    "contractVersion": 1,
+    "contractVersion": 2,
     "producer": "TypedApi.Swagger",
     "producerVersion": "0.3.1"
   }

@@ -12,7 +12,10 @@
 import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
 import type {
+  ApiPaginationSortResponse,
   ApiSortResponse,
+  HttpValidationProblemDetails,
+  ProblemDetails,
   ProductDeleteProductParams,
   ProductExportProductsParams,
   ProductGetProductByIdParams,
@@ -20,13 +23,12 @@ import type {
   ProductGetProductsQueryParams,
   ProductModel,
   ProductRequest,
-  ProductTableRowApiPaginationSortResponse,
+  ProductTableRow,
   ProductToggleProductActiveParams,
   ProductUpdateProductParams,
 } from "../generated/data-contracts";
-import { buildQuery, createApiHttpError, handleApiResponse } from "typedapi-client-helpers";
+import { buildQuery, handleApiResponse } from "typedapi-client-helpers";
 import type {
-  ApiHttpError,
   ApiMethodOptions,
   ApiResult,
   ExtractDataIfPaginated,
@@ -48,18 +50,18 @@ export async function productGetProducts(
   filters: FilterFormValues<ProductGetProductsQueryParams>[] = [],
   page = 1,
   pageSize = 100,
-  sortBy: SortableKeys<ProductTableRowApiPaginationSortResponse> | null = null,
+  sortBy: SortableKeys<ApiPaginationSortResponse<ProductTableRow>> | null = null,
   sortDirection?: SortDirection,
-  options: ApiMethodOptions<ProductTableRowApiPaginationSortResponse, ApiHttpError, RequestParams> = {},
-): Promise<ApiResult<ProductTableRowApiPaginationSortResponse, ApiHttpError>> {
+  options: ApiMethodOptions<ApiPaginationSortResponse<ProductTableRow>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {},
+): Promise<ApiResult<ApiPaginationSortResponse<ProductTableRow>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
   const builtQuery = buildQuery<
     ProductGetProductsQueryParams,
-    UnwrapArray<ExtractDataIfPaginated<ProductTableRowApiPaginationSortResponse>>
+    UnwrapArray<ExtractDataIfPaginated<ApiPaginationSortResponse<ProductTableRow>>>
   >(filters, page, pageSize, sortBy, sortDirection);
 
-  return handleApiResponse<ProductTableRowApiPaginationSortResponse, ApiHttpError>(
-    () => request<ProductTableRowApiPaginationSortResponse, ApiHttpError>({
+  return handleApiResponse<ApiPaginationSortResponse<ProductTableRow>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<ApiPaginationSortResponse<ProductTableRow>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/products`,
       method: "GET",
@@ -70,7 +72,6 @@ export async function productGetProducts(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -84,12 +85,12 @@ export async function productGetProducts(
  */
 export async function productCreateProduct(
   data: ProductRequest,
-  options: ApiMethodOptions<ProductModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<ProductModel, ApiHttpError>> {
+  options: ApiMethodOptions<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<ProductModel, ApiHttpError>(
-    () => request<ProductModel, ApiHttpError>({
+  return handleApiResponse<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/products`,
       method: "POST",
@@ -101,7 +102,6 @@ export async function productCreateProduct(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -115,12 +115,12 @@ export async function productCreateProduct(
  */
 export async function productGetProductSortState(
   query: ProductGetProductSortStateParams = {},
-  options: ApiMethodOptions<ApiSortResponse, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<ApiSortResponse, ApiHttpError>> {
+  options: ApiMethodOptions<ApiSortResponse, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<ApiSortResponse, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<ApiSortResponse, ApiHttpError>(
-    () => request<ApiSortResponse, ApiHttpError>({
+  return handleApiResponse<ApiSortResponse, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<ApiSortResponse, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/products/sort-state`,
       method: "GET",
@@ -131,7 +131,6 @@ export async function productGetProductSortState(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -145,12 +144,12 @@ export async function productGetProductSortState(
  */
 export async function productGetProductById(
   pathParams: ProductGetProductByIdParams,
-  options: ApiMethodOptions<ProductModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<ProductModel, ApiHttpError>> {
+  options: ApiMethodOptions<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<ProductModel, ApiHttpError>(
-    () => request<ProductModel, ApiHttpError>({
+  return handleApiResponse<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/products/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "GET",
@@ -160,7 +159,6 @@ export async function productGetProductById(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -175,12 +173,12 @@ export async function productGetProductById(
 export async function productUpdateProduct(
   pathParams: ProductUpdateProductParams,
   data: ProductRequest,
-  options: ApiMethodOptions<ProductModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<ProductModel, ApiHttpError>> {
+  options: ApiMethodOptions<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<ProductModel, ApiHttpError>(
-    () => request<ProductModel, ApiHttpError>({
+  return handleApiResponse<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/products/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "PUT",
@@ -192,7 +190,6 @@ export async function productUpdateProduct(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -206,12 +203,12 @@ export async function productUpdateProduct(
  */
 export async function productDeleteProduct(
   pathParams: ProductDeleteProductParams,
-  options: ApiMethodOptions<void, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<void, ApiHttpError>> {
+  options: ApiMethodOptions<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<void, ApiHttpError>(
-    () => request<void, ApiHttpError>({
+  return handleApiResponse<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/products/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "DELETE",
@@ -220,7 +217,6 @@ export async function productDeleteProduct(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -234,12 +230,12 @@ export async function productDeleteProduct(
  */
 export async function productToggleProductActive(
   pathParams: ProductToggleProductActiveParams,
-  options: ApiMethodOptions<ProductModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<ProductModel, ApiHttpError>> {
+  options: ApiMethodOptions<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<ProductModel, ApiHttpError>(
-    () => request<ProductModel, ApiHttpError>({
+  return handleApiResponse<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<ProductModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/products/${encodeURIComponent(String(pathParams["id"]))}/toggle-active`,
       method: "POST",
@@ -249,7 +245,6 @@ export async function productToggleProductActive(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -263,12 +258,12 @@ export async function productToggleProductActive(
  */
 export async function productExportProducts(
   query: ProductExportProductsParams = {},
-  options: ApiMethodOptions<void, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<void, ApiHttpError>> {
+  options: ApiMethodOptions<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<void, ApiHttpError>(
-    () => request<void, ApiHttpError>({
+  return handleApiResponse<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/products/export`,
       method: "GET",
@@ -278,7 +273,6 @@ export async function productExportProducts(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }

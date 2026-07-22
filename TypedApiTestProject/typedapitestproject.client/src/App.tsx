@@ -464,7 +464,7 @@ const tests: TestDefinition[] = [
     name: "List products",
     method: "GET",
     path: "/api/products",
-    run: () => productGetProducts([], 1, 10, "name", "Asc"),
+    run: () => productGetProducts([], 1, 10, "stock", "Asc"),
   },
   {
     id: "products-sort-state",

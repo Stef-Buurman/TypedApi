@@ -12,17 +12,18 @@
 import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
 import type {
+  ApiPaginationResponse,
+  HttpValidationProblemDetails,
+  ProblemDetails,
   WarehouseDeleteWarehouseParams,
   WarehouseGetWarehouseByIdParams,
   WarehouseGetWarehousesQueryParams,
   WarehouseModel,
-  WarehouseModelApiPaginationResponse,
   WarehouseRequest,
   WarehouseUpdateWarehouseParams,
 } from "../generated/data-contracts";
-import { buildQuery, createApiHttpError, handleApiResponse } from "typedapi-client-helpers";
+import { buildQuery, handleApiResponse } from "typedapi-client-helpers";
 import type {
-  ApiHttpError,
   ApiMethodOptions,
   ApiResult,
   ExtractDataIfPaginated,
@@ -44,18 +45,18 @@ export async function warehouseGetWarehouses(
   filters: FilterFormValues<WarehouseGetWarehousesQueryParams>[] = [],
   page = 1,
   pageSize = 100,
-  sortBy: SortableKeys<WarehouseModelApiPaginationResponse> | null = null,
+  sortBy: SortableKeys<ApiPaginationResponse<WarehouseModel>> | null = null,
   sortDirection?: SortDirection,
-  options: ApiMethodOptions<WarehouseModelApiPaginationResponse, ApiHttpError, RequestParams> = {},
-): Promise<ApiResult<WarehouseModelApiPaginationResponse, ApiHttpError>> {
+  options: ApiMethodOptions<ApiPaginationResponse<WarehouseModel>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {},
+): Promise<ApiResult<ApiPaginationResponse<WarehouseModel>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
   const builtQuery = buildQuery<
     WarehouseGetWarehousesQueryParams,
-    UnwrapArray<ExtractDataIfPaginated<WarehouseModelApiPaginationResponse>>
+    UnwrapArray<ExtractDataIfPaginated<ApiPaginationResponse<WarehouseModel>>>
   >(filters, page, pageSize, sortBy, sortDirection);
 
-  return handleApiResponse<WarehouseModelApiPaginationResponse, ApiHttpError>(
-    () => request<WarehouseModelApiPaginationResponse, ApiHttpError>({
+  return handleApiResponse<ApiPaginationResponse<WarehouseModel>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<ApiPaginationResponse<WarehouseModel>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/warehouses`,
       method: "GET",
@@ -66,7 +67,6 @@ export async function warehouseGetWarehouses(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -80,12 +80,12 @@ export async function warehouseGetWarehouses(
  */
 export async function warehouseCreateWarehouse(
   data: WarehouseRequest,
-  options: ApiMethodOptions<WarehouseModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<WarehouseModel, ApiHttpError>> {
+  options: ApiMethodOptions<WarehouseModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<WarehouseModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<WarehouseModel, ApiHttpError>(
-    () => request<WarehouseModel, ApiHttpError>({
+  return handleApiResponse<WarehouseModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<WarehouseModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/warehouses`,
       method: "POST",
@@ -97,7 +97,6 @@ export async function warehouseCreateWarehouse(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -111,12 +110,12 @@ export async function warehouseCreateWarehouse(
  */
 export async function warehouseGetWarehouseById(
   pathParams: WarehouseGetWarehouseByIdParams,
-  options: ApiMethodOptions<WarehouseModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<WarehouseModel, ApiHttpError>> {
+  options: ApiMethodOptions<WarehouseModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<WarehouseModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<WarehouseModel, ApiHttpError>(
-    () => request<WarehouseModel, ApiHttpError>({
+  return handleApiResponse<WarehouseModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<WarehouseModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/warehouses/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "GET",
@@ -126,7 +125,6 @@ export async function warehouseGetWarehouseById(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -141,12 +139,12 @@ export async function warehouseGetWarehouseById(
 export async function warehouseUpdateWarehouse(
   pathParams: WarehouseUpdateWarehouseParams,
   data: WarehouseRequest,
-  options: ApiMethodOptions<WarehouseModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<WarehouseModel, ApiHttpError>> {
+  options: ApiMethodOptions<WarehouseModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<WarehouseModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<WarehouseModel, ApiHttpError>(
-    () => request<WarehouseModel, ApiHttpError>({
+  return handleApiResponse<WarehouseModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<WarehouseModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/warehouses/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "PUT",
@@ -158,7 +156,6 @@ export async function warehouseUpdateWarehouse(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -172,12 +169,12 @@ export async function warehouseUpdateWarehouse(
  */
 export async function warehouseDeleteWarehouse(
   pathParams: WarehouseDeleteWarehouseParams,
-  options: ApiMethodOptions<void, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<void, ApiHttpError>> {
+  options: ApiMethodOptions<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<void, ApiHttpError>(
-    () => request<void, ApiHttpError>({
+  return handleApiResponse<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/warehouses/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "DELETE",
@@ -186,7 +183,6 @@ export async function warehouseDeleteWarehouse(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }

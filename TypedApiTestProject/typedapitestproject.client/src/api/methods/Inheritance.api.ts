@@ -11,9 +11,14 @@
  */
 import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
-import type { ProjectModel, TeamMemberModel } from "../generated/data-contracts";
-import { createApiHttpError, handleApiResponse } from "typedapi-client-helpers";
-import type { ApiHttpError, ApiMethodOptions, ApiResult } from "typedapi-client-helpers";
+import type {
+  HttpValidationProblemDetails,
+  ProblemDetails,
+  ProjectModel,
+  TeamMemberModel,
+} from "../generated/data-contracts";
+import { handleApiResponse } from "typedapi-client-helpers";
+import type { ApiMethodOptions, ApiResult } from "typedapi-client-helpers";
 import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler, unknownErrorMessage as typedApiDefaultErrorMessage } from "../../utils/defaultApiFunctions";
 
 /**
@@ -24,12 +29,12 @@ import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as type
  * @request GET:/api/inheritance/team-member
  */
 export async function inheritanceGetTeamMember(
-  options: ApiMethodOptions<TeamMemberModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<TeamMemberModel, ApiHttpError>> {
+  options: ApiMethodOptions<TeamMemberModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<TeamMemberModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<TeamMemberModel, ApiHttpError>(
-    () => request<TeamMemberModel, ApiHttpError>({
+  return handleApiResponse<TeamMemberModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<TeamMemberModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/inheritance/team-member`,
       method: "GET",
@@ -39,7 +44,6 @@ export async function inheritanceGetTeamMember(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -52,12 +56,12 @@ export async function inheritanceGetTeamMember(
  * @request GET:/api/inheritance/project
  */
 export async function inheritanceGetProject(
-  options: ApiMethodOptions<ProjectModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<ProjectModel, ApiHttpError>> {
+  options: ApiMethodOptions<ProjectModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<ProjectModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<ProjectModel, ApiHttpError>(
-    () => request<ProjectModel, ApiHttpError>({
+  return handleApiResponse<ProjectModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<ProjectModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/inheritance/project`,
       method: "GET",
@@ -67,7 +71,6 @@ export async function inheritanceGetProject(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -81,12 +84,12 @@ export async function inheritanceGetProject(
  */
 export async function inheritanceEchoProject(
   data: ProjectModel,
-  options: ApiMethodOptions<ProjectModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<ProjectModel, ApiHttpError>> {
+  options: ApiMethodOptions<ProjectModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<ProjectModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<ProjectModel, ApiHttpError>(
-    () => request<ProjectModel, ApiHttpError>({
+  return handleApiResponse<ProjectModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<ProjectModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/inheritance/project`,
       method: "POST",
@@ -98,7 +101,6 @@ export async function inheritanceEchoProject(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }

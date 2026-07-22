@@ -10,10 +10,89 @@
  * -------------------------------------------------------------------------------------
  */
 
+export interface ApiEnvelope<T> {
+  data: T;
+  relatedItems: T[];
+  itemsByKey: Record<string, T>;
+  correlationId: string;
+  warnings: string[];
+}
+
+export interface ApiPaginationResponse<T> {
+  data: T[];
+  /** @format int32 */
+  pageNumber: number;
+  /** @format int32 */
+  pageSize: number;
+  /** @format int32 */
+  totalCount: number;
+  /** @format int32 */
+  totalPages: number;
+  /**
+   * @format int32
+   * @deprecated
+   */
+  totalRecords: number;
+}
+
+export type ApiPaginationSortResponse<T> = ApiPaginationResponse<T> & {
+  sortBy?: string | null;
+  sortDirection: SortDirection;
+};
+
 export interface ApiSortResponse {
   sortBy?: string | null;
   sortDirection: SortDirection;
 }
+
+export interface AuditableModelOfProjectMilestoneModel {
+  /** @format uuid */
+  id: string;
+  createdBy: string;
+  /** @format date-time */
+  createdAt: string;
+  updatedBy?: string | null;
+  /** @format date-time */
+  updatedAt?: string | null;
+  isActive: boolean;
+  /** @format int32 */
+  revision: number;
+}
+
+export interface AuditableModelOfProjectModel {
+  /** @format uuid */
+  id: string;
+  createdBy: string;
+  /** @format date-time */
+  createdAt: string;
+  updatedBy?: string | null;
+  /** @format date-time */
+  updatedAt?: string | null;
+  isActive: boolean;
+  /** @format int32 */
+  revision: number;
+}
+
+export interface AuditableModelOfTeamMemberModel {
+  /** @format uuid */
+  id: string;
+  createdBy: string;
+  /** @format date-time */
+  createdAt: string;
+  updatedBy?: string | null;
+  /** @format date-time */
+  updatedAt?: string | null;
+  isActive: boolean;
+  /** @format int32 */
+  revision: number;
+}
+
+export type EmailNotificationModel = NotificationModelBase & {
+  emailAddress: string;
+  subject: string;
+} & {
+  kind: "email";
+};
 
 export interface EndpointCoverageModel {
   /** @format uuid */
@@ -45,6 +124,32 @@ export interface EndpointCoverageRequest {
   tags: string[];
 }
 
+export type HttpValidationProblemDetails = ProblemDetails & {
+  errors: Record<string, string[]>;
+  [key: string]: unknown;
+};
+
+export interface NotificationModelBase {
+  kind: string;
+  message: string;
+  /** @format date-time */
+  createdAt: string;
+}
+
+export type NotificationModel = EmailNotificationModel | SmsNotificationModel;
+
+export interface NullabilityContract {
+  requiredText: string;
+  requiredNullableText: string | null;
+  jsonRequiredNullableText: string | null;
+  validatedText: string;
+  optionalNullableText?: string | null;
+  /** @format int32 */
+  requiredCount: number;
+  /** @format int32 */
+  optionalCount?: number | null;
+}
+
 export interface OrderModel {
   /** @format uuid */
   id: string;
@@ -60,25 +165,6 @@ export interface OrderModel {
   /** @format date-time */
   orderedAt: string;
   status: OrderStatus;
-}
-
-export interface OrderModelApiPaginationSortResponse {
-  data: OrderModel[];
-  /** @format int32 */
-  pageNumber: number;
-  /** @format int32 */
-  pageSize: number;
-  /** @format int32 */
-  totalCount: number;
-  /** @format int32 */
-  totalPages: number;
-  /**
-   * @format int32
-   * @deprecated
-   */
-  totalRecords: number;
-  sortBy?: string | null;
-  sortDirection: SortDirection;
 }
 
 export interface OrderRequest {
@@ -104,6 +190,16 @@ export const OrderStatus = {
   Cancelled: "Cancelled",
 } as const;
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus];
+
+export interface ProblemDetails {
+  "type"?: string | null;
+  title?: string | null;
+  /** @format int32 */
+  status?: number | null;
+  detail?: string | null;
+  instance?: string | null;
+  [key: string]: unknown;
+}
 
 export interface ProductModel {
   /** @format uuid */
@@ -145,56 +241,35 @@ export interface ProductTableRow {
   active: boolean;
 }
 
-export interface ProductTableRowApiPaginationSortResponse {
-  data: ProductTableRow[];
-  /** @format int32 */
-  pageNumber: number;
-  /** @format int32 */
-  pageSize: number;
-  /** @format int32 */
-  totalCount: number;
-  /** @format int32 */
-  totalPages: number;
-  /**
-   * @format int32
-   * @deprecated
-   */
-  totalRecords: number;
-  sortBy?: string | null;
-  sortDirection: SortDirection;
-}
+export type ProjectMilestoneModel = AuditableModelOfProjectMilestoneModel & {
+  title: string;
+  /** @format date-time */
+  dueAt: string;
+  completed: boolean;
+  notes?: string | null;
+};
 
-export type ProjectMilestoneModel = ProjectMilestoneModelAuditableModel & ProjectMilestoneModel2;
-
-export interface ProjectMilestoneModelAuditableModel {
+export type ProjectModel = AuditableModelOfProjectModel & {
+  code: string;
+  name: string;
   /** @format uuid */
-  id: string;
-  createdBy: string;
+  ownerId: string;
+  owner: TeamMemberModel;
+  members: TeamMemberModel[];
+  milestones: ProjectMilestoneModel[];
+  /** @format double */
+  budget: number;
   /** @format date-time */
-  createdAt: string;
-  updatedBy?: string | null;
-  /** @format date-time */
-  updatedAt?: string | null;
-  isActive: boolean;
-  /** @format int32 */
-  revision: number;
-}
+  plannedReleaseAt: string;
+};
 
-export type ProjectModel = ProjectModelAuditableModel & ProjectModel2;
-
-export interface ProjectModelAuditableModel {
-  /** @format uuid */
-  id: string;
-  createdBy: string;
-  /** @format date-time */
-  createdAt: string;
-  updatedBy?: string | null;
-  /** @format date-time */
-  updatedAt?: string | null;
-  isActive: boolean;
+export type SmsNotificationModel = NotificationModelBase & {
+  phoneNumber: string;
   /** @format int32 */
-  revision: number;
-}
+  segmentCount: number;
+} & {
+  kind: "sms";
+};
 
 export const SortDirection = {
   Default: "Default",
@@ -215,23 +290,6 @@ export interface SupplierModel {
   createdAt: string;
 }
 
-export interface SupplierModelApiPaginationResponse {
-  data: SupplierModel[];
-  /** @format int32 */
-  pageNumber: number;
-  /** @format int32 */
-  pageSize: number;
-  /** @format int32 */
-  totalCount: number;
-  /** @format int32 */
-  totalPages: number;
-  /**
-   * @format int32
-   * @deprecated
-   */
-  totalRecords: number;
-}
-
 export interface SupplierRequest {
   companyName: string;
   contactEmail: string;
@@ -239,21 +297,11 @@ export interface SupplierRequest {
   verified: boolean;
 }
 
-export type TeamMemberModel = TeamMemberModelAuditableModel & TeamMemberModel2;
-
-export interface TeamMemberModelAuditableModel {
-  /** @format uuid */
-  id: string;
-  createdBy: string;
-  /** @format date-time */
-  createdAt: string;
-  updatedBy?: string | null;
-  /** @format date-time */
-  updatedAt?: string | null;
-  isActive: boolean;
-  /** @format int32 */
-  revision: number;
-}
+export type TeamMemberModel = AuditableModelOfTeamMemberModel & {
+  displayName: string;
+  email: string;
+  department?: string | null;
+};
 
 export interface UploadResult {
   /** @format int32 */
@@ -272,23 +320,6 @@ export interface WarehouseModel {
   /** @format int32 */
   capacity: number;
   isActive: boolean;
-}
-
-export interface WarehouseModelApiPaginationResponse {
-  data: WarehouseModel[];
-  /** @format int32 */
-  pageNumber: number;
-  /** @format int32 */
-  pageSize: number;
-  /** @format int32 */
-  totalCount: number;
-  /** @format int32 */
-  totalPages: number;
-  /**
-   * @format int32
-   * @deprecated
-   */
-  totalRecords: number;
 }
 
 export interface WarehouseRequest {
@@ -491,6 +522,11 @@ export interface SupplierVerifySupplierParams {
   id: string;
 }
 
+export interface TypedApiFeaturesGetProjectWithTypedErrorsParams {
+  /** @format uuid */
+  id: string;
+}
+
 export interface WarehouseGetWarehousesQueryParams {
   search?: string;
   countryCodes?: string[];
@@ -520,32 +556,4 @@ export interface WarehouseUpdateWarehouseParams {
 export interface WarehouseDeleteWarehouseParams {
   /** @format uuid */
   id: string;
-}
-
-export interface ProjectMilestoneModel2 {
-  title: string | null;
-  /** @format date-time */
-  dueAt?: string;
-  completed?: boolean;
-  notes?: string | null;
-}
-
-export interface ProjectModel2 {
-  code: string | null;
-  name: string | null;
-  /** @format uuid */
-  ownerId?: string;
-  owner: TeamMemberModel;
-  members?: TeamMemberModel[] | null;
-  milestones?: ProjectMilestoneModel[] | null;
-  /** @format double */
-  budget?: number;
-  /** @format date-time */
-  plannedReleaseAt?: string;
-}
-
-export interface TeamMemberModel2 {
-  displayName: string | null;
-  email: string | null;
-  department?: string | null;
 }

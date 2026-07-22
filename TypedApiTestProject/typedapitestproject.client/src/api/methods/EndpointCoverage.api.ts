@@ -19,9 +19,11 @@ import type {
   EndpointCoveragePatchRequest,
   EndpointCoveragePostUrlEncodedPayload,
   EndpointCoverageRequest,
+  HttpValidationProblemDetails,
+  ProblemDetails,
 } from "../generated/data-contracts";
-import { createApiHttpError, handleApiResponse } from "typedapi-client-helpers";
-import type { ApiHttpError, ApiMethodOptions, ApiResult } from "typedapi-client-helpers";
+import { handleApiResponse } from "typedapi-client-helpers";
+import type { ApiMethodOptions, ApiResult } from "typedapi-client-helpers";
 import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as typedApiDefaultErrorHandler, unknownErrorMessage as typedApiDefaultErrorMessage } from "../../utils/defaultApiFunctions";
 
 /**
@@ -32,12 +34,12 @@ import { handleGoodResult as typedApiDefaultSuccessHandler, handleErrors as type
  * @request GET:/api/endpoint-coverage/object
  */
 export async function endpointCoverageGetObject(
-  options: ApiMethodOptions<EndpointCoverageModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<EndpointCoverageModel, ApiHttpError>> {
+  options: ApiMethodOptions<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<EndpointCoverageModel, ApiHttpError>(
-    () => request<EndpointCoverageModel, ApiHttpError>({
+  return handleApiResponse<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/endpoint-coverage/object`,
       method: "GET",
@@ -47,7 +49,6 @@ export async function endpointCoverageGetObject(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -60,12 +61,12 @@ export async function endpointCoverageGetObject(
  * @request GET:/api/endpoint-coverage/array
  */
 export async function endpointCoverageGetArray(
-  options: ApiMethodOptions<EndpointCoverageModel[], ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<EndpointCoverageModel[], ApiHttpError>> {
+  options: ApiMethodOptions<EndpointCoverageModel[], HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<EndpointCoverageModel[], HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<EndpointCoverageModel[], ApiHttpError>(
-    () => request<EndpointCoverageModel[], ApiHttpError>({
+  return handleApiResponse<EndpointCoverageModel[], HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<EndpointCoverageModel[], HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/endpoint-coverage/array`,
       method: "GET",
@@ -75,7 +76,6 @@ export async function endpointCoverageGetArray(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -88,12 +88,12 @@ export async function endpointCoverageGetArray(
  * @request GET:/api/endpoint-coverage/primitive
  */
 export async function endpointCoverageGetPrimitive(
-  options: ApiMethodOptions<number, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<number, ApiHttpError>> {
+  options: ApiMethodOptions<number, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<number, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<number, ApiHttpError>(
-    () => request<number, ApiHttpError>({
+  return handleApiResponse<number, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<number, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/endpoint-coverage/primitive`,
       method: "GET",
@@ -103,7 +103,6 @@ export async function endpointCoverageGetPrimitive(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -116,12 +115,12 @@ export async function endpointCoverageGetPrimitive(
  * @request GET:/api/endpoint-coverage/dictionary
  */
 export async function endpointCoverageGetDictionary(
-  options: ApiMethodOptions<Record<string, number>, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<Record<string, number>, ApiHttpError>> {
+  options: ApiMethodOptions<Record<string, number>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<Record<string, number>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<Record<string, number>, ApiHttpError>(
-    () => request<Record<string, number>, ApiHttpError>({
+  return handleApiResponse<Record<string, number>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<Record<string, number>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/endpoint-coverage/dictionary`,
       method: "GET",
@@ -131,7 +130,6 @@ export async function endpointCoverageGetDictionary(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -144,12 +142,12 @@ export async function endpointCoverageGetDictionary(
  * @request GET:/api/endpoint-coverage/text
  */
 export async function endpointCoverageGetText(
-  options: ApiMethodOptions<void, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<void, ApiHttpError>> {
+  options: ApiMethodOptions<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<void, ApiHttpError>(
-    () => request<void, ApiHttpError>({
+  return handleApiResponse<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/endpoint-coverage/text`,
       method: "GET",
@@ -158,7 +156,6 @@ export async function endpointCoverageGetText(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -171,12 +168,12 @@ export async function endpointCoverageGetText(
  * @request GET:/api/endpoint-coverage/download
  */
 export async function endpointCoverageDownloadFile(
-  options: ApiMethodOptions<void, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<void, ApiHttpError>> {
+  options: ApiMethodOptions<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<void, ApiHttpError>(
-    () => request<void, ApiHttpError>({
+  return handleApiResponse<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/endpoint-coverage/download`,
       method: "GET",
@@ -185,7 +182,6 @@ export async function endpointCoverageDownloadFile(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -199,12 +195,12 @@ export async function endpointCoverageDownloadFile(
  */
 export async function endpointCoverageGetPathAndQuery(
   pathParams: EndpointCoverageGetPathAndQueryParams,
-  options: ApiMethodOptions<EndpointCoverageModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<EndpointCoverageModel, ApiHttpError>> {
+  options: ApiMethodOptions<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<EndpointCoverageModel, ApiHttpError>(
-    () => request<EndpointCoverageModel, ApiHttpError>({
+  return handleApiResponse<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/endpoint-coverage/${encodeURIComponent(String(pathParams["id"]))}/details`,
       method: "GET",
@@ -215,7 +211,6 @@ export async function endpointCoverageGetPathAndQuery(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -229,12 +224,12 @@ export async function endpointCoverageGetPathAndQuery(
  */
 export async function endpointCoveragePostJson(
   data: EndpointCoverageRequest,
-  options: ApiMethodOptions<EndpointCoverageModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<EndpointCoverageModel, ApiHttpError>> {
+  options: ApiMethodOptions<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<EndpointCoverageModel, ApiHttpError>(
-    () => request<EndpointCoverageModel, ApiHttpError>({
+  return handleApiResponse<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/endpoint-coverage/json`,
       method: "POST",
@@ -246,7 +241,6 @@ export async function endpointCoveragePostJson(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -260,12 +254,12 @@ export async function endpointCoveragePostJson(
  */
 export async function endpointCoveragePostPrimitiveBody(
   data: string,
-  options: ApiMethodOptions<string, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<string, ApiHttpError>> {
+  options: ApiMethodOptions<string, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<string, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<string, ApiHttpError>(
-    () => request<string, ApiHttpError>({
+  return handleApiResponse<string, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<string, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/endpoint-coverage/primitive-body`,
       method: "POST",
@@ -277,7 +271,6 @@ export async function endpointCoveragePostPrimitiveBody(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -291,12 +284,12 @@ export async function endpointCoveragePostPrimitiveBody(
  */
 export async function endpointCoveragePostUrlEncoded(
   data: EndpointCoveragePostUrlEncodedPayload,
-  options: ApiMethodOptions<EndpointCoverageModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<EndpointCoverageModel, ApiHttpError>> {
+  options: ApiMethodOptions<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<EndpointCoverageModel, ApiHttpError>(
-    () => request<EndpointCoverageModel, ApiHttpError>({
+  return handleApiResponse<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/endpoint-coverage/url-encoded`,
       method: "POST",
@@ -308,7 +301,6 @@ export async function endpointCoveragePostUrlEncoded(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -322,12 +314,12 @@ export async function endpointCoveragePostUrlEncoded(
  */
 export async function endpointCoveragePostAccepted(
   data: EndpointCoverageRequest,
-  options: ApiMethodOptions<EndpointCoverageModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<EndpointCoverageModel, ApiHttpError>> {
+  options: ApiMethodOptions<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<EndpointCoverageModel, ApiHttpError>(
-    () => request<EndpointCoverageModel, ApiHttpError>({
+  return handleApiResponse<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/endpoint-coverage/accepted`,
       method: "POST",
@@ -339,7 +331,6 @@ export async function endpointCoveragePostAccepted(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -354,12 +345,12 @@ export async function endpointCoveragePostAccepted(
 export async function endpointCoveragePatchJson(
   pathParams: EndpointCoveragePatchJsonParams,
   data: EndpointCoveragePatchRequest,
-  options: ApiMethodOptions<EndpointCoverageModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<EndpointCoverageModel, ApiHttpError>> {
+  options: ApiMethodOptions<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<EndpointCoverageModel, ApiHttpError>(
-    () => request<EndpointCoverageModel, ApiHttpError>({
+  return handleApiResponse<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<EndpointCoverageModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/endpoint-coverage/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "PATCH",
@@ -371,7 +362,6 @@ export async function endpointCoveragePatchJson(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -385,12 +375,12 @@ export async function endpointCoveragePatchJson(
  */
 export async function endpointCoverageDeleteNoContent(
   pathParams: EndpointCoverageDeleteNoContentParams,
-  options: ApiMethodOptions<void, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<void, ApiHttpError>> {
+  options: ApiMethodOptions<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<void, ApiHttpError>(
-    () => request<void, ApiHttpError>({
+  return handleApiResponse<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/endpoint-coverage/${encodeURIComponent(String(pathParams["id"]))}/no-content`,
       method: "DELETE",
@@ -399,7 +389,6 @@ export async function endpointCoverageDeleteNoContent(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }

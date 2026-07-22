@@ -12,19 +12,20 @@
 import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
 import type {
+  ApiPaginationSortResponse,
+  HttpValidationProblemDetails,
   OrderApproveOrderParams,
   OrderCancelOrderParams,
   OrderDeleteOrderParams,
   OrderGetOrderByIdParams,
   OrderGetOrdersQueryParams,
   OrderModel,
-  OrderModelApiPaginationSortResponse,
   OrderRequest,
   OrderUpdateOrderParams,
+  ProblemDetails,
 } from "../generated/data-contracts";
-import { buildQuery, createApiHttpError, handleApiResponse } from "typedapi-client-helpers";
+import { buildQuery, handleApiResponse } from "typedapi-client-helpers";
 import type {
-  ApiHttpError,
   ApiMethodOptions,
   ApiResult,
   ExtractDataIfPaginated,
@@ -46,18 +47,18 @@ export async function orderGetOrders(
   filters: FilterFormValues<OrderGetOrdersQueryParams>[] = [],
   page = 1,
   pageSize = 100,
-  sortBy: SortableKeys<OrderModelApiPaginationSortResponse> | null = null,
+  sortBy: SortableKeys<ApiPaginationSortResponse<OrderModel>> | null = null,
   sortDirection?: SortDirection,
-  options: ApiMethodOptions<OrderModelApiPaginationSortResponse, ApiHttpError, RequestParams> = {},
-): Promise<ApiResult<OrderModelApiPaginationSortResponse, ApiHttpError>> {
+  options: ApiMethodOptions<ApiPaginationSortResponse<OrderModel>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {},
+): Promise<ApiResult<ApiPaginationSortResponse<OrderModel>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
   const builtQuery = buildQuery<
     OrderGetOrdersQueryParams,
-    UnwrapArray<ExtractDataIfPaginated<OrderModelApiPaginationSortResponse>>
+    UnwrapArray<ExtractDataIfPaginated<ApiPaginationSortResponse<OrderModel>>>
   >(filters, page, pageSize, sortBy, sortDirection);
 
-  return handleApiResponse<OrderModelApiPaginationSortResponse, ApiHttpError>(
-    () => request<OrderModelApiPaginationSortResponse, ApiHttpError>({
+  return handleApiResponse<ApiPaginationSortResponse<OrderModel>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<ApiPaginationSortResponse<OrderModel>, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/orders`,
       method: "GET",
@@ -68,7 +69,6 @@ export async function orderGetOrders(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -82,12 +82,12 @@ export async function orderGetOrders(
  */
 export async function orderCreateOrder(
   data: OrderRequest,
-  options: ApiMethodOptions<OrderModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<OrderModel, ApiHttpError>> {
+  options: ApiMethodOptions<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<OrderModel, ApiHttpError>(
-    () => request<OrderModel, ApiHttpError>({
+  return handleApiResponse<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/orders`,
       method: "POST",
@@ -99,7 +99,6 @@ export async function orderCreateOrder(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -113,12 +112,12 @@ export async function orderCreateOrder(
  */
 export async function orderGetOrderById(
   pathParams: OrderGetOrderByIdParams,
-  options: ApiMethodOptions<OrderModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<OrderModel, ApiHttpError>> {
+  options: ApiMethodOptions<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<OrderModel, ApiHttpError>(
-    () => request<OrderModel, ApiHttpError>({
+  return handleApiResponse<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/orders/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "GET",
@@ -128,7 +127,6 @@ export async function orderGetOrderById(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -143,12 +141,12 @@ export async function orderGetOrderById(
 export async function orderUpdateOrder(
   pathParams: OrderUpdateOrderParams,
   data: OrderRequest,
-  options: ApiMethodOptions<OrderModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<OrderModel, ApiHttpError>> {
+  options: ApiMethodOptions<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<OrderModel, ApiHttpError>(
-    () => request<OrderModel, ApiHttpError>({
+  return handleApiResponse<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/orders/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "PUT",
@@ -160,7 +158,6 @@ export async function orderUpdateOrder(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -174,12 +171,12 @@ export async function orderUpdateOrder(
  */
 export async function orderDeleteOrder(
   pathParams: OrderDeleteOrderParams,
-  options: ApiMethodOptions<void, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<void, ApiHttpError>> {
+  options: ApiMethodOptions<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<void, ApiHttpError>(
-    () => request<void, ApiHttpError>({
+  return handleApiResponse<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/orders/${encodeURIComponent(String(pathParams["id"]))}`,
       method: "DELETE",
@@ -188,7 +185,6 @@ export async function orderDeleteOrder(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -202,12 +198,12 @@ export async function orderDeleteOrder(
  */
 export async function orderApproveOrder(
   pathParams: OrderApproveOrderParams,
-  options: ApiMethodOptions<OrderModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<OrderModel, ApiHttpError>> {
+  options: ApiMethodOptions<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<OrderModel, ApiHttpError>(
-    () => request<OrderModel, ApiHttpError>({
+  return handleApiResponse<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/orders/${encodeURIComponent(String(pathParams["id"]))}/approve`,
       method: "POST",
@@ -217,7 +213,6 @@ export async function orderApproveOrder(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
@@ -231,12 +226,12 @@ export async function orderApproveOrder(
  */
 export async function orderCancelOrder(
   pathParams: OrderCancelOrderParams,
-  options: ApiMethodOptions<OrderModel, ApiHttpError, RequestParams> = {}
-): Promise<ApiResult<OrderModel, ApiHttpError>> {
+  options: ApiMethodOptions<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
   const { onSuccess, onError, params = {} } = options;
 
-  return handleApiResponse<OrderModel, ApiHttpError>(
-    () => request<OrderModel, ApiHttpError>({
+  return handleApiResponse<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<OrderModel, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
       ...params,
       path: `/api/orders/${encodeURIComponent(String(pathParams["id"]))}/cancel`,
       method: "POST",
@@ -247,7 +242,6 @@ export async function orderCancelOrder(
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
       onError: onError ?? typedApiDefaultErrorHandler,
       fallbackErrorMessage: typedApiDefaultErrorMessage,
-      transformError: (value, response) => createApiHttpError(response.status, value),
     },
   );
 }
