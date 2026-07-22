@@ -19,7 +19,7 @@ export async function generateApi(options) {
   const source = fs.readFileSync(inputPath, "utf8");
   const openApi = JSON.parse(source);
 
-  validateOpenApiDocument(openApi, { supportedContractVersion: 1 });
+  validateOpenApiDocument(openApi, { supportedContractVersion: 2 });
   const operations = collectOperations(openApi, {
     generateMissingOperationIds: Boolean(options.generateMissingOperationIds),
     methodNameStyle: options.methodNameStyle ?? "operationId",

@@ -670,3 +670,351 @@ test("action method name style reports duplicate controller action names", async
     /Generated TypeScript method name "get_" is duplicated/,
   );
 });
+
+test("generator reconstructs generics, discriminators, nullability, readable schema IDs, and typed errors", async (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "typedapi-contract-v2-test-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const output = path.join(root, "src", "api");
+  const document = {
+    openapi: "3.0.4",
+    info: { title: "TypedApi contract v2 fixture", version: "1.0.0" },
+    "x-typedapi": { contractVersion: 2, producer: "TypedApi.Swagger", producerVersion: "0.3.1" },
+    paths: {
+      "/projects": {
+        get: {
+          tags: ["Features"],
+          operationId: "GetProjects",
+          responses: {
+            200: {
+              description: "OK",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/ApiPaginationSortResponseOfProjectModel" },
+                },
+              },
+            },
+            400: {
+              description: "Validation error",
+              content: {
+                "application/problem+json": {
+                  schema: { $ref: "#/components/schemas/HttpValidationProblemDetails" },
+                },
+              },
+            },
+            500: {
+              description: "Unexpected error",
+              content: {
+                "application/problem+json": {
+                  schema: { $ref: "#/components/schemas/ProblemDetails" },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/notification": {
+        get: {
+          tags: ["Features"],
+          operationId: "GetNotification",
+          responses: {
+            200: {
+              description: "OK",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/NotificationModel" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    components: {
+      schemas: {
+        ProjectModel: {
+          type: "object",
+          required: ["id", "name", "requiredNullableText"],
+          properties: {
+            id: { type: "string", format: "uuid" },
+            name: { type: "string" },
+            requiredNullableText: { type: "string", nullable: true },
+            optionalNullableText: { type: "string", nullable: true },
+          },
+        },
+        ApiEnvelopeOfProjectModel: {
+          type: "object",
+          required: ["data", "relatedItems", "itemsByKey", "fixedProject"],
+          properties: {
+            data: { $ref: "#/components/schemas/ProjectModel" },
+            relatedItems: { type: "array", items: { $ref: "#/components/schemas/ProjectModel" } },
+            itemsByKey: {
+              type: "object",
+              additionalProperties: { $ref: "#/components/schemas/ProjectModel" },
+            },
+            fixedProject: { $ref: "#/components/schemas/ProjectModel" },
+          },
+          "x-typedapi-generic": {
+            definition: "ApiEnvelope",
+            parameters: ["T"],
+            arguments: [{ parameter: "T", schemaId: "ProjectModel" }],
+            bindings: [
+              { parameter: "T", path: "/properties/data" },
+              { parameter: "T", path: "/properties/relatedItems/items" },
+              { parameter: "T", path: "/properties/itemsByKey/additionalProperties" },
+            ],
+          },
+        },
+        ApiPaginationResponseOfProjectModel: {
+          type: "object",
+          required: ["data", "pageNumber", "pageSize", "totalCount", "totalPages"],
+          properties: {
+            data: { type: "array", items: { $ref: "#/components/schemas/ProjectModel" } },
+            pageNumber: { type: "integer", format: "int32" },
+            pageSize: { type: "integer", format: "int32" },
+            totalCount: { type: "integer", format: "int32" },
+            totalPages: { type: "integer", format: "int32" },
+          },
+          "x-typedapi-generic": {
+            definition: "ApiPaginationResponse",
+            parameters: ["T"],
+            arguments: [{ parameter: "T", schemaId: "ProjectModel" }],
+            bindings: [{ parameter: "T", path: "/properties/data/items" }],
+          },
+        },
+        ApiPaginationSortResponseOfProjectModel: {
+          allOf: [{ $ref: "#/components/schemas/ApiPaginationResponseOfProjectModel" }],
+          type: "object",
+          required: ["sortDirection"],
+          properties: {
+            sortBy: { type: "string", nullable: true },
+            sortDirection: { type: "string", enum: ["Asc", "Desc"] },
+          },
+          "x-typedapi-generic": {
+            definition: "ApiPaginationSortResponse",
+            parameters: ["T"],
+            arguments: [{ parameter: "T", schemaId: "ProjectModel" }],
+            bindings: [{ parameter: "T", path: "/properties/data/items" }],
+            base: {
+              definition: "ApiPaginationResponse",
+              parameters: ["T"],
+              arguments: [{ genericParameter: "T" }],
+              properties: ["data", "pageNumber", "pageSize", "totalCount", "totalPages"],
+              bindings: [{ parameter: "T", path: "/properties/data/items" }],
+            },
+          },
+        },
+        NotificationModel: {
+          type: "object",
+          required: ["message", "createdAt"],
+          properties: {
+            message: { type: "string" },
+            createdAt: { type: "string", format: "date-time" },
+          },
+          discriminator: {
+            propertyName: "kind",
+            mapping: {
+              email: "#/components/schemas/EmailNotificationModel",
+              sms: "#/components/schemas/SmsNotificationModel",
+            },
+          },
+        },
+        EmailNotificationModel: {
+          allOf: [{ $ref: "#/components/schemas/NotificationModel" }],
+          type: "object",
+          required: ["emailAddress"],
+          properties: { emailAddress: { type: "string" } },
+        },
+        SmsNotificationModel: {
+          allOf: [{ $ref: "#/components/schemas/NotificationModel" }],
+          type: "object",
+          required: ["phoneNumber"],
+          properties: { phoneNumber: { type: "string" } },
+        },
+        ProblemDetails: {
+          type: "object",
+          properties: {
+            title: { type: "string", nullable: true },
+            status: { type: "integer", format: "int32", nullable: true },
+          },
+        },
+        HttpValidationProblemDetails: {
+          allOf: [{ $ref: "#/components/schemas/ProblemDetails" }],
+          type: "object",
+          required: ["errors"],
+          properties: {
+            errors: {
+              type: "object",
+              additionalProperties: { type: "array", items: { type: "string" } },
+            },
+          },
+        },
+      },
+    },
+  };
+
+  fs.writeFileSync(path.join(root, "openapi.json"), JSON.stringify(document, null, 2));
+  fs.writeFileSync(
+    path.join(root, "tsconfig.json"),
+    JSON.stringify({
+      compilerOptions: {
+        target: "ES2020",
+        lib: ["ES2020", "DOM"],
+        module: "ESNext",
+        moduleResolution: "Bundler",
+        strict: true,
+        skipLibCheck: true,
+        noEmit: true,
+      },
+      include: ["src/**/*.ts"],
+    }, null, 2),
+  );
+  fs.mkdirSync(path.join(root, "node_modules"), { recursive: true });
+  linkRuntimePackage(root);
+
+  await generateApi({
+    input: path.join(root, "openapi.json"),
+    output,
+    runtimePackageName: "typedapi-client-helpers",
+  });
+
+  const contracts = fs.readFileSync(path.join(output, "generated", "data-contracts.ts"), "utf8");
+  const methods = fs.readFileSync(path.join(output, "methods", "Features.api.ts"), "utf8");
+
+  assert.match(contracts, /export interface ApiEnvelope<T> \{/);
+  assert.match(contracts, /data: T;/);
+  assert.match(contracts, /relatedItems: T\[\];/);
+  assert.match(contracts, /itemsByKey: Record<string, T>;/);
+  assert.match(contracts, /fixedProject: ProjectModel;/);
+  assert.match(contracts, /export interface ApiPaginationResponse<T> \{/);
+  assert.match(contracts, /export type ApiPaginationSortResponse<T> = ApiPaginationResponse<T> & \{/);
+  assert.doesNotMatch(contracts, /interface ApiPaginationSortResponseOfProjectModel/);
+  assert.match(contracts, /requiredNullableText: string \| null;/);
+  assert.match(contracts, /optionalNullableText\?: string \| null;/);
+  assert.match(contracts, /export interface NotificationModelBase \{/);
+  assert.match(contracts, /export type EmailNotificationModel = NotificationModelBase & \{/);
+  assert.match(contracts, /kind: "email";/);
+  assert.match(contracts, /kind: "sms";/);
+  assert.equal((contracts.match(/kind: "email";/g) ?? []).length, 1);
+  assert.equal((contracts.match(/kind: "sms";/g) ?? []).length, 1);
+  assert.match(contracts, /export type NotificationModel = EmailNotificationModel \| SmsNotificationModel;/);
+  assert.doesNotMatch(contracts, /EmailNotificationModel = NotificationModel &/);
+  assert.match(methods, /ApiPaginationSortResponse<ProjectModel>/);
+  assert.match(methods, /HttpValidationProblemDetails \| ProblemDetails/);
+
+  const compile = spawnSync(
+    process.execPath,
+    [path.join(packageRoot, "node_modules", "typescript", "bin", "tsc"), "-p", "tsconfig.json"],
+    { cwd: root, encoding: "utf8" },
+  );
+  assert.equal(compile.status, 0, `${compile.stdout}\n${compile.stderr}`);
+});
+
+test("generator keeps flattened inherited generic properties generic", async (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "typedapi-flattened-generic-test-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const output = path.join(root, "src", "api");
+  const document = {
+    openapi: "3.0.4",
+    info: { title: "Flattened generic fixture", version: "1.0.0" },
+    "x-typedapi": { contractVersion: 2, producer: "TypedApi.Swagger", producerVersion: "0.3.1" },
+    paths: {
+      "/orders": {
+        get: {
+          tags: ["Orders"],
+          operationId: "GetOrders",
+          responses: {
+            200: {
+              description: "OK",
+              content: {
+                "application/json": {
+                  schema: { $ref: "#/components/schemas/ApiPaginationSortResponseOfOrderModel" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    components: {
+      schemas: {
+        OrderModel: {
+          type: "object",
+          required: ["id"],
+          properties: { id: { type: "string", format: "uuid" } },
+        },
+        ApiPaginationSortResponseOfOrderModel: {
+          type: "object",
+          required: ["data", "pageNumber", "pageSize", "totalCount", "totalPages", "sortDirection"],
+          properties: {
+            data: { type: "array", items: { $ref: "#/components/schemas/OrderModel" } },
+            pageNumber: { type: "integer", format: "int32" },
+            pageSize: { type: "integer", format: "int32" },
+            totalCount: { type: "integer", format: "int32" },
+            totalPages: { type: "integer", format: "int32" },
+            sortBy: { type: "string", nullable: true },
+            sortDirection: { type: "string", enum: ["Asc", "Desc"] },
+          },
+          "x-typedapi-generic": {
+            definition: "ApiPaginationSortResponse",
+            parameters: ["T"],
+            arguments: [{ parameter: "T", schemaId: "OrderModel" }],
+            bindings: [{ parameter: "T", path: "/properties/data/items" }],
+            base: {
+              definition: "ApiPaginationResponse",
+              parameters: ["T"],
+              arguments: [{ genericParameter: "T" }],
+              properties: ["data", "pageNumber", "pageSize", "totalCount", "totalPages"],
+              bindings: [{ parameter: "T", path: "/properties/data/items" }],
+            },
+          },
+        },
+      },
+    },
+  };
+
+  fs.writeFileSync(path.join(root, "openapi.json"), JSON.stringify(document, null, 2));
+  await generateApi({ input: path.join(root, "openapi.json"), output });
+
+  const contracts = fs.readFileSync(path.join(output, "generated", "data-contracts.ts"), "utf8");
+  const methods = fs.readFileSync(path.join(output, "methods", "Orders.api.ts"), "utf8");
+  assert.match(contracts, /export interface ApiPaginationResponse<T> \{/);
+  assert.match(contracts, /data: T\[\];/);
+  assert.match(contracts, /export type ApiPaginationSortResponse<T> = ApiPaginationResponse<T> & \{/);
+  assert.doesNotMatch(contracts, /export interface ApiPaginationSortResponse<T>/);
+  assert.doesNotMatch(contracts, /ApiPaginationSortResponse<T>[\s\S]*data: OrderModel\[\];/);
+  assert.match(methods, /ApiPaginationSortResponse<OrderModel>/);
+});
+
+test("generator rejects a generic declaration whose type parameter is not bound", async (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "typedapi-unbound-generic-test-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const document = {
+    openapi: "3.0.4",
+    info: { title: "Unbound generic fixture", version: "1.0.0" },
+    "x-typedapi": { contractVersion: 2, producer: "TypedApi.Swagger", producerVersion: "0.3.1" },
+    paths: {},
+    components: {
+      schemas: {
+        OrderModel: { type: "object", properties: { id: { type: "string" } } },
+        ApiPaginationSortResponseOfOrderModel: {
+          type: "object",
+          properties: {
+            data: { type: "array", items: { $ref: "#/components/schemas/OrderModel" } },
+          },
+          "x-typedapi-generic": {
+            definition: "ApiPaginationSortResponse",
+            parameters: ["T"],
+            arguments: [{ parameter: "T", schemaId: "OrderModel" }],
+            bindings: [],
+          },
+        },
+      },
+    },
+  };
+
+  fs.writeFileSync(path.join(root, "openapi.json"), JSON.stringify(document, null, 2));
+  await assert.rejects(
+    generateApi({ input: path.join(root, "openapi.json"), output: path.join(root, "src", "api") }),
+    /declares unbound type parameter T/,
+  );
+});

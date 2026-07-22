@@ -233,7 +233,7 @@ function resolveMethodNameSource(
       throw new Error(
         `Cannot use typedApiMethodNameStyle "action" for ${method.toUpperCase()} ${routePath}: ` +
           "the operation does not contain x-typedapi-operation.actionName metadata. " +
-          'Update TypedApi.Swagger to the matching 0.3.0 package or use typedApiMethodNameStyle "operationId".',
+          'Update TypedApi.Swagger to version 0.3.0 or newer, or use typedApiMethodNameStyle "operationId".',
       );
     }
 
@@ -402,9 +402,10 @@ export function validateOpenApiDocument(openApi, options = {}) {
   const contract = openApi["x-typedapi"];
   if (contract?.contractVersion !== undefined) {
     const supported = options.supportedContractVersion ?? 1;
-    if (Number(contract.contractVersion) !== supported) {
+    const received = Number(contract.contractVersion);
+    if (!Number.isInteger(received) || received < 1 || received > supported) {
       throw new Error(
-        `Unsupported TypedApi contract version ${contract.contractVersion}. This generator supports version ${supported}.`,
+        `Unsupported TypedApi contract version ${contract.contractVersion}. This generator supports versions 1 through ${supported}.`,
       );
     }
   }

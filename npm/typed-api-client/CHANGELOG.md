@@ -2,6 +2,37 @@
 
 All notable changes to `typedapi-client-helpers` are documented in this file.
 
+## [0.3.4] - 2026-07-22
+
+### Added
+
+* Added support for `x-typedapi-generic` metadata and reusable TypeScript generic declarations.
+* Added exact generic substitutions for direct properties, array/collection items, dictionary values, and inherited generic wrappers.
+* Added discriminator mapping support with literal discriminator properties and frontend union types.
+* Added readable closed-generic reference handling such as `ApiPaginationResponseOfProjectModel` to `ApiPaginationResponse<ProjectModel>`.
+* Added generator coverage for custom generic envelopes, pagination, nullability combinations, polymorphism, schema IDs, typed errors, and TypeScript compilation.
+
+### Changed
+
+* Requiredness and nullability now remain independent in generated property declarations.
+* Polymorphic base schemas now generate a separate `Base` contract plus a union of concrete variants.
+* Derived polymorphic schemas inherit from the base contract rather than from the union, preventing cyclic TypeScript types.
+* Inline `allOf` object fragments are emitted directly in intersections instead of creating unnecessary numbered helper interfaces.
+* Typed OpenAPI error responses are deduplicated into method-specific error unions.
+* TypedApi contract version 2 is now supported.
+
+### Fixed
+
+* Fixed flattened inherited generic wrappers accidentally capturing the first concrete schema, such as generating `data: OrderModel[]` inside `ApiPaginationSortResponse<T>`.
+* Fixed flattened generic inheritance being emitted as a duplicated standalone interface; annotated derived wrappers now preserve their reusable generic base intersection.
+* Invalid generic metadata with unused type parameters now fails with a clear error instead of emitting a misleading generic declaration.
+
+### Compatibility notes
+
+* Pair this package with `TypedApi.Swagger` 0.3.1 or newer for all new features.
+* Regenerate committed API files after upgrading.
+* Generic reconstruction only occurs for schemas carrying `x-typedapi-generic`; ordinary closed generic schemas remain ordinary component types.
+
 ## [0.3.0] - 2026-07-10
 
 ### Added

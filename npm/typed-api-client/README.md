@@ -2,25 +2,74 @@
 
 A small Fetch runtime and OpenAPI 3 TypeScript generator designed to work with `TypedApi.Swagger` on ASP.NET Core.
 
-## Version 0.3 highlights
+## Version 0.3.4 highlights
 
-- Lowercases only the first character of generated TypeScript members.
-- Sanitizes operation IDs and rejects duplicates before writing output.
-- Can name frontend functions from either the unique OpenAPI operation ID or the original ASP.NET controller action name.
-- Supports path, query, header, cookie, and request-body inputs in the same operation.
-- Resolves local OpenAPI references for schemas, parameters, request bodies, and responses.
-- Supports `allOf` composition with local properties.
-- Generates typed unions for documented non-success responses.
-- Uses a structured `ApiHttpError` when an operation has no documented error schema.
-- Generates API contracts and controller method files without creating a root API barrel file.
-- Writes generated output transactionally, with a Windows-safe in-place fallback when directory renames are blocked by editors or file watchers.
-- Adds `--check`, `--strict`, `--offline`, and `--verbose` CLI modes.
-- Improves cancellation, timeouts, header merging, SSR safety, and malformed-response handling.
+- Reconstructs opted-in closed .NET generic schemas as reusable TypeScript generics.
+- Supports exact generic bindings for direct properties, arrays/collections, and dictionary values.
+- Preserves required-but-nullable properties as required `T | null` instead of optional values.
+- Generates non-cyclic discriminated unions with literal discriminator fields.
+- Consumes readable generic schema IDs such as `ApiPaginationResponseOfProjectModel`.
+- Generates method-specific unions from typed `ProblemDetails` error responses.
+- Validates TypedApi OpenAPI contract version 2.
+
+### Generic contracts
+
+With `[TypedApiGeneric]` on a backend wrapper, a closed schema such as `ApiEnvelope<ProjectModel>` becomes one reusable declaration:
+
+```ts
+export interface ApiEnvelope<T> {
+  data: T;
+  relatedItems: T[];
+  itemsByKey: Record<string, T>;
+}
+```
+
+Endpoints then use `ApiEnvelope<ProjectModel>` rather than a repeated `ApiEnvelopeOfProjectModel` interface. Inherited generic wrappers are reconstructed whether Swagger uses `allOf` or emits a flattened schema:
+
+```ts
+export type ApiPaginationSortResponse<T> = ApiPaginationResponse<T> & {
+  sortBy?: string | null;
+  sortDirection: SortDirection;
+};
+```
+
+### Required and nullable properties
+
+OpenAPI presence and nullability remain separate:
+
+```ts
+export interface NullabilityContract {
+  requiredText: string;
+  requiredNullableText: string | null;
+  optionalNullableText?: string | null;
+}
+```
+
+### Discriminated unions
+
+Serializer discriminator mappings produce narrowing unions without cyclic inheritance:
+
+```ts
+export type NotificationModel = EmailNotificationModel | SmsNotificationModel;
+
+export type EmailNotificationModel = NotificationModelBase & {
+  emailAddress: string;
+  kind: "email";
+};
+```
+
+### Typed errors
+
+When the OpenAPI operation contains typed error response bodies, generated methods expose the union directly:
+
+```ts
+ApiResult<ProjectModel, HttpValidationProblemDetails | ProblemDetails>
+```
 
 ## Install
 
 ```bash
-npm install typedapi-client-helpers@0.3.3
+npm install typedapi-client-helpers@0.3.4
 ```
 
 The generator expects an OpenAPI 3.x document. Swagger 2.0 documents are rejected with a clear error.
@@ -227,4 +276,4 @@ The runtime also exports `createApiClient`, `request`, `abortRequest`, `mergeHea
 
 ## Backend pairing
 
-Use `TypedApi.Swagger` 0.3 or newer on the backend. It emits `x-typedapi.contractVersion = 1`, unique operation IDs, serializer-aware property names, and explicit pagination metadata. The generator validates the contract version before replacing generated files.
+Use `TypedApi.Swagger` 0.3.1 or newer on the backend for generic reconstruction, corrected nullability, discriminators, readable schema IDs, and typed default errors. It emits `x-typedapi.contractVersion = 2`. The generator validates the contract version before replacing generated files.
