@@ -12,7 +12,7 @@ public class TypedApiFeaturesController : ControllerBase
     [HttpGet("projects")]
     public ActionResult<ApiPaginationSortResponse<ProjectModel>> GetProjects()
     {
-        return Ok(new ApiPaginationSortResponse<ProjectModel>
+        return new ApiPaginationSortResponse<ProjectModel>
         {
             Data = [],
             PageNumber = 1,
@@ -21,7 +21,7 @@ public class TypedApiFeaturesController : ControllerBase
             TotalPages = 0,
             SortBy = nameof(ProjectModel.Name),
             SortDirection = SortDirection.Asc
-        });
+        };
     }
 
     [HttpGet("team-member-envelope")]
@@ -41,44 +41,51 @@ public class TypedApiFeaturesController : ControllerBase
             Department = null
         };
 
-        return Ok(new ApiEnvelope<TeamMemberModel>
+        return new ApiEnvelope<TeamMemberModel>
         {
             CorrelationId = "typedapi-test-correlation",
             Warnings = ["This response tests direct, collection, and dictionary generic bindings."],
             Data = teamMember,
             RelatedItems = [teamMember],
-            ItemsByKey = new Dictionary<string, TeamMemberModel> { ["owner"] = teamMember }
-        });
+            ItemsByKey = new Dictionary<string, TeamMemberModel>
+            {
+                ["owner"] = teamMember
+            }
+        };
     }
 
     [HttpGet("nullability")]
     public ActionResult<NullabilityContract> GetNullability()
     {
-        return Ok(CreateNullabilityContract());
+        return CreateNullabilityContract();
     }
 
     [HttpPost("nullability")]
-    public ActionResult<NullabilityContract> EchoNullability(NullabilityContract request)
+    public ActionResult<NullabilityContract> EchoNullability(
+        [FromBody] NullabilityContract request)
     {
-        return Ok(request);
+        return request;
     }
 
     [HttpGet("notification")]
     public ActionResult<NotificationModel> GetNotification()
     {
-        return Ok(new EmailNotificationModel
+        NotificationModel response = new EmailNotificationModel
         {
             Message = "The generated frontend should narrow this union by kind.",
             CreatedAt = new DateTimeOffset(2026, 7, 22, 8, 30, 0, TimeSpan.Zero),
             EmailAddress = "alerts@example.com",
             Subject = "TypedApi discriminator test"
-        });
+        };
+
+        return response;
     }
 
     [HttpPost("notification")]
-    public ActionResult<NotificationModel> EchoNotification(NotificationModel request)
+    public ActionResult<NotificationModel> EchoNotification(
+        [FromBody] NotificationModel request)
     {
-        return Ok(request);
+        return request;
     }
 
     [HttpGet("projects/{id:guid}")]
@@ -89,10 +96,11 @@ public class TypedApiFeaturesController : ControllerBase
     {
         if (id == Guid.Empty)
         {
-            return ValidationProblem(new ValidationProblemDetails(new Dictionary<string, string[]>
-            {
-                [nameof(id)] = ["The project ID may not be empty."]
-            }));
+            return ValidationProblem(new ValidationProblemDetails(
+                new Dictionary<string, string[]>
+                {
+                    [nameof(id)] = ["The project ID may not be empty."]
+                }));
         }
 
         return NotFound(new ProblemDetails

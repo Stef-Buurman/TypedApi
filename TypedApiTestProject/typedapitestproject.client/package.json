@@ -8,7 +8,11 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "generate:api": "typedapi-generate"
+    "generate:api": "typedapi-generate",
+    "generate:api:offline": "typedapi-generate --offline",
+    "generate:api:check": "typedapi-generate --offline --check",
+    "verify:filter-form": "node scripts/verify-filter-form-generation.mjs",
+    "verify": "npm run generate:api:check && npm run verify:filter-form && npm run build"
   },
   "config": {
     "swaggerUrl": "http://localhost:5145/swagger/v1/swagger.json",
@@ -24,7 +28,7 @@
   "dependencies": {
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "typedapi-client-helpers": "file:../../npm/typed-api-client/typedapi-client-helpers-0.3.4.tgz"
+    "typedapi-client-helpers": "file:../../npm/typed-api-client/typedapi-client-helpers-0.3.5.tgz"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

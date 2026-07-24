@@ -124,6 +124,57 @@ export interface EndpointCoverageRequest {
   tags: string[];
 }
 
+export interface FilterFormHeaderResponse {
+  testRun: string;
+  search?: string | null;
+}
+
+export interface FilterFormItemModel {
+  /** @format uuid */
+  id: string;
+  name: string;
+  category: string;
+  /** @format int32 */
+  score: number;
+  active: boolean;
+  /** @format date-time */
+  createdAt: string;
+}
+
+export type FilterFormMapQuery = FilterFormQuery & {
+  /** @format double */
+  west: number;
+  /** @format double */
+  south: number;
+  /** @format double */
+  east: number;
+  /** @format double */
+  north: number;
+  /** @format int32 */
+  zoom: number;
+};
+
+export interface FilterFormPathResponse {
+  scope: string;
+  filter: FilterFormQuery | FilterFormMapQuery;
+}
+
+export interface FilterFormQuery {
+  search?: string | null;
+  /** @format int32 */
+  minScore?: number | null;
+  /** @format int32 */
+  maxScore?: number | null;
+  active?: boolean | null;
+  /** @format date-time */
+  createdFrom?: string | null;
+  /** @format date-time */
+  createdTo?: string | null;
+  categories?: string[] | null;
+  itemIds?: string[] | null;
+  echo?: string | null;
+}
+
 export type HttpValidationProblemDetails = ProblemDetails & {
   errors: Record<string, string[]>;
   [key: string]: unknown;
@@ -352,9 +403,129 @@ export interface EndpointCoveragePatchJsonParams {
   id: string;
 }
 
+export interface EndpointCoverageGetDelayedParams {
+  /**
+   * @format int32
+   * @default 1000
+   */
+  milliseconds?: number;
+}
+
 export interface EndpointCoverageDeleteNoContentParams {
   /** @format uuid */
   id: string;
+}
+
+export interface FilterFormGetWithMethodAttributeQueryParams {
+  search?: string;
+  /** @format int32 */
+  minScore?: number;
+  /** @format int32 */
+  maxScore?: number;
+  active?: boolean;
+  /** @format date-time */
+  createdFrom?: string;
+  /** @format date-time */
+  createdTo?: string;
+  categories?: string[];
+  itemIds?: string[];
+  echo?: string;
+}
+
+export interface FilterFormGetWithParameterAttributeQueryParams {
+  search?: string;
+  /** @format int32 */
+  minScore?: number;
+  /** @format int32 */
+  maxScore?: number;
+  active?: boolean;
+  /** @format date-time */
+  createdFrom?: string;
+  /** @format date-time */
+  createdTo?: string;
+  categories?: string[];
+  itemIds?: string[];
+  echo?: string;
+}
+
+export interface FilterFormGetMapItemsQueryParams {
+  /** @format double */
+  west: number;
+  /** @format double */
+  south: number;
+  /** @format double */
+  east: number;
+  /** @format double */
+  north: number;
+  /** @format int32 */
+  zoom: number;
+  search?: string;
+  /** @format int32 */
+  minScore?: number;
+  /** @format int32 */
+  maxScore?: number;
+  active?: boolean;
+  /** @format date-time */
+  createdFrom?: string;
+  /** @format date-time */
+  createdTo?: string;
+  categories?: string[];
+  itemIds?: string[];
+  echo?: string;
+}
+
+export interface FilterFormGetUnmarkedParams {
+  search?: string;
+  /** @format int32 */
+  minScore?: number;
+  /** @format int32 */
+  maxScore?: number;
+  active?: boolean;
+  /** @format date-time */
+  createdFrom?: string;
+  /** @format date-time */
+  createdTo?: string;
+  categories?: string[];
+  itemIds?: string[];
+  echo?: string;
+}
+
+export interface FilterFormGetPagedQueryParams {
+  search?: string;
+  /** @format int32 */
+  minScore?: number;
+  /** @format int32 */
+  maxScore?: number;
+  active?: boolean;
+  categories?: string[];
+  /** @format int32 */
+  pageNumber?: number;
+  /** @format int32 */
+  pageSize?: number;
+  sortBy?: string;
+  sortDirection?: "Default" | "Neutral" | "Asc" | "Desc";
+}
+
+export interface FilterFormGetMixedPathAndQueryParams {
+  scope: string;
+  search?: string;
+  /** @format int32 */
+  minScore?: number;
+  /** @format int32 */
+  maxScore?: number;
+  active?: boolean;
+  /** @format date-time */
+  createdFrom?: string;
+  /** @format date-time */
+  createdTo?: string;
+  categories?: string[];
+  itemIds?: string[];
+  echo?: string;
+}
+
+export interface FilterFormGetHeaderAndQueryParams {
+  "x-Test-Run"?: string;
+  search?: string;
 }
 
 export interface ImportUploadProductFilesPayload {

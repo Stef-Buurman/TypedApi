@@ -1,7 +1,16 @@
 import { useMemo, useState } from "react";
 import "./App.css";
-import type { ApiResult } from "typedapi-client-helpers";
-import { OrderStatus, type ProjectModel } from "./api/generated/data-contracts";
+import type { ApiResult, FilterFormValues } from "typedapi-client-helpers";
+import {
+  OrderStatus,
+  type EmailNotificationModel,
+  type FilterFormGetMapItemsQueryParams,
+  type FilterFormGetPagedQueryParams,
+  type FilterFormGetWithMethodAttributeQueryParams,
+  type FilterFormGetWithParameterAttributeQueryParams,
+  type NullabilityContract,
+  type ProjectModel,
+} from "./api/generated/data-contracts";
 import {
   importUploadMixedImport,
   importUploadProductFiles,
@@ -45,7 +54,9 @@ import {
   endpointCoverageDeleteNoContent,
   endpointCoverageDownloadFile,
   endpointCoverageGetArray,
+  endpointCoverageGetDelayed,
   endpointCoverageGetDictionary,
+  endpointCoverageGetMalformedJson,
   endpointCoverageGetObject,
   endpointCoverageGetPathAndQuery,
   endpointCoverageGetPrimitive,
@@ -61,6 +72,24 @@ import {
   inheritanceGetProject,
   inheritanceGetTeamMember,
 } from "./api/methods/Inheritance.api";
+import {
+  filterFormGetHeaderAndQuery,
+  filterFormGetMapItems,
+  filterFormGetMixedPathAndQuery,
+  filterFormGetPaged,
+  filterFormGetUnmarked,
+  filterFormGetWithMethodAttribute,
+  filterFormGetWithParameterAttribute,
+} from "./api/methods/FilterForm.api";
+import {
+  typedApiFeaturesEchoNotification,
+  typedApiFeaturesEchoNullability,
+  typedApiFeaturesGetNotification,
+  typedApiFeaturesGetNullability,
+  typedApiFeaturesGetProjectWithTypedErrors,
+  typedApiFeaturesGetProjects,
+  typedApiFeaturesGetTeamMemberEnvelope,
+} from "./api/methods/TypedApiFeatures.api";
 
 type TestStatus = "idle" | "running" | "passed" | "failed";
 
@@ -90,6 +119,9 @@ type GeneratedResult = ApiResult<unknown>;
 type TestDefinition = Omit<TestResult, "status"> & {
   run: (context: TestContext) => Promise<GeneratedResult>;
   capture?: (data: unknown, context: TestContext) => void;
+  validate?: (data: unknown, context: TestContext) => void;
+  expectedStatuses?: number[];
+  expectedFailure?: boolean;
 };
 
 const productBody = (supplierId: string) => ({
@@ -206,6 +238,150 @@ function errorMessage(error: unknown) {
   return error == null ? "Request failed." : JSON.stringify(error);
 }
 
+function assert(condition: unknown, message: string): asserts condition {
+  if (!condition) throw new Error(message);
+}
+
+function asRecord(value: unknown, label = "response") {
+  assert(
+    typeof value === "object" && value !== null,
+    `${label} must be an object.`,
+  );
+  return value as Record<string, unknown>;
+}
+
+const filterItemId = "10000000-0000-0000-0000-000000000001";
+const filterCreatedFrom = new Date("2026-01-01T00:00:00.000Z");
+const filterCreatedTo = new Date("2026-12-31T23:59:59.000Z");
+
+const methodAttributeFilters = [
+  {
+    name: "Search",
+    filterName: "search",
+    type: "string",
+    value: "filtered-search",
+    isAList: false,
+  },
+  {
+    name: "Score range",
+    filterName: "minScore",
+    filterNameMax: "maxScore",
+    type: "number",
+    value: "10",
+    maxValue: "50",
+    isAList: false,
+  },
+  {
+    name: "Active",
+    filterName: "active",
+    type: "boolean",
+    value: "true",
+    isAList: false,
+  },
+  {
+    name: "Created range",
+    filterName: "createdFrom",
+    filterNameMax: "createdTo",
+    type: "date",
+    value: filterCreatedFrom,
+    maxValue: filterCreatedTo,
+    isAList: false,
+  },
+  {
+    name: "Categories",
+    filterName: "categories",
+    type: "OptionValue",
+    value: [
+      { name: "City", value: "city" },
+      { name: "Harbour", value: "harbour" },
+    ],
+    isAList: true,
+  },
+  {
+    name: "Item IDs",
+    filterName: "itemIds",
+    type: "string",
+    value: [filterItemId],
+    isAList: true,
+  },
+] satisfies FilterFormValues<FilterFormGetWithMethodAttributeQueryParams>[];
+
+const parameterAttributeFilters = [
+  {
+    name: "Search",
+    filterName: "search",
+    type: "string",
+    value: "parameter-attribute",
+    isAList: false,
+  },
+  {
+    name: "Active",
+    filterName: "active",
+    type: "boolean-button",
+    value: false,
+    isAList: false,
+  },
+] satisfies FilterFormValues<FilterFormGetWithParameterAttributeQueryParams>[];
+
+const mapFilters = [
+  {
+    name: "Search override",
+    filterName: "search",
+    type: "string",
+    value: "filter-wins",
+    isAList: false,
+  },
+  {
+    name: "Minimum score",
+    filterName: "minScore",
+    type: "number",
+    value: 25,
+    isAList: false,
+  },
+] satisfies FilterFormValues<FilterFormGetMapItemsQueryParams>[];
+
+const pagedFilters = [
+  {
+    name: "Minimum score",
+    filterName: "minScore",
+    type: "number",
+    value: 5,
+    isAList: false,
+  },
+  {
+    name: "Active",
+    filterName: "active",
+    type: "boolean",
+    value: true,
+    isAList: false,
+  },
+  {
+    name: "Categories",
+    filterName: "categories",
+    type: "OptionValue",
+    value: [{ name: "City", value: "city" }],
+    isAList: true,
+  },
+] satisfies FilterFormValues<FilterFormGetPagedQueryParams>[];
+
+const nullabilityBody: NullabilityContract = {
+  requiredText: "Frontend required text",
+  requiredNullableText: null,
+  jsonRequiredNullableText: null,
+  validatedText: "Frontend validated text",
+  optionalNullableText: null,
+  requiredCount: 7,
+  optionalCount: null,
+};
+
+const emailNotificationBody: EmailNotificationModel = {
+  kind: "email",
+  message: "Frontend discriminator request",
+  createdAt: "2026-07-24T12:00:00.000Z",
+  emailAddress: "frontend@example.com",
+  subject: "TypedApi union test",
+};
+
 const tests: TestDefinition[] = [
   {
     id: "inheritance-team-member",
@@ -230,6 +406,194 @@ const tests: TestDefinition[] = [
     method: "POST",
     path: "/api/inheritance/project",
     run: () => inheritanceEchoProject(inheritanceProjectBody),
+  },
+
+  {
+    id: "filter-form-method-attribute",
+    group: "Filter form",
+    name: "Method attribute with every filter value type",
+    method: "GET",
+    path: "/api/filter-form/method-attribute",
+    run: () =>
+      filterFormGetWithMethodAttribute({
+        query: { search: "query-search", echo: "query-value" },
+        filters: methodAttributeFilters,
+      }),
+    validate: (value) => {
+      const data = asRecord(value);
+      assert(
+        data.search === "filtered-search",
+        "Filter value must override the normal query value.",
+      );
+      assert(
+        data.minScore === 10 && data.maxScore === 50,
+        "Number range was not converted correctly.",
+      );
+      assert(data.active === true, "Boolean string was not converted to true.");
+      assert(
+        new Date(String(data.createdFrom)).getTime() ===
+          filterCreatedFrom.getTime(),
+        "Start date was not converted to ISO.",
+      );
+      assert(
+        new Date(String(data.createdTo)).getTime() ===
+          filterCreatedTo.getTime(),
+        "End date was not converted to ISO.",
+      );
+      assert(
+        Array.isArray(data.categories) &&
+          data.categories.join(",") === "city,harbour",
+        "OptionValue list was not converted.",
+      );
+      assert(
+        Array.isArray(data.itemIds) && data.itemIds[0] === filterItemId,
+        "String list was not sent.",
+      );
+      assert(
+        data.echo === "query-value",
+        "Normal query values must remain in the merged query.",
+      );
+    },
+  },
+  {
+    id: "filter-form-parameter-attribute",
+    group: "Filter form",
+    name: "Parameter attribute",
+    method: "GET",
+    path: "/api/filter-form/parameter-attribute",
+    run: () =>
+      filterFormGetWithParameterAttribute({
+        filters: parameterAttributeFilters,
+      }),
+    validate: (value) => {
+      const data = asRecord(value);
+      assert(
+        data.search === "parameter-attribute",
+        "Parameter-level attribute did not generate filter handling.",
+      );
+      assert(data.active === false, "boolean-button false was not retained.");
+    },
+  },
+  {
+    id: "filter-form-required-map",
+    group: "Filter form",
+    name: "Required map query plus filters",
+    method: "GET",
+    path: "/api/filter-form/map-items",
+    run: () =>
+      filterFormGetMapItems({
+        query: {
+          west: 4.7,
+          south: 51.8,
+          east: 5.1,
+          north: 52.2,
+          zoom: 11,
+          search: "query-loses",
+          echo: "fixed-query-value",
+        },
+        filters: mapFilters,
+      }),
+    validate: (value) => {
+      const data = asRecord(value);
+      assert(
+        data.west === 4.7 && data.north === 52.2 && data.zoom === 11,
+        "Required map values were not sent.",
+      );
+      assert(
+        data.search === "filter-wins",
+        "Filter values must override matching fixed query values.",
+      );
+      assert(data.minScore === 25, "Map filter number was not sent.");
+      assert(
+        data.echo === "fixed-query-value",
+        "Unrelated fixed query value disappeared.",
+      );
+    },
+  },
+  {
+    id: "filter-form-unmarked-control",
+    group: "Filter form",
+    name: "Unmarked endpoint keeps regular query object",
+    method: "GET",
+    path: "/api/filter-form/unmarked",
+    run: () => filterFormGetUnmarked({ search: "regular-query", active: true }),
+    validate: (value) => {
+      const data = asRecord(value);
+      assert(
+        data.search === "regular-query" && data.active === true,
+        "Regular query generation changed unexpectedly.",
+      );
+    },
+  },
+  {
+    id: "filter-form-pagination-priority",
+    group: "Filter form",
+    name: "Pagination keeps buildQuery priority",
+    method: "GET",
+    path: "/api/filter-form/paged",
+    run: () => filterFormGetPaged(pagedFilters, 1, 2, "score", "Desc"),
+    validate: (value) => {
+      const data = asRecord(value);
+      const items = data.data;
+      assert(
+        Array.isArray(items) && items.length === 2,
+        "Paginated filters returned the wrong number of rows.",
+      );
+      const first = asRecord(items[0], "first paginated item");
+      assert(
+        first.score === 50,
+        "Paginated sorting did not use score descending.",
+      );
+      assert(
+        data.pageNumber === 1 && data.pageSize === 2 && data.totalCount === 2,
+        "Pagination metadata is incorrect.",
+      );
+    },
+  },
+  {
+    id: "filter-form-mixed-fallback",
+    group: "Filter form",
+    name: "Path plus query falls back to regular parameters",
+    method: "GET",
+    path: "/api/filter-form/scope/{scope}",
+    run: () =>
+      filterFormGetMixedPathAndQuery({
+        scope: "acceptance",
+        search: "mixed-request",
+        minScore: 20,
+      }),
+    validate: (value) => {
+      const data = asRecord(value);
+      const filter = asRecord(data.filter, "mixed filter");
+      assert(data.scope === "acceptance", "Path parameter was not sent.");
+      assert(
+        filter.search === "mixed-request" && filter.minScore === 20,
+        "Mixed query values were not sent.",
+      );
+    },
+  },
+  {
+    id: "filter-form-header",
+    group: "Filter form",
+    name: "Header and query parameter generation",
+    method: "GET",
+    path: "/api/filter-form/header",
+    run: () =>
+      filterFormGetHeaderAndQuery({
+        "x-Test-Run": "frontend-suite",
+        search: "header-query",
+      }),
+    validate: (value) => {
+      const data = asRecord(value);
+      assert(
+        data.testRun === "frontend-suite",
+        "Generated header was not received by ASP.NET Core.",
+      );
+      assert(
+        data.search === "header-query",
+        "Header endpoint query value was not received.",
+      );
+    },
   },
 
   {
@@ -399,6 +763,216 @@ const tests: TestDefinition[] = [
       endpointCoverageDeleteNoContent({
         id: requireId(context.coverageId, "Coverage ID"),
       }),
+  },
+
+  {
+    id: "runtime-success-callback",
+    group: "Runtime behavior",
+    name: "Custom success callback",
+    method: "GET",
+    path: "/api/endpoint-coverage/object",
+    run: async () => {
+      let callbackCalled = false;
+      const result = await endpointCoverageGetObject({
+        onSuccess: () => {
+          callbackCalled = true;
+        },
+      });
+      assert(callbackCalled, "Custom onSuccess callback was not called.");
+      return result;
+    },
+  },
+  {
+    id: "runtime-abort",
+    group: "Runtime behavior",
+    name: "AbortController produces an aborted client error",
+    method: "GET",
+    path: "/api/endpoint-coverage/delay",
+    run: async () => {
+      const controller = new AbortController();
+      const request = endpointCoverageGetDelayed(
+        { milliseconds: 1_000 },
+        { params: { signal: controller.signal } },
+      );
+      window.setTimeout(() => controller.abort(), 20);
+      return request;
+    },
+    expectedFailure: true,
+    expectedStatuses: [0],
+    validate: (value) => {
+      const error = asRecord(value, "abort error");
+      assert(
+        error.kind === "aborted",
+        "Abort did not produce ApiClientError.kind = aborted.",
+      );
+    },
+  },
+  {
+    id: "runtime-parse-error",
+    group: "Runtime behavior",
+    name: "Malformed JSON produces a parse client error",
+    method: "GET",
+    path: "/api/endpoint-coverage/malformed-json",
+    run: () => endpointCoverageGetMalformedJson(),
+    expectedFailure: true,
+    expectedStatuses: [200],
+    validate: (value) => {
+      const error = asRecord(value, "parse error");
+      assert(
+        error.kind === "parse",
+        "Malformed JSON did not produce ApiClientError.kind = parse.",
+      );
+    },
+  },
+
+  {
+    id: "typed-features-pagination-no-query",
+    group: "TypedApi features",
+    name: "Paginated generic response without query parameters",
+    method: "GET",
+    path: "/api/typed-api-features/projects",
+    run: () => typedApiFeaturesGetProjects(),
+    validate: (value) => {
+      const data = asRecord(value);
+      assert(
+        Array.isArray(data.data),
+        "Generic pagination data was not generated as an array.",
+      );
+    },
+  },
+  {
+    id: "typed-features-generic-envelope",
+    group: "TypedApi features",
+    name: "Generic envelope bindings",
+    method: "GET",
+    path: "/api/typed-api-features/team-member-envelope",
+    run: () => typedApiFeaturesGetTeamMemberEnvelope(),
+    validate: (value) => {
+      const data = asRecord(value);
+      const member = asRecord(data.data, "envelope data");
+      assert(
+        member.displayName === "Taylor Example",
+        "Generic envelope data binding is incorrect.",
+      );
+      assert(
+        Array.isArray(data.relatedItems),
+        "Generic collection binding is incorrect.",
+      );
+      assert(
+        typeof data.itemsByKey === "object" && data.itemsByKey !== null,
+        "Generic dictionary binding is incorrect.",
+      );
+    },
+  },
+  {
+    id: "typed-features-nullability-get",
+    group: "TypedApi features",
+    name: "Required and nullable response properties",
+    method: "GET",
+    path: "/api/typed-api-features/nullability",
+    run: () => typedApiFeaturesGetNullability(),
+    validate: (value) => {
+      const data = asRecord(value);
+      assert(
+        data.requiredNullableText === null,
+        "Required nullable property was not returned as null.",
+      );
+      assert("requiredText" in data, "Required non-null property is missing.");
+    },
+  },
+  {
+    id: "typed-features-nullability-post",
+    group: "TypedApi features",
+    name: "Required and nullable request properties",
+    method: "POST",
+    path: "/api/typed-api-features/nullability",
+    run: () => typedApiFeaturesEchoNullability(nullabilityBody),
+    validate: (value) => {
+      const data = asRecord(value);
+      assert(
+        data.requiredCount === 7 && data.optionalCount === null,
+        "Nullability request was not echoed correctly.",
+      );
+    },
+  },
+  {
+    id: "typed-features-discriminator-get",
+    group: "TypedApi features",
+    name: "Polymorphic discriminator response",
+    method: "GET",
+    path: "/api/typed-api-features/notification",
+    run: () => typedApiFeaturesGetNotification(),
+    validate: (value) => {
+      const data = asRecord(value);
+      assert(
+        data.kind === "email" && data.subject === "TypedApi discriminator test",
+        "Discriminator response was not narrowed correctly.",
+      );
+    },
+  },
+  {
+    id: "typed-features-discriminator-post",
+    group: "TypedApi features",
+    name: "Polymorphic discriminator request",
+    method: "POST",
+    path: "/api/typed-api-features/notification",
+    run: () => typedApiFeaturesEchoNotification(emailNotificationBody),
+    validate: (value) => {
+      const data = asRecord(value);
+      assert(
+        data.kind === "email" && data.emailAddress === "frontend@example.com",
+        "Discriminator request was not echoed correctly.",
+      );
+    },
+  },
+  {
+    id: "typed-features-validation-error",
+    group: "TypedApi features",
+    name: "Typed HttpValidationProblemDetails error",
+    method: "GET",
+    path: "/api/typed-api-features/projects/{id}",
+    run: () =>
+      typedApiFeaturesGetProjectWithTypedErrors({
+        id: "00000000-0000-0000-0000-000000000000",
+      }),
+    expectedFailure: true,
+    expectedStatuses: [400],
+    validate: (value) => {
+      const error = asRecord(value, "validation problem");
+      assert(
+        typeof error.errors === "object" && error.errors !== null,
+        "Validation errors dictionary is missing.",
+      );
+    },
+  },
+  {
+    id: "typed-features-problem-error",
+    group: "TypedApi features",
+    name: "Typed ProblemDetails error and custom error callback",
+    method: "GET",
+    path: "/api/typed-api-features/projects/{id}",
+    run: async () => {
+      let callbackCalled = false;
+      const result = await typedApiFeaturesGetProjectWithTypedErrors(
+        { id: "99999999-9999-9999-9999-999999999999" },
+        {
+          onError: () => {
+            callbackCalled = true;
+          },
+        },
+      );
+      assert(callbackCalled, "Custom onError callback was not called.");
+      return result;
+    },
+    expectedFailure: true,
+    expectedStatuses: [404],
+    validate: (value) => {
+      const error = asRecord(value, "problem details");
+      assert(
+        error.title === "Project not found",
+        "ProblemDetails title is incorrect.",
+      );
+    },
   },
 
   {
@@ -738,19 +1312,48 @@ function App() {
     try {
       const result = await test.run(context);
       const duration = Math.round(performance.now() - start);
+      const statusExpected =
+        test.expectedStatuses === undefined ||
+        test.expectedStatuses.includes(result.status);
 
       if (result.ok === false) {
+        if (!test.expectedFailure || !statusExpected) {
+          setResult(test.id, {
+            status: "failed",
+            statusCode: result.status,
+            duration,
+            response: result.error,
+            error: errorMessage(result.error),
+          });
+
+          return false;
+        }
+
+        test.validate?.(result.error, context);
+
         setResult(test.id, {
-          status: "failed",
+          status: "passed",
           statusCode: result.status,
           duration,
-          response: result.response,
-          error: errorMessage(result.error),
+          response: result.error,
         });
 
-        return false;
+        return true;
       }
 
+      if (test.expectedFailure) {
+        throw new Error(
+          `Expected the request to fail, but it succeeded with status ${result.status}.`,
+        );
+      }
+
+      if (!statusExpected) {
+        throw new Error(
+          `Expected status ${test.expectedStatuses?.join(" or ")}, but received ${result.status}.`,
+        );
+      }
+
+      test.validate?.(result.response, context);
       test.capture?.(result.response, context);
 
       setResult(test.id, {

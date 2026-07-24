@@ -872,6 +872,122 @@
         }
       }
     },
+    "/api/endpoint-coverage/delay": {
+      "get": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "EndpointCoverage_GetDelayed_GET_api_endpoint_coverage_delay",
+        "parameters": [
+          {
+            "name": "milliseconds",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "GetDelayed"
+        }
+      }
+    },
+    "/api/endpoint-coverage/malformed-json": {
+      "get": {
+        "tags": [
+          "EndpointCoverage"
+        ],
+        "operationId": "EndpointCoverage_GetMalformedJson_GET_api_endpoint_coverage_malformed_json",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "EndpointCoverage",
+          "actionName": "GetMalformedJson"
+        }
+      }
+    },
     "/api/endpoint-coverage/{id}/no-content": {
       "delete": {
         "tags": [
@@ -924,6 +1040,1041 @@
         "x-typedapi-operation": {
           "controllerName": "EndpointCoverage",
           "actionName": "DeleteNoContent"
+        }
+      }
+    },
+    "/api/filter-form/method-attribute": {
+      "get": {
+        "tags": [
+          "FilterForm"
+        ],
+        "operationId": "FilterForm_GetWithMethodAttribute_GET_api_filter_form_method_attribute",
+        "parameters": [
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "MinScore",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "MaxScore",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Active",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "CreatedFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "CreatedTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Categories",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "ItemIds",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "Echo",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/FilterFormQuery"
+                    },
+                    {
+                      "$ref": "#/components/schemas/FilterFormMapQuery"
+                    }
+                  ]
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/FilterFormQuery"
+                    },
+                    {
+                      "$ref": "#/components/schemas/FilterFormMapQuery"
+                    }
+                  ]
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/FilterFormQuery"
+                    },
+                    {
+                      "$ref": "#/components/schemas/FilterFormMapQuery"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "FilterForm",
+          "actionName": "GetWithMethodAttribute"
+        },
+        "x-typedapi-filter-form": {
+          "enabled": true
+        }
+      }
+    },
+    "/api/filter-form/parameter-attribute": {
+      "get": {
+        "tags": [
+          "FilterForm"
+        ],
+        "operationId": "FilterForm_GetWithParameterAttribute_GET_api_filter_form_parameter_attribute",
+        "parameters": [
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "MinScore",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "MaxScore",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Active",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "CreatedFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "CreatedTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Categories",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "ItemIds",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "Echo",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/FilterFormQuery"
+                    },
+                    {
+                      "$ref": "#/components/schemas/FilterFormMapQuery"
+                    }
+                  ]
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/FilterFormQuery"
+                    },
+                    {
+                      "$ref": "#/components/schemas/FilterFormMapQuery"
+                    }
+                  ]
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/FilterFormQuery"
+                    },
+                    {
+                      "$ref": "#/components/schemas/FilterFormMapQuery"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "FilterForm",
+          "actionName": "GetWithParameterAttribute"
+        },
+        "x-typedapi-filter-form": {
+          "enabled": true
+        }
+      }
+    },
+    "/api/filter-form/map-items": {
+      "get": {
+        "tags": [
+          "FilterForm"
+        ],
+        "operationId": "FilterForm_GetMapItems_GET_api_filter_form_map_items",
+        "parameters": [
+          {
+            "name": "West",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "South",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "East",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "North",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "Zoom",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "MinScore",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "MaxScore",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Active",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "CreatedFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "CreatedTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Categories",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "ItemIds",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "Echo",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilterFormMapQuery"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilterFormMapQuery"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilterFormMapQuery"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "FilterForm",
+          "actionName": "GetMapItems"
+        },
+        "x-typedapi-filter-form": {
+          "enabled": true
+        }
+      }
+    },
+    "/api/filter-form/unmarked": {
+      "get": {
+        "tags": [
+          "FilterForm"
+        ],
+        "operationId": "FilterForm_GetUnmarked_GET_api_filter_form_unmarked",
+        "parameters": [
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "MinScore",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "MaxScore",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Active",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "CreatedFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "CreatedTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Categories",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "ItemIds",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "Echo",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/FilterFormQuery"
+                    },
+                    {
+                      "$ref": "#/components/schemas/FilterFormMapQuery"
+                    }
+                  ]
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/FilterFormQuery"
+                    },
+                    {
+                      "$ref": "#/components/schemas/FilterFormMapQuery"
+                    }
+                  ]
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/FilterFormQuery"
+                    },
+                    {
+                      "$ref": "#/components/schemas/FilterFormMapQuery"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "FilterForm",
+          "actionName": "GetUnmarked"
+        }
+      }
+    },
+    "/api/filter-form/paged": {
+      "get": {
+        "tags": [
+          "FilterForm"
+        ],
+        "operationId": "FilterForm_GetPaged_GET_api_filter_form_paged",
+        "parameters": [
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "MinScore",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "MaxScore",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Active",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "Categories",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "schema": {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "SortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "SortDirection",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/SortDirection"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiPaginationSortResponseOfFilterFormItemModel"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiPaginationSortResponseOfFilterFormItemModel"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiPaginationSortResponseOfFilterFormItemModel"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "FilterForm",
+          "actionName": "GetPaged"
+        },
+        "x-typedapi-filter-form": {
+          "enabled": true
+        },
+        "x-typedapi-pagination": {
+          "pageProperty": "PageNumber",
+          "pageSizeProperty": "PageSize",
+          "sortProperty": "SortBy",
+          "directionProperty": "SortDirection",
+          "dataProperty": "data"
+        }
+      }
+    },
+    "/api/filter-form/scope/{scope}": {
+      "get": {
+        "tags": [
+          "FilterForm"
+        ],
+        "operationId": "FilterForm_GetMixedPathAndQuery_GET_api_filter_form_scope_scope",
+        "parameters": [
+          {
+            "name": "scope",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "MinScore",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "MaxScore",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "Active",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "CreatedFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "CreatedTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "Categories",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "ItemIds",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "name": "Echo",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilterFormPathResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilterFormPathResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilterFormPathResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "FilterForm",
+          "actionName": "GetMixedPathAndQuery"
+        },
+        "x-typedapi-filter-form": {
+          "enabled": true
+        }
+      }
+    },
+    "/api/filter-form/header": {
+      "get": {
+        "tags": [
+          "FilterForm"
+        ],
+        "operationId": "FilterForm_GetHeaderAndQuery_GET_api_filter_form_header",
+        "parameters": [
+          {
+            "name": "X-Test-Run",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilterFormHeaderResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilterFormHeaderResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FilterFormHeaderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ProblemDetails"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "x-typedapi-operation": {
+          "controllerName": "FilterForm",
+          "actionName": "GetHeaderAndQuery"
         }
       }
     },
@@ -4471,6 +5622,100 @@
           ]
         }
       },
+      "ApiPaginationSortResponseOfFilterFormItemModel": {
+        "required": [
+          "data",
+          "pageNumber",
+          "pageSize",
+          "sortDirection",
+          "totalCount",
+          "totalPages",
+          "totalRecords"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FilterFormItemModel"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalRecords": {
+            "type": "integer",
+            "format": "int32",
+            "deprecated": true
+          },
+          "sortBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "sortDirection": {
+            "$ref": "#/components/schemas/SortDirection"
+          }
+        },
+        "additionalProperties": false,
+        "x-typedapi-generic": {
+          "version": 1,
+          "definition": "ApiPaginationSortResponse",
+          "parameters": [
+            "T"
+          ],
+          "arguments": [
+            {
+              "parameter": "T",
+              "schemaId": "FilterFormItemModel",
+              "primitive": null
+            }
+          ],
+          "bindings": [
+            {
+              "parameter": "T",
+              "path": "/properties/data/items"
+            }
+          ],
+          "base": {
+            "definition": "ApiPaginationResponse",
+            "parameters": [
+              "T"
+            ],
+            "arguments": [
+              {
+                "genericParameter": "T"
+              }
+            ],
+            "properties": [
+              "data",
+              "pageNumber",
+              "pageSize",
+              "totalCount",
+              "totalPages",
+              "totalRecords"
+            ],
+            "bindings": [
+              {
+                "parameter": "T",
+                "path": "/properties/data/items"
+              }
+            ]
+          }
+        }
+      },
       "ApiPaginationSortResponseOfOrderModel": {
         "required": [
           "data",
@@ -5008,6 +6253,173 @@
             "items": {
               "type": "string"
             }
+          }
+        },
+        "additionalProperties": false
+      },
+      "FilterFormHeaderResponse": {
+        "required": [
+          "testRun"
+        ],
+        "type": "object",
+        "properties": {
+          "testRun": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FilterFormItemModel": {
+        "required": [
+          "active",
+          "category",
+          "createdAt",
+          "id",
+          "name",
+          "score"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FilterFormMapQuery": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/FilterFormQuery"
+          },
+          {
+            "required": [
+              "east",
+              "north",
+              "south",
+              "west",
+              "zoom"
+            ],
+            "type": "object",
+            "properties": {
+              "west": {
+                "type": "number",
+                "format": "double"
+              },
+              "south": {
+                "type": "number",
+                "format": "double"
+              },
+              "east": {
+                "type": "number",
+                "format": "double"
+              },
+              "north": {
+                "type": "number",
+                "format": "double"
+              },
+              "zoom": {
+                "type": "integer",
+                "format": "int32"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      },
+      "FilterFormPathResponse": {
+        "required": [
+          "filter",
+          "scope"
+        ],
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string"
+          },
+          "filter": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/FilterFormQuery"
+              },
+              {
+                "$ref": "#/components/schemas/FilterFormMapQuery"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "FilterFormQuery": {
+        "type": "object",
+        "properties": {
+          "search": {
+            "type": "string",
+            "nullable": true
+          },
+          "minScore": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "maxScore": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "active": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "createdFrom": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdTo": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "itemIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "echo": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5655,6 +7067,9 @@
       "name": "EndpointCoverage"
     },
     {
+      "name": "FilterForm"
+    },
+    {
       "name": "Import"
     },
     {
@@ -5679,6 +7094,6 @@
   "x-typedapi": {
     "contractVersion": 2,
     "producer": "TypedApi.Swagger",
-    "producerVersion": "0.3.1"
+    "producerVersion": "0.3.2"
   }
 }

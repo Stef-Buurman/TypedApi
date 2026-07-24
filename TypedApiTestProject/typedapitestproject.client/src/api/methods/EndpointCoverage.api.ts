@@ -13,6 +13,7 @@ import { ContentType, request } from "../generated/http-client";
 import type { RequestParams } from "../generated/http-client";
 import type {
   EndpointCoverageDeleteNoContentParams,
+  EndpointCoverageGetDelayedParams,
   EndpointCoverageGetPathAndQueryParams,
   EndpointCoverageModel,
   EndpointCoveragePatchJsonParams,
@@ -357,6 +358,61 @@ export async function endpointCoveragePatchJson(
       body: data,
       type: ContentType.Json,
       format: "json",
+    }),
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
+    },
+  );
+}
+
+/**
+ * No description
+ *
+ * @tags EndpointCoverage
+ * @name EndpointCoverageGetDelayed
+ * @request GET:/api/endpoint-coverage/delay
+ */
+export async function endpointCoverageGetDelayed(
+  query: EndpointCoverageGetDelayedParams = {},
+  options: ApiMethodOptions<string, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<string, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
+  const { onSuccess, onError, params = {} } = options;
+
+  return handleApiResponse<string, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<string, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
+      ...params,
+      path: `/api/endpoint-coverage/delay`,
+      method: "GET",
+      query: query,
+      format: "json",
+    }),
+    {
+      onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,
+      onError: onError ?? typedApiDefaultErrorHandler,
+      fallbackErrorMessage: typedApiDefaultErrorMessage,
+    },
+  );
+}
+
+/**
+ * No description
+ *
+ * @tags EndpointCoverage
+ * @name EndpointCoverageGetMalformedJson
+ * @request GET:/api/endpoint-coverage/malformed-json
+ */
+export async function endpointCoverageGetMalformedJson(
+  options: ApiMethodOptions<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails, RequestParams> = {}
+): Promise<ApiResult<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>> {
+  const { onSuccess, onError, params = {} } = options;
+
+  return handleApiResponse<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>(
+    () => request<void, HttpValidationProblemDetails | ProblemDetails | HttpValidationProblemDetails>({
+      ...params,
+      path: `/api/endpoint-coverage/malformed-json`,
+      method: "GET",
     }),
     {
       onSuccess: onSuccess ?? typedApiDefaultSuccessHandler,

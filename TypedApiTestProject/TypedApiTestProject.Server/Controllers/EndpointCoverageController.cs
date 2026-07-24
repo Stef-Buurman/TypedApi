@@ -138,6 +138,22 @@ public class EndpointCoverageController : ControllerBase
         });
     }
 
+    [HttpGet("delay")]
+    public async Task<ActionResult<string>> GetDelayed(
+        [FromQuery] int milliseconds = 1_000,
+        CancellationToken token = default)
+    {
+        await Task.Delay(Math.Clamp(milliseconds, 1, 10_000), token);
+        return Ok("completed");
+    }
+
+    [HttpGet("malformed-json")]
+    [Produces("application/json")]
+    public ContentResult GetMalformedJson()
+    {
+        return Content("{\"broken\":", "application/json");
+    }
+
     [HttpDelete("{id}/no-content")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult DeleteNoContent(Guid id)
