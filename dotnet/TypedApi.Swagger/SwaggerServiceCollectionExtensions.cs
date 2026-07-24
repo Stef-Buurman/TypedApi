@@ -37,6 +37,7 @@ public static class SwaggerServiceCollectionExtensions
             options.SchemaFilter<TypedApiGenericSchemaFilter>();
             options.DocumentFilter<TypedApiContractDocumentFilter>();
             options.OperationFilter<TypedApiOperationMetadataFilter>();
+            options.OperationFilter<TypedApiFilterFormOperationFilter>();
             options.OperationFilter<TypedApiPaginationOperationFilter>();
             options.OperationFilter<TypedApiErrorResponseOperationFilter>();
             configure?.Invoke(options);

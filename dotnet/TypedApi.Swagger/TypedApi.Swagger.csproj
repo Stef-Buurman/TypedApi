@@ -9,7 +9,7 @@
     <NoWarn>$(NoWarn);1591</NoWarn>
 
     <PackageId>TypedApi.Swagger</PackageId>
-    <Version>0.3.1</Version>
+    <Version>0.3.2</Version>
     <Authors>Stef Buurman</Authors>
     <Description>Serializer-aware Swagger/OpenAPI conventions for TypedApi TypeScript client generation.</Description>
     <PackageTags>swagger;openapi;aspnetcore;typedapi;typescript;client-generation</PackageTags>
@@ -20,7 +20,7 @@
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <PackageReleaseNotes>Adds frontend generics, correct required/nullability metadata, attribute-driven discriminators, readable schema IDs, and typed ProblemDetails responses.</PackageReleaseNotes>
+    <PackageReleaseNotes>Adds opt-in filter-form endpoint metadata through TypedApiFilterFormAttribute for generated FilterFormValues query methods.</PackageReleaseNotes>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EnablePackageValidation>true</EnablePackageValidation>

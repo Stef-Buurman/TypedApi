@@ -2,7 +2,7 @@
 
 Swagger/OpenAPI conventions for ASP.NET Core APIs consumed by `typedapi-client-helpers`.
 
-## Version 0.3.1 highlights
+## Version 0.3.2 highlights
 
 - Reconstructs opted-in closed .NET generic contracts as real TypeScript generics.
 - Describes property presence and nullability independently.
@@ -14,7 +14,7 @@ Swagger/OpenAPI conventions for ASP.NET Core APIs consumed by `typedapi-client-h
 ## Installation
 
 ```bash
-dotnet add package TypedApi.Swagger --version 0.3.1
+dotnet add package TypedApi.Swagger --version 0.3.2
 ```
 
 ## Setup
@@ -41,6 +41,44 @@ builder.Services.AddTypedApiSwagger(options =>
 });
 ```
 
+## Filter-form query endpoints
+
+Use `[TypedApiFilterForm]` when a non-paginated query endpoint should expose both a normal query object and `FilterFormValues<TQuery>` in the generated frontend method. The attribute can be placed on the action or directly on its query parameter:
+
+```csharp
+using TypedApi.Swagger.Attributes;
+
+[TypedApiFilterForm]
+[HttpGet("map-items")]
+public async Task<ActionResult<IReadOnlyList<MapItemResponse>>> GetMapItems(
+    [FromQuery] ChargePointMapFilter filter,
+    CancellationToken token)
+{
+    var result = await _service.GetMapItemsAsync(filter, token);
+    return Ok(result);
+}
+```
+
+Equivalent parameter-level usage is also supported:
+
+```csharp
+public Task<ActionResult<IReadOnlyList<MapItemResponse>>> GetMapItems(
+    [FromQuery, TypedApiFilterForm] ChargePointMapFilter filter,
+    CancellationToken token)
+```
+
+The operation receives `x-typedapi-filter-form` metadata. With `typedapi-client-helpers` 0.3.5, the generated method has this shape:
+
+```ts
+chargePointGetMapItems(
+  query: ChargePointGetMapItemsParams,
+  filters: FilterFormValues<ChargePointGetMapItemsParams>[] = [],
+  options = {},
+)
+```
+
+The normal query object is intended for fixed values such as map bounds and zoom. Filter values override matching query properties when the request query is built. Paginated responses still use automatic `x-typedapi-pagination` detection and the existing paginated method shape.
+
 ## Generic frontend contracts
 
 OpenAPI has no reusable generic schema definitions. Mark wrappers whose type parameters affect their JSON shape with `[TypedApiGeneric]`:
@@ -58,7 +96,7 @@ public sealed class ApiEnvelope<T>
 }
 ```
 
-The NuGet package emits `x-typedapi-generic` metadata with exact JSON-pointer bindings. `typedapi-client-helpers` 0.3.4 reconstructs that metadata as:
+The NuGet package emits `x-typedapi-generic` metadata with exact JSON-pointer bindings. `typedapi-client-helpers` 0.3.5 reconstructs that metadata as:
 
 ```ts
 export interface ApiEnvelope<T> {
@@ -206,7 +244,7 @@ Normal base models stay as intersections in TypeScript, while polymorphic base v
 
 ## Contract compatibility
 
-Version 0.3.1 emits root metadata with `x-typedapi.contractVersion = 2`. Pair it with `typedapi-client-helpers` 0.3.4 or newer.
+Version 0.3.2 emits root metadata with `x-typedapi.contractVersion = 2`. Pair it with `typedapi-client-helpers` 0.3.5 or newer.
 
 ## Supported frameworks
 

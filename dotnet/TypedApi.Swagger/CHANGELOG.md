@@ -2,6 +2,18 @@
 
 All notable changes to `TypedApi.Swagger` are documented in this file.
 
+## [0.3.2] - 2026-07-24
+
+### Added
+
+* Added `[TypedApiFilterForm]` for opt-in filter-form generation on endpoints or query parameters.
+* Added `x-typedapi-filter-form` operation metadata for the TypeScript generator.
+
+### Compatibility notes
+
+* Pair this package with `typedapi-client-helpers` 0.3.5 or newer to generate the new filter-form method shape.
+* Existing automatic pagination detection remains unchanged.
+
 ## [0.3.1] - 2026-07-22
 
 ### Added
