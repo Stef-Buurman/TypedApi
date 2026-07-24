@@ -865,14 +865,15 @@ export function getOperationTypes(
     /(?:Api)?Pagination(?:Sort)?Response\b|Paged(?:Response|Result)?\b|Paginated(?:Response|Result)?\b/.test(
       responseType,
     );
-  const isPurePaginatedQuery =
-    paginated &&
+  const filterForm = Boolean(operationInfo.operation["x-typedapi-filter-form"]);
+  const isPureGeneratedQuery =
+    (paginated || filterForm) &&
     parametersByLocation.query.length > 0 &&
     !parametersByLocation.path.length &&
     !parametersByLocation.header.length &&
     !parametersByLocation.cookie.length &&
     !bodyType;
-  const parameterTypeNames = isPurePaginatedQuery
+  const parameterTypeNames = isPureGeneratedQuery
     ? { query: parameterTypeName(operationTypeNameBase, "query") }
     : {};
 
@@ -883,7 +884,7 @@ export function getOperationTypes(
     methodName: operationInfo.methodName,
     methodNameSource: operationInfo.methodNameSource,
     paramsTypeName:
-      hasNonBodyInput && !isPurePaginatedQuery
+      hasNonBodyInput && !isPureGeneratedQuery
         ? combinedParameterTypeName(operationTypeNameBase)
         : undefined,
     parameterTypeNames,
@@ -904,6 +905,7 @@ export function getOperationTypes(
     hasHeaderParams: parametersByLocation.header.length > 0,
     hasCookieParams: parametersByLocation.cookie.length > 0,
     paginationMetadata: operationInfo.operation["x-typedapi-pagination"],
+    filterFormMetadata: operationInfo.operation["x-typedapi-filter-form"],
   };
 }
 

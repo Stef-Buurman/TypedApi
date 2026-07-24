@@ -2,6 +2,22 @@
 
 All notable changes to `typedapi-client-helpers` are documented in this file.
 
+## [0.3.5] - 2026-07-24
+
+### Added
+
+* Added support for `x-typedapi-filter-form` on non-paginated query endpoints.
+* Added `buildFilterQuery<TQuery>()` for converting `FilterFormValues` without adding pagination or sorting.
+* Generated filter-form methods now group normal query values and typed filter-form values inside a single `filterForm` argument.
+* The `filterForm.query` values are merged with the output of `buildFilterQuery(filterForm.filters)` before sending the request.
+* Optional-query endpoints default the complete `filterForm` argument to an empty object.
+
+### Compatibility notes
+
+* Pair this package with `TypedApi.Swagger` 0.3.2 or newer to use `[TypedApiFilterForm]`.
+* Existing paginated method signatures and `buildQuery()` behaviour are unchanged.
+* Regenerate committed API files because filter-form endpoint signatures have changed.
+
 ## [0.3.4] - 2026-07-22
 
 ### Added

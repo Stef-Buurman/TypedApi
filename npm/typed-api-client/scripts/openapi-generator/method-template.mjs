@@ -9,22 +9,38 @@ function createImport(names, from, typeOnly = false) {
   const cleanNames = unique(names).sort((a, b) => a.localeCompare(b));
   if (cleanNames.length === 0) return "";
   const keyword = typeOnly ? "import type" : "import";
-  if (cleanNames.length <= 3) return `${keyword} { ${cleanNames.join(", ")} } from ${JSON.stringify(from)};`;
+  if (cleanNames.length <= 3)
+    return `${keyword} { ${cleanNames.join(", ")} } from ${JSON.stringify(from)};`;
   return `${keyword} {\n${cleanNames.map((name) => `  ${name},`).join("\n")}\n} from ${JSON.stringify(from)};`;
 }
 
 function isPrimitiveType(type) {
-  return /^(void|any|unknown|string|number|boolean|Blob|File|Record<)/.test(type);
+  return /^(void|any|unknown|string|number|boolean|Blob|File|Record<)/.test(
+    type,
+  );
 }
 
 function extractTopLevelTypeNames(type) {
-  const withoutLiterals = String(type ?? "").replace(/"(?:\\.|[^"])*"|'(?:\\.|[^'])*'/g, "");
+  const withoutLiterals = String(type ?? "").replace(
+    /"(?:\\.|[^"])*"|'(?:\\.|[^'])*'/g,
+    "",
+  );
   const matches = withoutLiterals.match(/\b[A-Z][A-Za-z0-9_]*\b/g) ?? [];
   return matches.filter(
-    (name) => ![
-      "Array", "Record", "Promise", "HttpResponse", "Blob", "File", "ApiResult",
-      "RequestParams", "FormData", "ApiClientError", "ApiHttpError",
-    ].includes(name),
+    (name) =>
+      ![
+        "Array",
+        "Record",
+        "Promise",
+        "HttpResponse",
+        "Blob",
+        "File",
+        "ApiResult",
+        "RequestParams",
+        "FormData",
+        "ApiClientError",
+        "ApiHttpError",
+      ].includes(name),
   );
 }
 
@@ -38,10 +54,11 @@ function parameterValueExpression(sourceExpression, parameter) {
 
 function parameterObjectExpression(sourceExpression, parameters) {
   const properties = parameters.map(
-    (parameter) => `${JSON.stringify(parameter.name)}: ${parameterValueExpression(
-      sourceExpression,
-      parameter,
-    )}`,
+    (parameter) =>
+      `${JSON.stringify(parameter.name)}: ${parameterValueExpression(
+        sourceExpression,
+        parameter,
+      )}`,
   );
   return properties.length <= 2
     ? `{ ${properties.join(", ")} }`
@@ -73,7 +90,9 @@ function pathExpression(routePath, pathParams, inputName = "input") {
   if (parts.length === 0) return JSON.stringify(routePath);
 
   return parts
-    .map((part) => /^"/.test(part) ? part.slice(1, -1).replace(/`/g, "\\`") : `\${${part}}`)
+    .map((part) =>
+      /^"/.test(part) ? part.slice(1, -1).replace(/`/g, "\\`") : `\${${part}}`,
+    )
     .join("")
     .replace(/^/, "`")
     .replace(/$/, "`");
@@ -83,21 +102,30 @@ function requestFormat(responseContentType, responseType) {
   if (responseType === "void" || !responseContentType) return undefined;
   if (responseContentType.includes("json")) return "json";
   if (responseContentType.startsWith("text/")) return "text";
-  if (responseContentType === "application/octet-stream" || responseType === "Blob") return "blob";
+  if (
+    responseContentType === "application/octet-stream" ||
+    responseType === "Blob"
+  )
+    return "blob";
   return undefined;
 }
 
 function contentTypeEnum(contentType) {
   switch (contentType) {
-    case "application/json": return "ContentType.Json";
-    case "application/vnd.api+json": return "ContentType.JsonApi";
-    case "multipart/form-data": return "ContentType.FormData";
-    case "application/x-www-form-urlencoded": return "ContentType.UrlEncoded";
-    case "text/plain": return "ContentType.Text";
-    default: return contentType?.includes("json") ? "ContentType.Json" : undefined;
+    case "application/json":
+      return "ContentType.Json";
+    case "application/vnd.api+json":
+      return "ContentType.JsonApi";
+    case "multipart/form-data":
+      return "ContentType.FormData";
+    case "application/x-www-form-urlencoded":
+      return "ContentType.UrlEncoded";
+    case "text/plain":
+      return "ContentType.Text";
+    default:
+      return contentType?.includes("json") ? "ContentType.Json" : undefined;
   }
 }
-
 
 function requestItems(operationInfo, operationTypes, options = {}) {
   const inputName = options.inputName ?? "input";
@@ -114,7 +142,11 @@ function requestItems(operationInfo, operationTypes, options = {}) {
   if (options.queryValueName) {
     items.push(`query: ${options.queryValueName}`);
   } else if (operationTypes.hasQueryParams) {
-    if (!operationTypes.hasPathParams && !operationTypes.hasHeaderParams && !operationTypes.hasCookieParams) {
+    if (
+      !operationTypes.hasPathParams &&
+      !operationTypes.hasHeaderParams &&
+      !operationTypes.hasCookieParams
+    ) {
       items.push(`query: ${inputName}`);
     } else {
       items.push(
@@ -145,9 +177,13 @@ function requestItems(operationInfo, operationTypes, options = {}) {
         inputName,
         operationTypes.parametersByLocation.cookie,
       );
-      const cookieCondition = operationTypes.parametersByLocation.cookie
-        .map((parameter) => `${parameterValueExpression(inputName, parameter)} !== undefined`)
-        .join(" || ") || "false";
+      const cookieCondition =
+        operationTypes.parametersByLocation.cookie
+          .map(
+            (parameter) =>
+              `${parameterValueExpression(inputName, parameter)} !== undefined`,
+          )
+          .join(" || ") || "false";
       headerSources.push(
         `${cookieCondition} ? { Cookie: toCookieHeader(${cookiesExpression}) } : undefined`,
       );
@@ -157,7 +193,10 @@ function requestItems(operationInfo, operationTypes, options = {}) {
 
   const type = contentTypeEnum(operationTypes.contentType);
   if (type) items.push(`type: ${type}`);
-  const format = requestFormat(operationTypes.responseContentType, operationTypes.responseType);
+  const format = requestFormat(
+    operationTypes.responseContentType,
+    operationTypes.responseType,
+  );
   if (format) items.push(`format: ${JSON.stringify(format)}`);
   return items;
 }
@@ -193,14 +232,33 @@ function promiseType(operationTypes) {
 }
 
 function isPaginated(operationTypes) {
-  return Boolean(operationTypes.paginationMetadata) ||
+  return (
+    Boolean(operationTypes.paginationMetadata) ||
     /(?:Api)?Pagination(?:Sort)?Response\b|Paged(?:Response|Result)?\b|Paginated(?:Response|Result)?\b/.test(
       operationTypes.responseType,
-    );
+    )
+  );
+}
+
+function isFilterForm(operationTypes) {
+  return Boolean(operationTypes.filterFormMetadata);
+}
+
+function isPureQueryMethod(operationTypes) {
+  return (
+    operationTypes.hasQueryParams &&
+    !operationTypes.hasPathParams &&
+    !operationTypes.bodyType &&
+    !operationTypes.hasHeaderParams &&
+    !operationTypes.hasCookieParams
+  );
 }
 
 function methodDescription(operationInfo, operationTypes) {
-  const description = operationInfo.operation.description || operationInfo.operation.summary || "No description";
+  const description =
+    operationInfo.operation.description ||
+    operationInfo.operation.summary ||
+    "No description";
   const tags = (operationInfo.operation.tags ?? []).join(", ");
   return `/**\n * ${description.replace(/\n/g, "\n * ")}\n *\n * @tags ${tags}\n * @name ${operationTypes.methodNameSource}\n * @request ${operationInfo.method}:${operationInfo.routePath}\n */`;
 }
@@ -214,7 +272,9 @@ function createRequestCall(operationInfo, operationTypes, options = {}) {
 
 function createPaginatedMethod(operationInfo, operationTypes, defaultHandlers) {
   const queryTypeName = operationTypes.parameterTypeNames.query;
-  const requestCall = createRequestCall(operationInfo, operationTypes, { queryValueName: "builtQuery" });
+  const requestCall = createRequestCall(operationInfo, operationTypes, {
+    queryValueName: "builtQuery",
+  });
   return `${methodDescription(operationInfo, operationTypes)}
 export async function ${operationTypes.methodName}(
   filters: FilterFormValues<${queryTypeName}>[] = [],
@@ -237,13 +297,47 @@ export async function ${operationTypes.methodName}(
 }`;
 }
 
+function createFilterFormMethod(
+  operationInfo,
+  operationTypes,
+  defaultHandlers,
+) {
+  const queryTypeName = operationTypes.parameterTypeNames.query;
+  const queryPropertyOptional = operationTypes.allParametersOptional ? "?" : "";
+  const filterFormDefault = operationTypes.allParametersOptional ? " = {}" : "";
+  const requestCall = createRequestCall(operationInfo, operationTypes, {
+    queryValueName: "builtQuery",
+  });
+
+  return `${methodDescription(operationInfo, operationTypes)}
+export async function ${operationTypes.methodName}(
+  filterForm: {
+    query${queryPropertyOptional}: ${queryTypeName};
+    filters?: FilterFormValues<${queryTypeName}>[];
+  }${filterFormDefault},
+  options: ${optionsType(operationTypes)} = {},
+): ${promiseType(operationTypes)} {
+  const { onSuccess, onError, params = {} } = options;
+  const builtQuery = {
+    ...(filterForm.query ?? {}),
+    ...buildFilterQuery<${queryTypeName}>(filterForm.filters ?? []),
+  };
+
+  return handleApiResponse<${operationTypes.responseType}, ${operationTypes.errorType}>(
+    () => ${requestCall},
+    ${callbackOptions(operationTypes, defaultHandlers)},
+  );
+}`;
+}
+
 function regularParameterArgumentName(operationTypes) {
   if (operationTypes.hasPathParams) return "pathParams";
   if (
     operationTypes.hasQueryParams &&
     !operationTypes.hasHeaderParams &&
     !operationTypes.hasCookieParams
-  ) return "query";
+  )
+    return "query";
   return "requestParams";
 }
 
@@ -254,7 +348,8 @@ function createRegularMethod(operationInfo, operationTypes, defaultHandlers) {
     : undefined;
 
   if (operationTypes.paramsTypeName) {
-    const canOmitParams = operationTypes.allParametersOptional && !operationTypes.bodyType;
+    const canOmitParams =
+      operationTypes.allParametersOptional && !operationTypes.bodyType;
     args.push(
       `${parameterArgumentName}: ${operationTypes.paramsTypeName}${canOmitParams ? " = {}" : ""}`,
     );
@@ -285,15 +380,26 @@ export async function ${operationTypes.methodName}(
 
 function createMethod(operationInfo, operationTypes, defaultHandlers, options) {
   if (
-    operationTypes.hasQueryParams &&
-    !operationTypes.hasPathParams &&
-    !operationTypes.bodyType &&
-    !operationTypes.hasHeaderParams &&
-    !operationTypes.hasCookieParams &&
+    isPureQueryMethod(operationTypes) &&
     options.useFilterFormValues !== false &&
     isPaginated(operationTypes)
   ) {
-    return createPaginatedMethod(operationInfo, operationTypes, defaultHandlers);
+    return createPaginatedMethod(
+      operationInfo,
+      operationTypes,
+      defaultHandlers,
+    );
+  }
+  if (
+    isPureQueryMethod(operationTypes) &&
+    options.useFilterFormValues !== false &&
+    isFilterForm(operationTypes)
+  ) {
+    return createFilterFormMethod(
+      operationInfo,
+      operationTypes,
+      defaultHandlers,
+    );
   }
   return createRegularMethod(operationInfo, operationTypes, defaultHandlers);
 }
@@ -311,28 +417,43 @@ export function controllerNameForOperation(operationInfo, options = {}) {
   return pascalCase(parts[1] ?? parts[0] ?? "Default", "Default");
 }
 
-export function generateMethodFile(openApi, controllerName, operations, options = {}) {
+export function generateMethodFile(
+  openApi,
+  controllerName,
+  operations,
+  options = {},
+) {
   const dataContractImports = [];
   const helperTypeImports = ["ApiResult", "ApiMethodOptions"];
   const helperValueImports = ["handleApiResponse"];
   const methods = [];
   let needsContentType = false;
   let needsPaginationTypes = false;
-  let needsHeaderHelpers = false;
+  let needsFilterFormTypes = false;
+  let needsHeaderParams = false;
+  let needsCookieParams = false;
 
   for (const operationInfo of operations) {
     const operationTypes = getOperationTypes(openApi, operationInfo, options);
 
-    for (const typeName of Object.values(operationTypes.parameterTypeNames)) dataContractImports.push(typeName);
-    if (operationTypes.paramsTypeName) dataContractImports.push(operationTypes.paramsTypeName);
+    for (const typeName of Object.values(operationTypes.parameterTypeNames))
+      dataContractImports.push(typeName);
+    if (operationTypes.paramsTypeName)
+      dataContractImports.push(operationTypes.paramsTypeName);
     if (operationTypes.bodyType && !isPrimitiveType(operationTypes.bodyType)) {
-      dataContractImports.push(...extractTopLevelTypeNames(operationTypes.bodyType));
+      dataContractImports.push(
+        ...extractTopLevelTypeNames(operationTypes.bodyType),
+      );
     }
     if (!isPrimitiveType(operationTypes.responseType)) {
-      dataContractImports.push(...extractTopLevelTypeNames(operationTypes.responseType));
+      dataContractImports.push(
+        ...extractTopLevelTypeNames(operationTypes.responseType),
+      );
     }
     if (!isPrimitiveType(operationTypes.errorType)) {
-      dataContractImports.push(...extractTopLevelTypeNames(operationTypes.errorType));
+      dataContractImports.push(
+        ...extractTopLevelTypeNames(operationTypes.errorType),
+      );
     }
     if (operationTypes.usesHttpErrorFallback) {
       helperTypeImports.push("ApiHttpError");
@@ -340,36 +461,78 @@ export function generateMethodFile(openApi, controllerName, operations, options 
     }
 
     if (contentTypeEnum(operationTypes.contentType)) needsContentType = true;
-    if (operationTypes.hasHeaderParams || operationTypes.hasCookieParams) needsHeaderHelpers = true;
+    if (operationTypes.hasHeaderParams) needsHeaderParams = true;
+    if (operationTypes.hasCookieParams) needsCookieParams = true;
     if (
-      operationTypes.hasQueryParams &&
-      !operationTypes.hasPathParams && !operationTypes.bodyType &&
-      !operationTypes.hasHeaderParams && !operationTypes.hasCookieParams &&
-      options.useFilterFormValues !== false && isPaginated(operationTypes)
+      isPureQueryMethod(operationTypes) &&
+      options.useFilterFormValues !== false &&
+      isPaginated(operationTypes)
     ) {
       needsPaginationTypes = true;
+    } else if (
+      isPureQueryMethod(operationTypes) &&
+      options.useFilterFormValues !== false &&
+      isFilterForm(operationTypes)
+    ) {
+      needsFilterFormTypes = true;
     }
 
-    methods.push(createMethod(operationInfo, operationTypes, options.defaultHandlers, options));
+    methods.push(
+      createMethod(
+        operationInfo,
+        operationTypes,
+        options.defaultHandlers,
+        options,
+      ),
+    );
   }
 
-  if (needsHeaderHelpers) helperValueImports.push("mergeHeaders", "toCookieHeader", "toRequestHeaders");
+  if (needsHeaderParams || needsCookieParams)
+    helperValueImports.push("mergeHeaders");
+  if (needsHeaderParams) helperValueImports.push("toRequestHeaders");
+  if (needsCookieParams) helperValueImports.push("toCookieHeader");
   if (needsPaginationTypes) {
     helperValueImports.push("buildQuery");
     helperTypeImports.push(
-      "ExtractDataIfPaginated", "FilterFormValues", "SortableKeys", "SortDirection", "UnwrapArray",
+      "ExtractDataIfPaginated",
+      "FilterFormValues",
+      "SortableKeys",
+      "SortDirection",
+      "UnwrapArray",
     );
+  }
+  if (needsFilterFormTypes) {
+    helperValueImports.push("buildFilterQuery");
+    helperTypeImports.push("FilterFormValues");
   }
 
   const useTypeOnlyImports = options.useTypeOnlyImports !== false;
   const defaultHandlers = options.defaultHandlers;
   const imports = [
     generatedFileHeader(),
-    createImport(["request", ...(needsContentType ? ["ContentType"] : [])], "../generated/http-client"),
-    createImport(["RequestParams"], "../generated/http-client", useTypeOnlyImports),
-    createImport(dataContractImports, "../generated/data-contracts", useTypeOnlyImports),
-    createImport(helperValueImports, options.runtimePackageName ?? "typedapi-client-helpers"),
-    createImport(helperTypeImports, options.runtimePackageName ?? "typedapi-client-helpers", useTypeOnlyImports),
+    createImport(
+      ["request", ...(needsContentType ? ["ContentType"] : [])],
+      "../generated/http-client",
+    ),
+    createImport(
+      ["RequestParams"],
+      "../generated/http-client",
+      useTypeOnlyImports,
+    ),
+    createImport(
+      dataContractImports,
+      "../generated/data-contracts",
+      useTypeOnlyImports,
+    ),
+    createImport(
+      helperValueImports,
+      options.runtimePackageName ?? "typedapi-client-helpers",
+    ),
+    createImport(
+      helperTypeImports,
+      options.runtimePackageName ?? "typedapi-client-helpers",
+      useTypeOnlyImports,
+    ),
     defaultHandlers
       ? `import { ${defaultHandlers.success} as typedApiDefaultSuccessHandler, ${defaultHandlers.error} as typedApiDefaultErrorHandler, ${defaultHandlers.errorMessage} as typedApiDefaultErrorMessage } from ${JSON.stringify(defaultHandlers.path)};`
       : "",

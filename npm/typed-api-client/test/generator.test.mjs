@@ -628,6 +628,97 @@ test("action naming shortens paginated query types and sends builtQuery directly
   assert.equal(compile.status, 0, `${compile.stdout}\n${compile.stderr}`);
 });
 
+test("filter-form metadata merges normal query values with FilterFormValues", async (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "typedapi-filter-form-test-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(root, "node_modules"), { recursive: true });
+  linkRuntimePackage(root);
+
+  const document = {
+    openapi: "3.0.3",
+    info: { title: "Filter form fixture", version: "1.0.0" },
+    paths: {
+      "/api/chargepoint/map-items": {
+        get: {
+          tags: ["ChargePoint"],
+          operationId: "ChargePointGetMapItems",
+          "x-typedapi-filter-form": { enabled: true },
+          parameters: [
+            { name: "West", in: "query", schema: { type: "number", format: "double" } },
+            { name: "South", in: "query", schema: { type: "number", format: "double" } },
+            { name: "East", in: "query", schema: { type: "number", format: "double" } },
+            { name: "North", in: "query", schema: { type: "number", format: "double" } },
+            { name: "Zoom", in: "query", schema: { type: "integer" } },
+            { name: "City", in: "query", schema: { type: "string", nullable: true } },
+          ],
+          responses: {
+            200: {
+              description: "OK",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "array",
+                    items: { $ref: "#/components/schemas/MapItemResponse" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    components: {
+      schemas: {
+        MapItemResponse: {
+          type: "object",
+          properties: { Id: { type: "string", format: "uuid" } },
+        },
+      },
+    },
+  };
+
+  fs.writeFileSync(path.join(root, "openapi.json"), JSON.stringify(document));
+  fs.writeFileSync(
+    path.join(root, "tsconfig.json"),
+    JSON.stringify({
+      compilerOptions: {
+        target: "ES2020",
+        lib: ["ES2020", "DOM"],
+        module: "ESNext",
+        moduleResolution: "Bundler",
+        strict: true,
+        skipLibCheck: true,
+        noEmit: true,
+      },
+      include: ["src/**/*.ts"],
+    }),
+  );
+
+  const output = path.join(root, "src", "api");
+  await generateApi({
+    input: path.join(root, "openapi.json"),
+    output,
+    runtimePackageName: "typedapi-client-helpers",
+  });
+
+  const contracts = fs.readFileSync(path.join(output, "generated", "data-contracts.ts"), "utf8");
+  const methods = fs.readFileSync(path.join(output, "methods", "ChargePoint.api.ts"), "utf8");
+
+  assert.match(contracts, /export interface ChargePointGetMapItemsQueryParams/);
+  assert.match(methods, /query: ChargePointGetMapItemsQueryParams = \{\}/);
+  assert.match(methods, /filters: FilterFormValues<ChargePointGetMapItemsQueryParams>\[\] = \[\]/);
+  assert.match(methods, /\.\.\.buildFilterQuery<ChargePointGetMapItemsQueryParams>\(filters\)/);
+  assert.match(methods, /query: builtQuery,/);
+  assert.doesNotMatch(methods, /pageSize = 100/);
+
+  const compile = spawnSync(
+    process.execPath,
+    [path.join(packageRoot, "node_modules", "typescript", "bin", "tsc"), "-p", "tsconfig.json"],
+    { cwd: root, encoding: "utf8" },
+  );
+  assert.equal(compile.status, 0, `${compile.stdout}\n${compile.stderr}`);
+});
+
 test("action method name style requires TypedApi action metadata", async (t) => {
   const root = createConsumer();
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));

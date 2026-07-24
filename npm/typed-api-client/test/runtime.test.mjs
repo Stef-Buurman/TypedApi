@@ -3,6 +3,8 @@ import test from "node:test";
 import {
   createApiClient,
   createApiHttpError,
+  buildFilterQuery,
+  buildQuery,
   handleApiResponse,
   fromWireValue,
   mergeHeaders,
@@ -10,6 +12,39 @@ import {
   toRequestHeaders,
   toWireValue,
 } from "../dist/esm/index.js";
+
+
+test("filter query conversion is reusable without pagination", () => {
+  const filters = [
+    {
+      name: "City",
+      filterName: "city",
+      type: "string",
+      value: "Rotterdam",
+      isAList: false,
+    },
+    {
+      name: "Minimum power",
+      filterName: "minPower",
+      type: "number",
+      value: "22",
+      isAList: false,
+    },
+  ];
+
+  assert.deepEqual(buildFilterQuery(filters), {
+    city: "Rotterdam",
+    minPower: 22,
+  });
+  assert.deepEqual(buildQuery(filters, 2, 50, "city", "Asc"), {
+    city: "Rotterdam",
+    minPower: 22,
+    pageNumber: 2,
+    pageSize: 50,
+    sortBy: "city",
+    sortDirection: "Asc",
+  });
+});
 
 test("header helpers preserve Headers instances and serialize values", () => {
   const merged = mergeHeaders(new Headers({ Authorization: "Bearer token" }), [["X-Test", "yes"]]);

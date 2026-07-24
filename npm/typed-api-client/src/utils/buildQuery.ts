@@ -8,20 +8,16 @@ import { FilterFormValues, OptionValue } from "../interfaces/Filter";
 export type SortDirection = number | string;
 
 /**
- * Builds a typed query object from filter form values, pagination, and sorting.
+ * Builds a typed query object from filter form values without adding pagination or sorting.
  *
  * Empty filter values are ignored.
  * List filters are converted item by item.
  * `OptionValue` lists send their `value` fields instead of the display names.
  */
-export function buildQuery<TQuery, TSortModel = TQuery>(
+export function buildFilterQuery<TQuery>(
   filters: FilterFormValues<TQuery>[],
-  page = 1,
-  pageSize = 100,
-  sortBy: keyof TSortModel | null = null,
-  sortDirection?: SortDirection,
 ): Partial<TQuery> {
-  const query = filters.reduce<Partial<TQuery>>((queryResult, filter) => {
+  return filters.reduce<Partial<TQuery>>((queryResult, filter) => {
     const { filterName, filterNameMax, type, value, maxValue, isAList } =
       filter;
 
@@ -54,12 +50,30 @@ export function buildQuery<TQuery, TSortModel = TQuery>(
       const convertedMaxValue = convertType(type, maxValue);
 
       if (convertedMaxValue !== null) {
-        queryResult[filterNameMax] = convertedMaxValue as TQuery[keyof TQuery];
+        queryResult[filterNameMax] =
+          convertedMaxValue as TQuery[keyof TQuery];
       }
     }
 
     return queryResult;
   }, {});
+}
+
+/**
+ * Builds a typed query object from filter form values, pagination, and sorting.
+ *
+ * Empty filter values are ignored.
+ * List filters are converted item by item.
+ * `OptionValue` lists send their `value` fields instead of the display names.
+ */
+export function buildQuery<TQuery, TSortModel = TQuery>(
+  filters: FilterFormValues<TQuery>[],
+  page = 1,
+  pageSize = 100,
+  sortBy: keyof TSortModel | null = null,
+  sortDirection?: SortDirection,
+): Partial<TQuery> {
+  const query = buildFilterQuery(filters);
 
   (query as Record<string, unknown>).pageNumber = page;
 
